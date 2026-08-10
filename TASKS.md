@@ -9,54 +9,54 @@
 ## Phase 1: Database & Core Models
 
 ### 1.1 Project Bootstrap & Tooling
-- [ ] Initialize Laravel 11/12 project (`composer create-project laravel/laravel .`)
-- [ ] Configure PostgreSQL connection in `config/database.php`
-- [ ] Install core dependencies:
+- [x] Initialize Laravel 11/12 project (`composer create-project laravel/laravel .`)
+- [x] Configure PostgreSQL connection in `config/database.php`
+- [x] Install core dependencies:
   - `filament/filament:^3.0`
   - `spatie/laravel-permission`
   - `spatie/laravel-activitylog`
   - `spatie/laravel-pdf` (or `barryvdh/laravel-dompdf`)
   - `intervention/image-laravel`
-- [ ] Configure S3-compatible filesystem disk (`photos`, `pdfs`) in `config/filesystems.php`
-- [ ] Configure Redis queue driver in `.env` and `config/queue.php`
-- [ ] Run `php artisan filament:install --panels`
-- [ ] Run `php artisan shield:install` (Filament Shield)
-- [ ] Configure `pint` and `phpstan` (if applicable)
+- [x] Configure S3-compatible filesystem disk (`photos`, `pdfs`) in `config/filesystems.php`
+- [x] Configure Redis queue driver in `.env` and `config/queue.php`
+- [x] Run `php artisan filament:install --panels`
+- [x] Run `php artisan shield:install` (Filament Shield)
+- [x] Configure `pint` and `phpstan` (if applicable)
 
 ### 1.2 Migrations (UUIDs, Soft Deletes, Indexes)
-- [ ] `users` — UUID PK, `role` enum, `is_active`, soft deletes
-- [ ] `clients` — UUID PK, `user_id` FK (nullable), `meta_data` JSONB, soft deletes
-- [ ] `projects` — UUID PK, `client_id` FK (restrict), `code` unique, `status` enum, `budget` decimal(15,2), `timezone`, `meta_data` JSONB, soft deletes, index `(client_id, status)`
-- [ ] `project_milestones` — UUID PK, `project_id` FK (cascade), `status` enum, `sort_order`, soft deletes, index `(project_id, status)`
-- [ ] `sites` — UUID PK, `project_id` FK (cascade), `latitude`/`longitude` decimal(10,7), soft deletes
-- [ ] `project_user` — pivot, composite PK `(project_id, user_id)`, both FKs cascade
-- [ ] `workers` — UUID PK, `trade_skill`, `daily_rate` decimal(10,2), `meta_data` JSONB, soft deletes
-- [ ] `daily_reports` — UUID PK, `site_id` FK (restrict), `created_by_user_id`/`reviewed_by_user_id` FKs (set null), `status` enum (default `draft`), `meta_data` JSONB, soft deletes, unique-ish index `(site_id, report_date)`, index `(status)`, index `(report_date)`
-- [ ] `daily_report_revisions` — UUID PK, `daily_report_id` FK (cascade), `snapshot` JSONB, `edited_by_user_id` FK (set null)
-- [ ] `daily_report_photos` — UUID PK, `daily_report_id` FK (cascade), `file_path`, `thumbnail_path`, `file_size_bytes`, soft deletes
-- [ ] `daily_report_workers` — UUID PK, `daily_report_id` FK (cascade), `worker_id` FK (restrict), `hours_worked` decimal(4,2)
-- [ ] `activity_log` — standard Spatie schema (polymorphic `subject`, `causer`, `event`, `properties` JSONB)
-- [ ] **Verify:** Every table except `project_user` has `deleted_at`. Every acting-user FK uses `onDelete('set null')`.
-- [ ] **Verify:** No migration drops/renames columns without a reversible `down()`.
+- [x] `users` — UUID PK, `role` enum, `is_active`, soft deletes
+- [x] `clients` — UUID PK, `user_id` FK (nullable), `meta_data` JSONB, soft deletes
+- [x] `projects` — UUID PK, `client_id` FK (restrict), `code` unique, `status` enum, `budget` decimal(15,2), `timezone`, `meta_data` JSONB, soft deletes, index `(client_id, status)`
+- [x] `project_milestones` — UUID PK, `project_id` FK (cascade), `status` enum, `sort_order`, soft deletes, index `(project_id, status)`
+- [x] `sites` — UUID PK, `project_id` FK (cascade), `latitude`/`longitude` decimal(10,7), soft deletes
+- [x] `project_user` — pivot, composite PK `(project_id, user_id)`, both FKs cascade
+- [x] `workers` — UUID PK, `trade_skill`, `daily_rate` decimal(10,2), `meta_data` JSONB, soft deletes
+- [x] `daily_reports` — UUID PK, `site_id` FK (restrict), `created_by_user_id`/`reviewed_by_user_id` FKs (set null), `status` enum (default `draft`), `meta_data` JSONB, soft deletes, unique-ish index `(site_id, report_date)`, index `(status)`, index `(report_date)`
+- [x] `daily_report_revisions` — UUID PK, `daily_report_id` FK (cascade), `snapshot` JSONB, `edited_by_user_id` FK (set null)
+- [x] `daily_report_photos` — UUID PK, `daily_report_id` FK (cascade), `file_path`, `thumbnail_path`, `file_size_bytes`, soft deletes
+- [x] `daily_report_workers` — UUID PK, `daily_report_id` FK (cascade), `worker_id` FK (restrict), `hours_worked` decimal(4,2)
+- [x] `activity_log` — standard Spatie schema (polymorphic `subject`, `causer`, `event`, `properties` JSONB)
+- [x] **Verify:** Every table except `project_user` has `deleted_at`. Every acting-user FK uses `onDelete('set null')`.
+- [x] **Verify:** No migration drops/renames columns without a reversible `down()`.
 
 ### 1.3 Eloquent Models, Enums & Casts
-- [ ] Create `app/Enums/`:
+- [x] Create `app/Enums/`:
   - `UserRole.php` (`admin`, `site_engineer`, `client`)
   - `ProjectStatus.php` (`planning`, `active`, `on_hold`, `completed`)
   - `ProjectMilestoneStatus.php` (`pending`, `in_progress`, `completed`, `delayed`)
   - `DailyReportStatus.php` (`draft`, `need_approval`, `published`, `revision_requested`)
   - `WeatherCondition.php` (`sunny`, `rainy`, `cloudy`, `stormy`)
-- [ ] Create models with `HasUuids`, `SoftDeletes`, `LogsActivity` (where applicable):
+- [x] Create models with `HasUuids`, `SoftDeletes`, `LogsActivity` (where applicable):
   - `User`, `Client`, `Project`, `ProjectMilestone`, `Site`, `Worker`, `DailyReport`, `DailyReportRevision`, `DailyReportPhoto`, `DailyReportWorker`
-- [ ] Define all relationships (belongsTo, hasMany, belongsToMany for `project_user`)
-- [ ] Cast `meta_data` to `array` on all JSONB models
-- [ ] Cast `budget`/`daily_rate` to `decimal:2` (string casts, never float)
-- [ ] Add `timezone` accessor on `Project` for UTC→local display conversion
+- [x] Define all relationships (belongsTo, hasMany, belongsToMany for `project_user`)
+- [x] Cast `meta_data` to `array` on all JSONB models
+- [x] Cast `budget`/`daily_rate` to `decimal:2` (string casts, never float)
+- [x] Add `timezone` accessor on `Project` for UTC→local display conversion
 
 ### 1.4 Seeding
-- [ ] Create seeders: `UserSeeder`, `ClientSeeder`, `ProjectSeeder`, `SiteSeeder`, `WorkerSeeder`
-- [ ] Seed at least: 1 admin, 2 site engineers, 1 client user; 2 projects with sites; 5 workers
-- [ ] Run `php artisan migrate:fresh --seed` and verify all tables populate correctly
+- [x] Create seeders: `UserSeeder`, `ClientSeeder`, `ProjectSeeder`, `SiteSeeder`, `WorkerSeeder`
+- [x] Seed at least: 1 admin, 2 site engineers, 1 client user; 2 projects with sites; 5 workers
+- [x] Run `php artisan migrate:fresh --seed` and verify all tables populate correctly
 
 ---
 

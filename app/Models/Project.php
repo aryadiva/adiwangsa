@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\ProjectStatus;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,7 +16,7 @@ use Spatie\Activitylog\Support\LogOptions;
 
 class Project extends Model
 {
-    use HasUuids, LogsActivity, SoftDeletes;
+    use HasFactory, HasUuids, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -74,5 +76,15 @@ class Project extends Model
     public function engineers(): BelongsToMany
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function timezoneInstance(): \DateTimeZone
+    {
+        return new \DateTimeZone($this->timezone ?: 'UTC');
+    }
+
+    public function localize(\DateTimeInterface $utc): Carbon
+    {
+        return Carbon::parse($utc)->setTimezone($this->timezoneInstance());
     }
 }
