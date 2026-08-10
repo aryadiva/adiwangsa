@@ -1,0 +1,233 @@
+# Development Tasks — Construction Operations Dashboard
+
+> **Reference:** `prd.md` (v2 PRD) is the source of truth. `AGENTS.md` is the fast-reference.
+> **Commit style:** `[Phase N] short imperative summary` (e.g. `[Phase 1] Add daily_reports migration with UUID PK`).
+> **Pre-commit checklist:** `pint` + `pest` must pass before every commit.
+
+---
+
+## Phase 1: Database & Core Models
+
+### 1.1 Project Bootstrap & Tooling
+- [ ] Initialize Laravel 11/12 project (`composer create-project laravel/laravel .`)
+- [ ] Configure PostgreSQL connection in `config/database.php`
+- [ ] Install core dependencies:
+  - `filament/filament:^3.0`
+  - `spatie/laravel-permission`
+  - `spatie/laravel-activitylog`
+  - `spatie/laravel-pdf` (or `barryvdh/laravel-dompdf`)
+  - `intervention/image-laravel`
+- [ ] Configure S3-compatible filesystem disk (`photos`, `pdfs`) in `config/filesystems.php`
+- [ ] Configure Redis queue driver in `.env` and `config/queue.php`
+- [ ] Run `php artisan filament:install --panels`
+- [ ] Run `php artisan shield:install` (Filament Shield)
+- [ ] Configure `pint` and `phpstan` (if applicable)
+
+### 1.2 Migrations (UUIDs, Soft Deletes, Indexes)
+- [ ] `users` — UUID PK, `role` enum, `is_active`, soft deletes
+- [ ] `clients` — UUID PK, `user_id` FK (nullable), `meta_data` JSONB, soft deletes
+- [ ] `projects` — UUID PK, `client_id` FK (restrict), `code` unique, `status` enum, `budget` decimal(15,2), `timezone`, `meta_data` JSONB, soft deletes, index `(client_id, status)`
+- [ ] `project_milestones` — UUID PK, `project_id` FK (cascade), `status` enum, `sort_order`, soft deletes, index `(project_id, status)`
+- [ ] `sites` — UUID PK, `project_id` FK (cascade), `latitude`/`longitude` decimal(10,7), soft deletes
+- [ ] `project_user` — pivot, composite PK `(project_id, user_id)`, both FKs cascade
+- [ ] `workers` — UUID PK, `trade_skill`, `daily_rate` decimal(10,2), `meta_data` JSONB, soft deletes
+- [ ] `daily_reports` — UUID PK, `site_id` FK (restrict), `created_by_user_id`/`reviewed_by_user_id` FKs (set null), `status` enum (default `draft`), `meta_data` JSONB, soft deletes, unique-ish index `(site_id, report_date)`, index `(status)`, index `(report_date)`
+- [ ] `daily_report_revisions` — UUID PK, `daily_report_id` FK (cascade), `snapshot` JSONB, `edited_by_user_id` FK (set null)
+- [ ] `daily_report_photos` — UUID PK, `daily_report_id` FK (cascade), `file_path`, `thumbnail_path`, `file_size_bytes`, soft deletes
+- [ ] `daily_report_workers` — UUID PK, `daily_report_id` FK (cascade), `worker_id` FK (restrict), `hours_worked` decimal(4,2)
+- [ ] `activity_log` — standard Spatie schema (polymorphic `subject`, `causer`, `event`, `properties` JSONB)
+- [ ] **Verify:** Every table except `project_user` has `deleted_at`. Every acting-user FK uses `onDelete('set null')`.
+- [ ] **Verify:** No migration drops/renames columns without a reversible `down()`.
+
+### 1.3 Eloquent Models, Enums & Casts
+- [ ] Create `app/Enums/`:
+  - `UserRole.php` (`admin`, `site_engineer`, `client`)
+  - `ProjectStatus.php` (`planning`, `active`, `on_hold`, `completed`)
+  - `ProjectMilestoneStatus.php` (`pending`, `in_progress`, `completed`, `delayed`)
+  - `DailyReportStatus.php` (`draft`, `need_approval`, `published`, `revision_requested`)
+  - `WeatherCondition.php` (`sunny`, `rainy`, `cloudy`, `stormy`)
+- [ ] Create models with `HasUuids`, `SoftDeletes`, `LogsActivity` (where applicable):
+  - `User`, `Client`, `Project`, `ProjectMilestone`, `Site`, `Worker`, `DailyReport`, `DailyReportRevision`, `DailyReportPhoto`, `DailyReportWorker`
+- [ ] Define all relationships (belongsTo, hasMany, belongsToMany for `project_user`)
+- [ ] Cast `meta_data` to `array` on all JSONB models
+- [ ] Cast `budget`/`daily_rate` to `decimal:2` (string casts, never float)
+- [ ] Add `timezone` accessor on `Project` for UTC→local display conversion
+
+### 1.4 Seeding
+- [ ] Create seeders: `UserSeeder`, `ClientSeeder`, `ProjectSeeder`, `SiteSeeder`, `WorkerSeeder`
+- [ ] Seed at least: 1 admin, 2 site engineers, 1 client user; 2 projects with sites; 5 workers
+- [ ] Run `php artisan migrate:fresh --seed` and verify all tables populate correctly
+
+---
+
+## Phase 2: Authentication & Scoped RBAC
+
+### 2.1 Policies
+- [ ] `ProjectPolicy` — admin full; site engineer view assigned; client view own
+- [ ] `SitePolicy` — admin full; site engineer view assigned projects' sites; client view own projects' sites
+- [ ] `DailyReportPolicy` — admin full; site engineer CRUD only assigned sites; client read-only `published` only
+- [ ] `WorkerPolicy` — admin full; site engineer read-only; client no access
+- [ ] `ProjectMilestonePolicy` — admin full; site engineer read-only; client read-only
+- [ ] **Verify:** No `Model::all()` or unscoped `Model::query()` in any policy or resource
+
+### 2.2 Eloquent Query Scopes
+- [ ] `DailyReport::scopeForSiteEngineer($query, User $user)` — filter by `project_user` assignments
+- [ ] `DailyReport::scopeForClient($query, User $user)` — filter by `client_id` + enforce `status = published`
+- [ ] Apply scopes in all Filament Resources' `getEloquentQuery()` methods
+
+### 2.3 RBAC Feature Tests (Pest)
+- [ ] `DailyReportPolicyTest` — test each role can/cannot view/edit/delete reports
+- [ ] `ProjectPolicyTest` — test each role's project visibility
+- [ ] `ClientVisibilityTest` — assert client CANNOT see `draft`/`need_approval`/`revision_requested` reports (even by guessing UUID)
+- [ ] `SiteEngineerScopeTest` — assert engineer cannot see reports for unassigned sites
+- [ ] **Rule:** Every test must assert BOTH allowed AND denied access per role. Do not skip failing assertions.
+
+### 2.4 Filament Shield Configuration
+- [ ] Run `php artisan shield:generate --all`
+- [ ] Assign default roles and permissions in seeder
+- [ ] Verify login flow and role-based menu visibility
+
+---
+
+## Phase 3: Daily Report Resource & Auto-Save
+
+### 3.1 DailyReportResource (Filament)
+- [ ] Create `app/Filament/Resources/DailyReportResource.php`
+- [ ] **Form schema:**
+  - Site picker: filtered by user's assigned projects (`project_user`)
+  - `report_date` (DatePicker)
+  - `weather_condition` (Select enum)
+  - `work_summary` (Textarea)
+  - `delays_or_issues` (Textarea, nullable)
+  - Worker allocations: `Repeater` → `daily_report_workers` (worker select, hours_worked, remarks)
+  - Photo uploads: `FileUpload` (multiple, `image/*`, max 10MB, S3 disk)
+  - `meta_data`: `KeyValue` or `Group` component for flexible fields
+  - `admin_notes` (Textarea, visible only to admin)
+- [ ] **Duplicate prevention:** App-layer check for `(site_id, report_date)` uniqueness in form validation with friendly error message
+- [ ] **Table:**
+  - Columns: report_date, site.name, status badge, created_by.name
+  - Filters: status, date range, site
+  - Admin badge tab filter for `need_approval` with count indicator
+
+### 3.2 Auto-Save (Draft State)
+- [ ] Implement `wire:poll.10s="saveDraft"` on edit form when `status === draft`
+- [ ] Alpine.js store to hold form state client-side
+- [ ] Retry-on-failure banner: "Unsaved changes — retrying" (not just timestamp)
+- [ ] Visual indicator in topbar: "Draft Saved at HH:mm:ss" / error state
+- [ ] **Test:** Auto-save persists data; retry works after simulated disconnect
+
+### 3.3 State Machine Actions
+- [ ] `submitForApproval()` — Site Engineer action, transitions `draft` → `need_approval`
+- [ ] `approveAndPublish()` — Admin action, transitions `need_approval` → `published`, fires client notification
+- [ ] `requestRevision()` — Admin action (modal with `admin_notes`), transitions `need_approval` → `revision_requested`, fires engineer notification
+- [ ] `resubmitForApproval()` — Site Engineer action, transitions `revision_requested` → `need_approval`, **MUST write snapshot to `daily_report_revisions` first**
+- [ ] **Guard:** `published` is terminal — no direct edits; only new revision cycle can reopen (if built)
+- [ ] **Test (Pest):** Legal transitions pass; illegal transitions (e.g. `draft` → `published`) are rejected
+
+### 3.4 Photo Upload & Processing
+- [ ] Server-side MIME sniffing (not extension-based) — reject mismatches
+- [ ] Intervention Image: generate thumbnails, fix EXIF orientation, compress
+- [ ] Store original + thumbnail on S3-compatible disk
+- [ ] Save `file_path`, `thumbnail_path`, `file_size_bytes` to `daily_report_photos`
+- [ ] Signed, expiring URLs for photo display (not permanent public links)
+
+---
+
+## Phase 4: Milestones & Notifications
+
+### 4.1 ProjectMilestoneResource
+- [ ] Create `app/Filament/Resources/ProjectMilestoneResource.php`
+- [ ] Add as RelationManager on `ProjectResource` (inline table with progress badges)
+- [ ] Fields: title, description, target_date, completed_at, status, sort_order
+- [ ] Sortable/reorderable by `sort_order`
+
+### 4.2 Notifications
+- [ ] Create notification classes:
+  - `ReportSubmittedNotification` (to admin, on `draft` → `need_approval`)
+  - `ReportApprovedNotification` (to engineer, on `published`)
+  - `RevisionRequestedNotification` (to engineer, on `revision_requested`)
+  - `ReportPublishedNotification` (to client, on `published` ONLY — never intermediate states)
+- [ ] Channels: mail + database (Filament notification bell)
+- [ ] **Verify:** Client notification listener is scoped strictly to `published` transition
+- [ ] **Test:** Notification fires on correct transition; does NOT fire on wrong transition
+
+---
+
+## Phase 5: PDF Paperwork Service & Client Portal
+
+### 5.1 PDF Service Architecture
+- [ ] Create `app/DTOs/ReportDataDTO.php` — maps DB + JSONB data for Blade views
+- [ ] Create `app/Services/PdfReportService.php` — accepts DTO, renders Blade, returns PDF bytes
+- [ ] Create `app/Jobs/GeneratePdfJob.php` — queued, dispatches service, stores to S3, fires completion notification
+- [ ] Blade templates in `resources/views/pdf/`:
+  - `daily-progress.blade.php` — project header, weather, progress, worker count, 2×2 photo grid
+  - `weekly-digest.blade.php` — 7 days of `published` reports, worker hours, weather delays, milestone completions
+  - `attendance-roster.blade.php` — workers, trades, sites, hours across date range
+- [ ] **CSS:** Inline/embedded print styles, `@page { size: A4 portrait; margin: 15mm; }`
+- [ ] **Rule:** NEVER inline HTML in Service classes; NEVER generate PDF synchronously in HTTP request
+
+### 5.2 Filament PDF Actions
+- [ ] Table action `Generate PDF` dispatches `GeneratePdfJob` to queue
+- [ ] User gets Filament notification with download link when job completes
+- [ ] Store generated PDF path in `daily_reports` or `generated_documents` table — do not regenerate on every download
+- [ ] Weekly Digest: aggregate ONLY `published` reports; exclude `draft`/`need_approval`/`revision_requested`
+
+### 5.3 PDF Tests (Pest)
+- [ ] Use `Queue::fake()` / `Bus::fake()` to assert `GeneratePdfJob` is dispatched
+- [ ] Assert DTO passed to Blade view contains correct data (do not test rendered PDF bytes)
+- [ ] Test Weekly Digest excludes non-published reports
+
+### 5.4 Client Portal
+- [ ] Client read-only dashboard: list of assigned projects, `published` daily reports only
+- [ ] Signed, expiring URLs for PDF downloads (not permanent public links)
+- [ ] **Test:** Client cannot access admin routes, cannot edit reports, cannot see non-published reports
+
+---
+
+## Phase 6: Polish, Audit & Launch Prep
+
+### 6.1 Audit Logging
+- [ ] Verify `LogsActivity` trait on `DailyReport`, `Project`, `ProjectMilestone`
+- [ ] Admin can view activity log per report (`View Activity Log` action)
+- [ ] Activity log shows: who changed status, old→new values, timestamp
+
+### 6.2 Performance
+- [ ] Verify all indexes from Section 4 are present
+- [ ] Server-side pagination on all table views (no full result set loading)
+- [ ] Review N+1 queries in Filament resources; eager-load relationships
+
+### 6.3 Security Hardening
+- [ ] Rate-limit auth endpoints and client portal routes
+- [ ] Enforce password hashing + minimum policy
+- [ ] Force password reset on first login for client-invited accounts (optional)
+- [ ] Verify no `.env` or credentials committed
+
+### 6.4 Final Test Suite
+- [ ] Run full `pest` suite — all green before launch
+- [ ] Run `pint` — zero formatting issues
+- [ ] Run `php artisan test` — confirm all tests pass
+- [ ] Manual smoke test: admin creates project → engineer submits report → admin approves → client views PDF
+
+---
+
+## Appendix: Quick Commands
+
+```bash
+# Fresh start
+php artisan migrate:fresh --seed
+
+# Run tests
+php artisan test
+./vendor/bin/pest
+./vendor/bin/pest --filter=DailyReportPolicyTest
+
+# Lint
+./vendor/bin/pint
+
+# Static analysis
+./vendor/bin/phpstan analyse
+
+# Local server
+./vendor/bin/sail up
+npm run dev
+```
