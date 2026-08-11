@@ -11,6 +11,8 @@ services:
         ports:
             - '${APP_PORT:-80}:80'
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+            - '${FORWARD_MINIO_PORT:-9000}:9000'
+            - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
@@ -25,7 +27,34 @@ services:
             - pgsql
             - redis
             - mailpit
-            - minio
+    worker:
+        build:
+            context: './vendor/laravel/sail/runtimes/8.5'
+            dockerfile: Dockerfile
+            args:
+                WWWGROUP: '${WWWGROUP}'
+        image: 'sail-8.5/app'
+        environment:
+            WWWUSER: '${WWWUSER}'
+            SUPERVISOR_PHP_USER: root
+            LARAVEL_SAIL: 1
+            AWS_ENDPOINT: 'http://laravel.test:9000'
+            AWS_URL: 'http://laravel.test:9000/${AWS_BUCKET:-construction-ops}'
+        working_dir: '/var/www/html'
+        volumes:
+            - '.:/var/www/html'
+        networks:
+            - sail
+        depends_on:
+            - pgsql
+            - redis
+            - mailpit
+        restart: unless-stopped
+        command: >
+            sh -c 'while true; do
+                php artisan queue:work redis --sleep=3 --tries=3 --timeout=90 --stop-when-empty;
+                sleep 5;
+            done'
     pgsql:
         image: 'postgres:18-alpine'
         ports:
@@ -75,16 +104,12 @@ services:
             - sail
     minio:
         image: 'minio/minio:latest'
-        ports:
-            - '${FORWARD_MINIO_PORT:-9000}:9000'
-            - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
         environment:
             MINIO_ROOT_USER: sail
             MINIO_ROOT_PASSWORD: password
         volumes:
             - 'sail-minio:/data'
-        networks:
-            - sail
+        network_mode: 'service:laravel.test'
         command: 'minio server /data --console-address ":8900"'
         healthcheck:
             test:
