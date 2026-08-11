@@ -44,7 +44,7 @@ it('shows a client only published reports from their projects', function () {
         'work_summary' => 'Draft should be hidden text',
     ]);
 
-    $this->actingAs($clientUser)->get('/admin/daily-reports')
+    $this->actingAs($clientUser)->get('/client/dashboard')
         ->assertOk()
         ->assertSee('Published summary text')
         ->assertDontSee('Draft should be hidden text');

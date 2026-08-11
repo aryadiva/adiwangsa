@@ -106,6 +106,11 @@ class DailyReport extends Model
         return $this->hasMany(DailyReportWorker::class);
     }
 
+    public function generatedDocuments(): HasMany
+    {
+        return $this->hasMany(GeneratedDocument::class);
+    }
+
     public function scopeForSiteEngineer(Builder $query, User $user): Builder
     {
         return $query->whereHas('site.project', function (Builder $q) use ($user): void {

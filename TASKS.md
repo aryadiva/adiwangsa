@@ -194,9 +194,12 @@
   > *(PdfReportServiceTest: draft/need_approval/revision_requested + out-of-range excluded from `forWeeklyDigest`)*
 
 ### 5.4 Client Portal
-- [ ] Client read-only dashboard: list of assigned projects, `published` daily reports only
-- [ ] Signed, expiring URLs for PDF downloads (not permanent public links)
-- [ ] **Test:** Client cannot access admin routes, cannot edit reports, cannot see non-published reports
+- [x] Client read-only dashboard: list of assigned projects, `published` daily reports only
+  > *(dedicated `client` panel — `ClientPanelProvider` + `App\Filament\Client\Pages\Dashboard`; No create/edit; scoped to own client + published via `DailyReport::forClient`)*
+- [x] Signed, expiring URLs for PDF downloads (not permanent public links)
+  > *(dashboard emits `GeneratedDocument::signedUrl()` (24h); download streams from `pdfs` disk behind `generated-documents.download` route authorized to admin/owner/client)*
+- [x] **Test:** Client cannot access admin routes, cannot edit reports, cannot see non-published reports
+  > *(`User::canAccessPanel` now routes clients to `client` panel, others to `admin`; `ClientPortalTest` covers /admin + /client/daily-reports forbidden, published-only, foreign-client hidden)*
 
 ---
 
