@@ -15,6 +15,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\UploadedFile;
 
@@ -209,6 +210,26 @@ class DailyReportResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('view_activity_log')
+                    ->label('View Activity Log')
+                    ->icon('heroicon-o-clock')
+                    ->color('gray')
+                    ->visible(fn (?DailyReport $record): bool => $record !== null
+                        && auth()->user()?->role === UserRole::Admin)
+                    ->modalHeading(fn (DailyReport $record): string => "Activity Log — {$record->site->name}")
+                    ->modalSubmitAction(false)
+                    ->modalCancelActionLabel('Close')
+                    ->modalContent(function (DailyReport $record): View {
+                        $activities = $record->activitiesAsSubject()
+                            ->with('causer')
+                            ->latest()
+                            ->get();
+
+                        return view('filament.activity-log', [
+                            'activities' => $activities,
+                            'timezone' => $record->site->project->timezone ?: 'UTC',
+                        ]);
+                    }),
                 Tables\Actions\Action::make('generate_pdf')
                     ->label('Generate PDF')
                     ->icon('heroicon-o-arrow-down-tray')

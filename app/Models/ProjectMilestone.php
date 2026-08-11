@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Carbon;
+use Spatie\Activitylog\Models\Concerns\LogsActivity;
+use Spatie\Activitylog\Support\LogOptions;
 
 /**
  * @property string $project_id
@@ -21,7 +23,7 @@ use Illuminate\Support\Carbon;
  */
 class ProjectMilestone extends Model
 {
-    use HasUuids, SoftDeletes;
+    use HasUuids, LogsActivity, SoftDeletes;
 
     /**
      * The attributes that are mass assignable.
@@ -50,6 +52,13 @@ class ProjectMilestone extends Model
             'target_date' => 'date',
             'completed_at' => 'date',
         ];
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logOnly(['title', 'status', 'target_date', 'completed_at'])
+            ->logOnlyDirty();
     }
 
     public function project(): BelongsTo
