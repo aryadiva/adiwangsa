@@ -145,14 +145,15 @@
 - [x] Sortable/reorderable by `sort_order`
 
 ### 4.2 Notifications
-- [ ] Create notification classes:
-  - `ReportSubmittedNotification` (to admin, on `draft` → `need_approval`)
-  - `ReportApprovedNotification` (to engineer, on `published`)
-  - `RevisionRequestedNotification` (to engineer, on `revision_requested`)
-  - `ReportPublishedNotification` (to client, on `published` ONLY — never intermediate states)
-- [ ] Channels: mail + database (Filament notification bell)
-- [ ] **Verify:** Client notification listener is scoped strictly to `published` transition
-- [ ] **Test:** Notification fires on correct transition; does NOT fire on wrong transition
+- [x] Create notification classes:
+  - [x] `ReportSubmittedNotification` (to admin, on `draft` → `need_approval`)
+  - [x] `ReportApprovedNotification` (to engineer, on `published`)
+  - [x] `RevisionRequestedNotification` (to engineer, on `revision_requested`)
+  - [x] `ReportPublishedNotification` (to client, on `published` ONLY — never intermediate states)
+- [x] Channels: mail + database (Filament notification bell)
+- [x] **Verify:** Client notification listener is scoped strictly to `published` transition
+  > *(dispatched from `DailyReport::approveAndPublish()` only — never on draft/need_approval/revision_requested)*
+- [x] **Test:** Notification fires on correct transition; does NOT fire on wrong transition
 
 ---
 

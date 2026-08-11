@@ -3,6 +3,11 @@
 namespace App\Models;
 
 use App\Enums\DailyReportStatus;
+use App\Enums\UserRole;
+use App\Notifications\ReportApprovedNotification;
+use App\Notifications\ReportPublishedNotification;
+use App\Notifications\ReportSubmittedNotification;
+use App\Notifications\RevisionRequestedNotification;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -12,6 +17,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Notification;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
@@ -148,6 +154,7 @@ class DailyReport extends Model
     {
         $this->assertCanTransitionTo(DailyReportStatus::NeedApproval);
         $this->forceFill(['status' => DailyReportStatus::NeedApproval])->save();
+        $this->notifyAdminsSubmitted();
     }
 
     public function approveAndPublish(?string $reviewedByUserId = null): void
@@ -157,6 +164,11 @@ class DailyReport extends Model
             'status' => DailyReportStatus::Published,
             'reviewed_by_user_id' => $reviewedByUserId,
         ])->save();
+
+        $this->createdBy?->notify(new ReportApprovedNotification($this));
+
+        $clientUser = $this->site?->project?->client?->user;
+        $clientUser?->notify(new ReportPublishedNotification($this));
     }
 
     public function requestRevision(?string $adminNotes = null): void
@@ -166,6 +178,8 @@ class DailyReport extends Model
             'status' => DailyReportStatus::RevisionRequested,
             'admin_notes' => $adminNotes,
         ])->save();
+
+        $this->createdBy?->notify(new RevisionRequestedNotification($this));
     }
 
     public function resubmitForApproval(?string $editedByUserId = null): void
@@ -178,6 +192,13 @@ class DailyReport extends Model
         ]);
 
         $this->forceFill(['status' => DailyReportStatus::NeedApproval])->save();
+        $this->notifyAdminsSubmitted();
+    }
+
+    protected function notifyAdminsSubmitted(): void
+    {
+        $admins = User::query()->where('role', UserRole::Admin)->get();
+        Notification::send($admins, new ReportSubmittedNotification($this));
     }
 
     /**

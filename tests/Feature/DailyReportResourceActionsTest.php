@@ -6,6 +6,7 @@ use App\Models\DailyReport;
 use App\Models\Project;
 use App\Models\Site;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -35,6 +36,7 @@ it('lets a site engineer submit a draft report for approval', function () {
 });
 
 it('lets an admin approve and publish a need_approval report', function () {
+    Notification::fake();
     [$engineer, , $report] = engineerEditReport();
     $report->update(['status' => DailyReportStatus::NeedApproval]);
 
@@ -50,6 +52,7 @@ it('lets an admin approve and publish a need_approval report', function () {
 });
 
 it('lets an admin request a revision with admin_notes', function () {
+    Notification::fake();
     [$engineer, , $report] = engineerEditReport();
     $report->update(['status' => DailyReportStatus::NeedApproval]);
 

@@ -5,6 +5,7 @@ use App\Models\DailyReport;
 use App\Models\User;
 use App\Models\Worker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
 
@@ -22,6 +23,7 @@ it('transitions draft to need_approval via submitForApproval', function () {
 });
 
 it('transitions need_approval to published via approveAndPublish', function () {
+    Notification::fake();
     $report = DailyReport::factory()->create(['status' => DailyReportStatus::NeedApproval]);
     $admin = User::factory()->admin()->create();
 
@@ -32,6 +34,7 @@ it('transitions need_approval to published via approveAndPublish', function () {
 });
 
 it('transitions need_approval to revision_requested via requestRevision', function () {
+    Notification::fake();
     $report = DailyReport::factory()->create(['status' => DailyReportStatus::NeedApproval]);
 
     $report->requestRevision('Please add site photos');
