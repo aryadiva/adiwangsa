@@ -1,5 +1,9 @@
 <?php
 
+use App\Models\DailyReportPhoto;
+use App\Models\DailyReportWorker;
+use App\Models\Worker;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 /*
@@ -46,4 +50,37 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * @return array{0: Project, 1: Site, 2: DailyReport}
+ */
+function reportWithWorkersAndPhoto(): array
+{
+    $project = App\Models\Project::factory()->create();
+    $site = App\Models\Site::factory()->create(['project_id' => $project->id]);
+    $report = App\Models\DailyReport::factory()->published()->create([
+        'site_id' => $site->id,
+        'report_date' => Carbon::now()->subDays(5)->toDateString(),
+        'weather_condition' => 'rainy',
+        'work_summary' => 'Excavation completed for Block A.',
+        'meta_data' => ['moisture' => 12, 'safety_incidents' => 0],
+    ]);
+
+    $worker = Worker::factory()->create(['full_name' => 'Budi Santoso', 'trade_skill' => 'Mason']);
+    DailyReportWorker::create([
+        'daily_report_id' => $report->id,
+        'worker_id' => $worker->id,
+        'hours_worked' => 8,
+        'remarks' => 'Site foreman',
+    ]);
+
+    DailyReportPhoto::create([
+        'daily_report_id' => $report->id,
+        'file_path' => 'daily-report-photos/abc.jpg',
+        'thumbnail_path' => 'daily-report-photos/thumbs/abc.jpg',
+        'caption' => 'Block A foundation',
+    ]);
+
+    return [$project, $site, $report];
 }

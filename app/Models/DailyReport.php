@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\DailyReportStatus;
 use App\Enums\UserRole;
+use App\Enums\WeatherCondition;
 use App\Notifications\ReportApprovedNotification;
 use App\Notifications\ReportPublishedNotification;
 use App\Notifications\ReportSubmittedNotification;
@@ -63,6 +64,7 @@ class DailyReport extends Model
         return [
             'report_date' => 'date',
             'status' => DailyReportStatus::class,
+            'weather_condition' => WeatherCondition::class,
             'meta_data' => 'array',
         ];
     }

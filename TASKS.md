@@ -161,15 +161,19 @@
 ## Phase 5: PDF Paperwork Service & Client Portal
 
 ### 5.1 PDF Service Architecture
-- [ ] Create `app/DTOs/ReportDataDTO.php` — maps DB + JSONB data for Blade views
-- [ ] Create `app/Services/PdfReportService.php` — accepts DTO, renders Blade, returns PDF bytes
-- [ ] Create `app/Jobs/GeneratePdfJob.php` — queued, dispatches service, stores to S3, fires completion notification
-- [ ] Blade templates in `resources/views/pdf/`:
-  - `daily-progress.blade.php` — project header, weather, progress, worker count, 2×2 photo grid
+- [x] Create `app/DTOs/ReportDataDTO.php` — maps DB + JSONB data for Blade views
+  > *(immutable, queue-safe — primitives/arrays only; static factories `forDailyReport` / `forWeeklyDigest` / `forAttendanceRoster`; `app/Enums/DocumentType.php` added for doc routing)*
+- [x] Create `app/Services/PdfReportService.php` — accepts DTO, renders Blade, returns PDF bytes
+- [x] Create `app/Jobs/GeneratePdfJob.php` — queued, dispatches service, stores to S3, fires completion notification
+  > *(requires `app/Notifications/PdfReadyNotification.php` with signed 24h download URL; `SerializesModels` carries the fully-built DTO)*
+- [x] Blade templates in `resources/views/pdf/`:
+  - `daily-progress.blade.php` — project header, weather, progress, worker count, 2×2 photo grid (signed thumbnails from `photos` disk)
   - `weekly-digest.blade.php` — 7 days of `published` reports, worker hours, weather delays, milestone completions
   - `attendance-roster.blade.php` — workers, trades, sites, hours across date range
-- [ ] **CSS:** Inline/embedded print styles, `@page { size: A4 portrait; margin: 15mm; }`
-- [ ] **Rule:** NEVER inline HTML in Service classes; NEVER generate PDF synchronously in HTTP request
+- [x] **CSS:** Inline/embedded print styles, `@page { size: A4 portrait; margin: 15mm; }`
+- [x] **Rule:** NEVER inline HTML in Service classes; NEVER generate PDF synchronously in HTTP request
+  > *(model change: added `weather_condition` enum cast to `DailyReport` so DTO mapping is type-safe)*
+
 
 ### 5.2 Filament PDF Actions
 - [ ] Table action `Generate PDF` dispatches `GeneratePdfJob` to queue
