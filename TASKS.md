@@ -63,12 +63,12 @@
 ## Phase 2: Authentication & Scoped RBAC
 
 ### 2.1 Policies
-- [ ] `ProjectPolicy` — admin full; site engineer view assigned; client view own
-- [ ] `SitePolicy` — admin full; site engineer view assigned projects' sites; client view own projects' sites
-- [ ] `DailyReportPolicy` — admin full; site engineer CRUD only assigned sites; client read-only `published` only
-- [ ] `WorkerPolicy` — admin full; site engineer read-only; client no access
-- [ ] `ProjectMilestonePolicy` — admin full; site engineer read-only; client read-only
-- [ ] **Verify:** No `Model::all()` or unscoped `Model::query()` in any policy or resource
+- [x] `ProjectPolicy` — admin full; site engineer view assigned; client view own
+- [x] `SitePolicy` — admin full; site engineer view assigned projects' sites; client view own projects' sites
+- [x] `DailyReportPolicy` — admin full; site engineer CRUD only assigned sites; client read-only `published` only
+- [x] `WorkerPolicy` — admin full; site engineer read-only; client no access
+- [x] `ProjectMilestonePolicy` — admin full; site engineer read-only; client read-only
+- [x] **Verify:** No `Model::all()` or unscoped `Model::query()` in any policy or resource
 
 ### 2.2 Eloquent Query Scopes
 - [ ] `DailyReport::scopeForSiteEngineer($query, User $user)` — filter by `project_user` assignments

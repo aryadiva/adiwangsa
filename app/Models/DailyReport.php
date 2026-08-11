@@ -12,6 +12,10 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
+/**
+ * @property DailyReportStatus $status
+ * @property string $site_id
+ */
 class DailyReport extends Model
 {
     use HasFactory, HasUuids, LogsActivity, SoftDeletes;

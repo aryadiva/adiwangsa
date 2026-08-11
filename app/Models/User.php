@@ -13,6 +13,11 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
+/**
+ * @property UserRole $role
+ *
+ * @method static \Illuminate\Database\Eloquent\Builder<static> whereRole(UserRole|string $role)
+ */
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -61,6 +66,9 @@ class User extends Authenticatable
         return $this->belongsToMany(Project::class);
     }
 
+    /**
+     * @return HasOne<Client, $this>
+     */
     public function client(): HasOne
     {
         return $this->hasOne(Client::class);
@@ -69,5 +77,19 @@ class User extends Authenticatable
     public function createdDailyReports(): HasMany
     {
         return $this->hasMany(DailyReport::class, 'created_by_user_id');
+    }
+
+    public function isAssignedToSite(string $siteId): bool
+    {
+        return $this->projects()
+            ->whereHas('sites', fn ($q) => $q->whereKey($siteId))
+            ->exists();
+    }
+
+    public function isClientOfSite(string $siteId): bool
+    {
+        return $this->client?->projects()
+            ->whereHas('sites', fn ($q) => $q->whereKey($siteId))
+            ->exists() ?? false;
     }
 }
