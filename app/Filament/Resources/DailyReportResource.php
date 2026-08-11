@@ -24,6 +24,8 @@ class DailyReportResource extends Resource
 
     protected static ?string $navigationLabel = 'Daily Reports';
 
+    protected static ?string $navigationGroup = 'Site Activity';
+
     public static function scopedQuery(): Builder
     {
         /** @var Builder<DailyReport> $query */

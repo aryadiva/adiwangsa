@@ -16,7 +16,7 @@ class ProjectSeeder extends Seeder
         $projects = Project::factory(2)->create();
 
         $projects->each(function (Project $project) use ($engineers) {
-            $project->engineers()->attach($engineers->pluck('id')->all());
+            $project->engineers()->attach([$engineers->pop()->id]);
         });
     }
 }
