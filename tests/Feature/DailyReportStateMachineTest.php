@@ -4,7 +4,6 @@ use App\Enums\DailyReportStatus;
 use App\Models\DailyReport;
 use App\Models\User;
 use App\Models\Worker;
-use DomainException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 uses(RefreshDatabase::class);
