@@ -32,7 +32,8 @@ class DailyReportResource extends Resource
     public static function scopedQuery(): Builder
     {
         /** @var Builder<DailyReport> $query */
-        $query = DailyReport::query();
+        $query = DailyReport::query()
+            ->with(['site.project', 'createdBy']);
         $user = auth()->user();
 
         if ($user === null) {

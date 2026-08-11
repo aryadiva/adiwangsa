@@ -25,7 +25,8 @@ class GeneratedDocumentResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         /** @var Builder<GeneratedDocument> $query */
-        $query = parent::getEloquentQuery();
+        $query = parent::getEloquentQuery()
+            ->with(['dailyReport.site', 'project']);
         $user = auth()->user();
 
         if ($user === null || $user->role === UserRole::Admin) {
