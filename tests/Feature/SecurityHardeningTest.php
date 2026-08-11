@@ -80,3 +80,13 @@ it('rate limits the generated document download route', function () {
     expect($middleware)->toContain('auth')
         ->and($middleware)->toContain('throttle:document-downloads');
 });
+
+it('lets a client reach the change-password page voluntarily', function () {
+    $client = User::factory()->client()->create([
+        'must_change_password' => false,
+    ]);
+
+    $this->actingAs($client)
+        ->get(route('filament.client.pages.change-password'))
+        ->assertOk();
+});

@@ -32,10 +32,6 @@ class ChangePassword extends Page implements HasForms
 
     public function mount(): void
     {
-        if (! Auth::user()?->must_change_password) {
-            $this->redirect(Dashboard::getUrl());
-        }
-
         $this->form->fill();
     }
 
