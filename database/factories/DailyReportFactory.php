@@ -19,7 +19,7 @@ class DailyReportFactory extends Factory
     {
         return [
             'site_id' => Site::factory(),
-            'report_date' => fake()->date(),
+            'report_date' => fake()->unique()->date(),
             'weather_condition' => fake()->randomElement(WeatherCondition::cases())->value,
             'work_summary' => fake()->paragraph(),
             'delays_or_issues' => fake()->optional()->sentence(),
