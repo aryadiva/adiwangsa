@@ -28,6 +28,17 @@ it('renders the full form schema for an admin', function () {
         ->assertFormFieldExists('admin_notes');
 });
 
+it('keeps the site photos upload visibility private so signed URLs are used for preview', function () {
+    $admin = adminUser();
+    $page = Livewire::actingAs($admin)->test(CreateDailyReport::class);
+
+    $field = collect($page->instance()->getForm('form')->getComponents())
+        ->first(fn ($component) => $component->getName() === 'file_path');
+
+    expect($field)->not->toBeNull();
+    expect($field->getVisibility())->toBe('private');
+});
+
 it('exposes every site in the picker to an admin', function () {
     $admin = adminUser();
     Project::factory()->count(2)->create();

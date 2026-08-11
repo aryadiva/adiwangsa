@@ -125,6 +125,7 @@ class DailyReportResource extends Resource
                     ->multiple()
                     ->image()
                     ->disk('photos')
+                    ->visibility('private')
                     ->directory('daily-report-photos')
                     ->maxSize(10240)
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
