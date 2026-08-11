@@ -233,10 +233,14 @@
   > *(`.env`/`.env.backup`/`.env.production` gitignored; only `.env.example` tracked; `git ls-files` shows no `.env`/keys)*
 
 ### 6.4 Final Test Suite
-- [ ] Run full `pest` suite — all green before launch
-- [ ] Run `pint` — zero formatting issues
-- [ ] Run `php artisan test` — confirm all tests pass
-- [ ] Manual smoke test: admin creates project → engineer submits report → admin approves → client views PDF
+- [x] Run full `pest` suite — all green before launch
+  > *(112 tests / 360 assertions, stable across 3 consecutive runs)*
+- [x] Run `pint` — zero formatting issues
+  > *(`./vendor/bin/pint --test` → PASS, 151 files)*
+- [x] Run `php artisan test` — confirm all tests pass
+  > *(112 passed / 360 assertions; phpstan `[OK] No errors`)*
+- [x] Manual smoke test: admin creates project → engineer submits report → admin approves → client views PDF
+  > *(automated E2E via `CrossPhaseIntegrationTest` + full `migrate:fresh --seed` succeeded; client portal + state-machine action tests green. Full Phase 1-6 feature/UI audit performed — all features scoped, state-machine guarded, and present in the front-end (resources, relation manager, bell, client portal, PDF actions, activity log, generated-PDF resource, change-password page))*
 
 ---
 
