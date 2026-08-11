@@ -223,10 +223,14 @@
   > *(Fixed real N+1 in `GeneratedDocumentResource::subject` closure — added `with(['dailyReport.site','project'])`; added `with(['site.project','createdBy'])` to `DailyReportResource::scopedQuery`. `->counts()` columns use `withCount`; dot-relationship columns auto-eager-loaded by Filament)*
 
 ### 6.3 Security Hardening
-- [ ] Rate-limit auth endpoints and client portal routes
-- [ ] Enforce password hashing + minimum policy
-- [ ] Force password reset on first login for client-invited accounts (optional)
-- [ ] Verify no `.env` or credentials committed
+- [x] Rate-limit auth endpoints and client portal routes
+  > *(Filament's built-in `Login` page already rate-limits both `admin`/`client` panels via `WithRateLimiting` (5 attempts). Added a `document-downloads` limiter (30/min per user/IP) applied via `throttle:document-downloads` on the signed download route)*
+- [x] Enforce password hashing + minimum policy
+  > *(password already hashed via `'password' => 'hashed'` cast; added `minLength(8)` on `UserResource` password field and the forced-reset form)*
+- [x] Force password reset on first login for client-invited accounts (optional)
+  > *(added `users.must_change_password`; clients created via `UserResource` are flagged; `EnsurePasswordChanged` middleware on the client panel bounces them to a `ChangePassword` page until set)*
+- [x] Verify no `.env` or credentials committed
+  > *(`.env`/`.env.backup`/`.env.production` gitignored; only `.env.example` tracked; `git ls-files` shows no `.env`/keys)*
 
 ### 6.4 Final Test Suite
 - [ ] Run full `pest` suite — all green before launch
