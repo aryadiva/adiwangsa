@@ -22,7 +22,7 @@ class ProjectFactory extends Factory
             'status' => ProjectStatus::Active,
             'start_date' => fake()->date(),
             'target_end_date' => fake()->optional()->date(),
-            'budget' => fake()->randomFloat(2, 1_000_000, 50_000_000),
+            'budget' => fake()->numberBetween(16_000_000_000, 800_000_000_000),
             'timezone' => fake()->randomElement(['UTC', 'Asia/Jakarta']),
             'meta_data' => [],
         ];

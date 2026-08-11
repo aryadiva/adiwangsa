@@ -1,6 +1,6 @@
 {{-- Worker Attendance & Labor Roster — rendered by PdfReportService (App\DTOs\ReportDataDTO) --}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ $dto->locale }}">
 <head>
     <meta charset="utf-8">
     <title>{{ $dto->title }}</title>
@@ -25,10 +25,10 @@
     </div>
 
     @if (count($dto->workerRows))
-        <h2>Labor Roster</h2>
+        <h2>{{ __('pdf.labor_roster') }}</h2>
         <table class="data">
             <thead>
-                <tr><th>Name</th><th>Trade</th><th>Site</th><th>Days</th><th>Hours</th></tr>
+                <tr><th>{{ __('pdf.name') }}</th><th>{{ __('pdf.trade') }}</th><th>{{ __('pdf.site') }}</th><th>{{ __('pdf.days') }}</th><th>{{ __('pdf.hours') }}</th></tr>
             </thead>
             <tbody>
                 @foreach ($dto->workerRows as $row)
@@ -42,11 +42,11 @@
                 @endforeach
             </tbody>
         </table>
-        <p><strong>Total Workers:</strong> {{ $dto->workerCount }} &middot; <strong>Total Hours:</strong> {{ $dto->totalHours }}</p>
+        <p><strong>{{ __('pdf.total_workers') }}:</strong> {{ $dto->workerCount }} &middot; <strong>{{ __('pdf.total_hours') }}:</strong> {{ $dto->totalHours }}</p>
     @else
-        <p class="empty">No worker allocations in this period.</p>
+        <p class="empty">{{ __('pdf.no_worker_allocations') }}</p>
     @endif
 
-    <div class="footer">Generated {{ $dto->generatedAt }} &middot; {{ $dto->projectCode }}</div>
+    <div class="footer">{{ __('pdf.generated') }} {{ \Illuminate\Support\Carbon::parse($dto->generatedAt)->translatedFormat('d M Y H:i') }} &middot; {{ $dto->projectCode }}</div>
 </body>
 </html>

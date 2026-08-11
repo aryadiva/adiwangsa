@@ -59,6 +59,7 @@ class User extends Authenticatable implements FilamentUser
         'role',
         'is_active',
         'must_change_password',
+        'locale',
     ];
 
     /**

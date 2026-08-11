@@ -42,9 +42,10 @@ final class ReportDataDTO
         public readonly string $generatedAt = '',
         public readonly ?string $periodFrom = null,
         public readonly ?string $periodTo = null,
+        public readonly string $locale = 'en',
     ) {}
 
-    public static function forDailyReport(DailyReport $report): self
+    public static function forDailyReport(DailyReport $report, ?string $locale = null): self
     {
         $site = $report->site;
         $project = $site->project;
@@ -82,6 +83,7 @@ final class ReportDataDTO
                 ->all(),
             metaData: $report->meta_data ?? [],
             generatedAt: now()->toDateTimeString(),
+            locale: $locale ?? app()->getLocale(),
         );
     }
 
@@ -89,7 +91,7 @@ final class ReportDataDTO
      * Aggregates 7 days of PUBLISHED daily reports for a project, plus its
      * completed milestones. Non-published states are never included.
      */
-    public static function forWeeklyDigest(Project $project, Carbon $start, Carbon $end): self
+    public static function forWeeklyDigest(Project $project, Carbon $start, Carbon $end, ?string $locale = null): self
     {
         $startDay = $start->copy()->startOfDay();
         $endDay = $end->copy()->endOfDay();
@@ -145,6 +147,7 @@ final class ReportDataDTO
             generatedAt: now()->toDateTimeString(),
             periodFrom: $startDay->toDateString(),
             periodTo: $endDay->toDateString(),
+            locale: $locale ?? app()->getLocale(),
         );
     }
 
@@ -154,7 +157,7 @@ final class ReportDataDTO
      *
      * @param  Collection<int, DailyReport>  $reports
      */
-    public static function forAttendanceRoster(Collection $reports, Carbon $start, Carbon $end): self
+    public static function forAttendanceRoster(Collection $reports, Carbon $start, Carbon $end, ?string $locale = null): self
     {
         $reports = (new \Illuminate\Database\Eloquent\Collection($reports->all()))
             ->load('site.project', 'workerAllocations.worker');
@@ -187,6 +190,7 @@ final class ReportDataDTO
             generatedAt: now()->toDateTimeString(),
             periodFrom: $start->toDateString(),
             periodTo: $end->toDateString(),
+            locale: $locale ?? app()->getLocale(),
         );
     }
 }

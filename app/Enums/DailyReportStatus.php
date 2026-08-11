@@ -8,4 +8,9 @@ enum DailyReportStatus: string
     case NeedApproval = 'need_approval';
     case Published = 'published';
     case RevisionRequested = 'revision_requested';
+
+    public function getLabel(): string
+    {
+        return __('enum.daily_report_status.'.$this->value);
+    }
 }

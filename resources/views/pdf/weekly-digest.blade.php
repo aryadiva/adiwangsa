@@ -1,6 +1,6 @@
 {{-- Weekly Site Executive Digest — released by PdfReportService (App\DTOs\ReportDataDTO) --}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ $dto->locale }}">
 <head>
     <meta charset="utf-8">
     <title>{{ $dto->title }}</title>
@@ -30,25 +30,25 @@
 
     <table class="summary">
         <tr>
-            <td><div class="num">{{ count($dto->reportSummaries) }}</div><div class="lbl">Reports</div></td>
-            <td><div class="num">{{ $dto->workerCount }}</div><div class="lbl">Worker-Days</div></td>
-            <td><div class="num">{{ $dto->totalHours }}</div><div class="lbl">Hours</div></td>
-            <td><div class="num">{{ count($dto->milestones) }}</div><div class="lbl">Milestones</div></td>
+            <td><div class="num">{{ count($dto->reportSummaries) }}</div><div class="lbl">{{ __('pdf.reports') }}</div></td>
+            <td><div class="num">{{ $dto->workerCount }}</div><div class="lbl">{{ __('pdf.worker_days') }}</div></td>
+            <td><div class="num">{{ $dto->totalHours }}</div><div class="lbl">{{ __('pdf.hours') }}</div></td>
+            <td><div class="num">{{ count($dto->milestones) }}</div><div class="lbl">{{ __('pdf.milestones') }}</div></td>
         </tr>
     </table>
 
     @if (count($dto->reportSummaries))
-        <h2>Daily Summaries (Published Reports)</h2>
+        <h2>{{ __('pdf.daily_summaries') }}</h2>
         <table class="data">
             <thead>
-                <tr><th>Date</th><th>Site</th><th>Weather</th><th>Hours</th><th>Summary</th><th>Delays</th></tr>
+                <tr><th>{{ __('pdf.date') }}</th><th>{{ __('pdf.site') }}</th><th>{{ __('pdf.weather') }}</th><th>{{ __('pdf.hours') }}</th><th>{{ __('pdf.summary') }}</th><th>{{ __('pdf.delays') }}</th></tr>
             </thead>
             <tbody>
                 @foreach ($dto->reportSummaries as $row)
                     <tr>
-                        <td>{{ $row['date'] }}</td>
+                        <td>{{ \Illuminate\Support\Carbon::parse($row['date'])->translatedFormat('d M Y') }}</td>
                         <td>{{ $row['site'] }}</td>
-                        <td>{{ ucfirst((string) $row['weather']) }}</td>
+                        <td>{{ __('weather.'.$row['weather']) }}</td>
                         <td>{{ $row['hours'] }}</td>
                         <td>{{ \Illuminate\Support\Str::limit($row['summary'], 120) }}</td>
                         <td>{{ $row['delay'] ?: '—' }}</td>
@@ -57,24 +57,24 @@
             </tbody>
         </table>
     @else
-        <p class="empty">No published reports in this period.</p>
+        <p class="empty">{{ __('pdf.no_published_reports') }}</p>
     @endif
 
     @if (count($dto->milestones))
-        <h2>Milestones Completed</h2>
+        <h2>{{ __('pdf.milestones_completed') }}</h2>
         <table class="data">
-            <thead><tr><th>Milestone</th><th>Completed</th></tr></thead>
+            <thead><tr><th>{{ __('pdf.milestone') }}</th><th>{{ __('pdf.completed') }}</th></tr></thead>
             <tbody>
                 @foreach ($dto->milestones as $item)
                     <tr>
                         <td>{{ $item['title'] }}</td>
-                        <td>{{ $item['completed_at'] ?: '—' }}</td>
+                        <td>{{ $item['completed_at'] ? \Illuminate\Support\Carbon::parse($item['completed_at'])->translatedFormat('d M Y') : '—' }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
     @endif
 
-    <div class="footer">Generated {{ $dto->generatedAt }} &middot; {{ $dto->projectCode }}</div>
+    <div class="footer">{{ __('pdf.generated') }} {{ \Illuminate\Support\Carbon::parse($dto->generatedAt)->translatedFormat('d M Y H:i') }} &middot; {{ $dto->projectCode }}</div>
 </body>
 </html>

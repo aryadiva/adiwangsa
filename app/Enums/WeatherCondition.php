@@ -8,4 +8,9 @@ enum WeatherCondition: string
     case Rainy = 'rainy';
     case Cloudy = 'cloudy';
     case Stormy = 'stormy';
+
+    public function getLabel(): string
+    {
+        return __('weather.'.$this->value);
+    }
 }

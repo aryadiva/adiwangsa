@@ -10,10 +10,6 @@ enum DocumentType: string
 
     public function label(): string
     {
-        return match ($this) {
-            self::DailyProgress => 'Daily Site Progress Report',
-            self::WeeklyDigest => 'Weekly Site Executive Digest',
-            self::AttendanceRoster => 'Worker Attendance & Labor Roster',
-        };
+        return __('enum.document_type.'.$this->value);
     }
 }

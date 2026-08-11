@@ -16,7 +16,7 @@ class WorkerFactory extends Factory
         return [
             'full_name' => fake()->name(),
             'trade_skill' => fake()->randomElement(['Mason', 'Electrician', 'General Laborer', 'Carpenter', 'Rigger']),
-            'daily_rate' => fake()->randomFloat(2, 80, 250),
+            'daily_rate' => fake()->numberBetween(1_300_000, 4_000_000),
             'is_active' => true,
             'meta_data' => [],
         ];

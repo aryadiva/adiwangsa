@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTOs\ReportDataDTO;
 use App\Enums\DocumentType;
 use Barryvdh\DomPDF\PDF;
+use Illuminate\Support\Carbon;
 
 /**
  * Renders a ReportDataDTO through the matching Blade template in
@@ -16,6 +17,9 @@ class PdfReportService
 
     public function render(ReportDataDTO $dto): string
     {
+        app()->setLocale($dto->locale);
+        Carbon::setLocale($dto->locale);
+
         $view = match ($dto->type) {
             DocumentType::DailyProgress => 'pdf.daily-progress',
             DocumentType::WeeklyDigest => 'pdf.weekly-digest',

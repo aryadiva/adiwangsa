@@ -55,7 +55,7 @@ class WorkerResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('daily_rate')
-                    ->money('USD')
+                    ->money('IDR')
                     ->sortable(),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Active'),

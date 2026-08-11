@@ -38,7 +38,7 @@ class PdfDocumentService
         }
 
         GeneratePdfJob::dispatch(
-            ReportDataDTO::forDailyReport($report),
+            ReportDataDTO::forDailyReport($report, $this->userLocale($userId)),
             $userId,
             dailyReportId: $report->id,
         );
@@ -59,7 +59,7 @@ class PdfDocumentService
         }
 
         GeneratePdfJob::dispatch(
-            ReportDataDTO::forWeeklyDigest($project, $from, $to),
+            ReportDataDTO::forWeeklyDigest($project, $from, $to, $this->userLocale($userId)),
             $userId,
             projectId: $project->id,
         );
@@ -86,7 +86,7 @@ class PdfDocumentService
             ->get();
 
         GeneratePdfJob::dispatch(
-            ReportDataDTO::forAttendanceRoster($reports, $from, $to),
+            ReportDataDTO::forAttendanceRoster($reports, $from, $to, $this->userLocale($userId)),
             $userId,
             projectId: $project->id,
         );
@@ -112,5 +112,10 @@ class PdfDocumentService
             $document->document_type,
             route('generated-documents.download', $document),
         ));
+    }
+
+    protected function userLocale(?string $userId): ?string
+    {
+        return $userId ? User::find($userId)?->locale : null;
     }
 }

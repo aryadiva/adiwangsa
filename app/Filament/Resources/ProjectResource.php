@@ -116,7 +116,7 @@ class ProjectResource extends Resource
                         ProjectStatus::Completed => 'success',
                     }),
                 Tables\Columns\TextColumn::make('budget')
-                    ->money('USD')
+                    ->money('IDR')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('sites_count')
                     ->counts('sites')

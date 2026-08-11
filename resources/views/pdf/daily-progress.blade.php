@@ -1,6 +1,6 @@
 {{-- Daily Site Progress Report — rendered by PdfReportService (App\DTOs\ReportDataDTO) --}}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ $dto->locale }}">
 <head>
     <meta charset="utf-8">
     <title>{{ $dto->title }}</title>
@@ -34,28 +34,28 @@
 
     <table class="meta">
         <tr>
-            <td class="k">Site</td><td>{{ $dto->siteName }}</td>
-            <td class="k">Report Date</td><td>{{ $dto->reportDate }}</td>
+            <td class="k">{{ __('pdf.site') }}</td><td>{{ $dto->siteName }}</td>
+            <td class="k">{{ __('pdf.report_date') }}</td><td>{{ \Illuminate\Support\Carbon::parse($dto->reportDate)->translatedFormat('d M Y') }}</td>
         </tr>
         <tr>
-            <td class="k">Weather</td><td>{{ ucfirst((string) $dto->weather) }}</td>
-            <td class="k">Workers</td><td>{{ $dto->workerCount }} ({{ $dto->totalHours }} hrs)</td>
+            <td class="k">{{ __('pdf.weather') }}</td><td>{{ __('weather.'.$dto->weather) }}</td>
+            <td class="k">{{ __('pdf.workers') }}</td><td>{{ $dto->workerCount }} ({{ $dto->totalHours }} {{ __('pdf.hrs') }})</td>
         </tr>
     </table>
 
-    <h2>Work Summary</h2>
-    <p class="text">{{ $dto->workSummary ?: '<span class="empty">No summary provided.</span>' }}</p>
+    <h2>{{ __('pdf.work_summary') }}</h2>
+    <p class="text">{{ $dto->workSummary ?: '<span class="empty">'.__('pdf.no_summary').'</span>' }}</p>
 
     @if ($dto->delaysOrIssues)
-        <h2>Delays / Issues</h2>
+        <h2>{{ __('pdf.delays_issues') }}</h2>
         <p class="text">{{ $dto->delaysOrIssues }}</p>
     @endif
 
     @if (count($dto->workerRows))
-        <h2>Worker Allocation</h2>
+        <h2>{{ __('pdf.worker_allocation') }}</h2>
         <table class="data">
             <thead>
-                <tr><th>Name</th><th>Trade</th><th>Hours</th><th>Remarks</th></tr>
+                <tr><th>{{ __('pdf.name') }}</th><th>{{ __('pdf.trade') }}</th><th>{{ __('pdf.hours') }}</th><th>{{ __('pdf.remarks') }}</th></tr>
             </thead>
             <tbody>
                 @foreach ($dto->workerRows as $row)
@@ -71,13 +71,13 @@
     @endif
 
     @if (count($dto->photos))
-        <h2>Site Photos</h2>
+        <h2>{{ __('pdf.site_photos') }}</h2>
         <table class="photos">
             @foreach (array_chunk($dto->photos, 2) as $chunk)
                 <tr>
                     @foreach ($chunk as $photo)
                         <td>
-                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('photos')->temporaryUrl($photo['path'], now()->addMinutes(15)) }}" alt="Site photo">
+                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('photos')->temporaryUrl($photo['path'], now()->addMinutes(15)) }}" alt="{{ __('pdf.site_photo_alt') }}">
                             @if ($photo['caption'])
                                 <div class="caption">{{ $photo['caption'] }}</div>
                             @endif
@@ -89,9 +89,9 @@
     @endif
 
     @if (count($dto->metaData))
-        <h2>Additional Data</h2>
+        <h2>{{ __('pdf.additional_data') }}</h2>
         <table class="data">
-            <thead><tr><th>Field</th><th>Value</th></tr></thead>
+            <thead><tr><th>{{ __('pdf.field') }}</th><th>{{ __('pdf.value') }}</th></tr></thead>
             <tbody>
                 @foreach ($dto->metaData as $key => $value)
                     <tr>
@@ -103,6 +103,6 @@
         </table>
     @endif
 
-    <div class="footer">Generated {{ $dto->generatedAt }} &middot; {{ $dto->projectCode }}</div>
+    <div class="footer">{{ __('pdf.generated') }} {{ \Illuminate\Support\Carbon::parse($dto->generatedAt)->translatedFormat('d M Y H:i') }} &middot; {{ $dto->projectCode }}</div>
 </body>
 </html>
