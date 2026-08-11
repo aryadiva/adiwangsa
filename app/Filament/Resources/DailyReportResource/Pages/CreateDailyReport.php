@@ -19,6 +19,8 @@ class CreateDailyReport extends CreateRecord
     {
         static::assertUniqueSiteDate($data);
 
+        $data['created_by_user_id'] = auth()->id();
+
         $this->photoPaths = $data['file_path'] ?? [];
 
         return $data;

@@ -106,6 +106,26 @@ it('allows a distinct site and report date at the app layer', function () {
     expect(DailyReport::where('site_id', $siteB->id)->exists())->toBeTrue();
 });
 
+it('records the authenticated user as the report creator', function () {
+    $admin = adminUser();
+    $site = Site::factory()->create();
+
+    Livewire::actingAs($admin)
+        ->test(CreateDailyReport::class)
+        ->fillForm([
+            'site_id' => $site->id,
+            'report_date' => '2026-08-12',
+            'weather_condition' => 'sunny',
+            'work_summary' => 'Created by me',
+        ])
+        ->call('create')
+        ->assertHasNoFormErrors();
+
+    $report = DailyReport::where('site_id', $site->id)->first();
+
+    expect($report->created_by_user_id)->toBe($admin->id);
+});
+
 it('ignores its own record when checking for duplicates on edit', function () {
     $admin = adminUser();
     $report = DailyReport::factory()->create([
