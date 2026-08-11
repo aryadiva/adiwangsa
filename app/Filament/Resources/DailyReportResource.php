@@ -7,12 +7,14 @@ use App\Enums\UserRole;
 use App\Enums\WeatherCondition;
 use App\Filament\Resources\DailyReportResource\Pages;
 use App\Models\DailyReport;
+use App\Services\DailyReportPhotoService;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\UploadedFile;
 
 class DailyReportResource extends Resource
 {
@@ -119,7 +121,9 @@ class DailyReportResource extends Resource
                     ->disk('photos')
                     ->directory('daily-report-photos')
                     ->maxSize(10240)
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                     ->storeFileNamesIn('file_names')
+                    ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(DailyReportPhotoService::class)->store($file))
                     ->columnSpanFull(),
                 Forms\Components\KeyValue::make('meta_data')
                     ->label('Additional Fields')

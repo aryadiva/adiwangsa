@@ -127,11 +127,11 @@
 - [x] **Test (Pest):** Legal transitions pass; illegal transitions (e.g. `draft` → `published`) are rejected
 
 ### 3.4 Photo Upload & Processing
-- [ ] Server-side MIME sniffing (not extension-based) — reject mismatches
-- [ ] Intervention Image: generate thumbnails, fix EXIF orientation, compress
-- [ ] Store original + thumbnail on S3-compatible disk
-- [ ] Save `file_path`, `thumbnail_path`, `file_size_bytes` to `daily_report_photos`
-- [ ] Signed, expiring URLs for photo display (not permanent public links)
+- [x] Server-side MIME sniffing (not extension-based) — reject mismatches (`DailyReportPhotoService::sniffMime` + `assertAllowed`)
+- [x] Intervention Image: generate thumbnails (`scaleDown` 600px), EXIF orientation (auto-orient on decode), compress (JPEG q75)
+- [x] Store original + thumbnail on S3-compatible disk (`photos`)
+- [x] Save `file_path`, `thumbnail_path`, `file_size_bytes` to `daily_report_photos`
+- [x] Signed, expiring URLs for photo display (`DailyReportPhoto::signedUrl` / `signedThumbnailUrl`)
 
 ---
 

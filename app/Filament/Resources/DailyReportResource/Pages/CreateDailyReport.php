@@ -4,6 +4,7 @@ namespace App\Filament\Resources\DailyReportResource\Pages;
 
 use App\Filament\Resources\DailyReportResource;
 use App\Models\DailyReport;
+use App\Services\DailyReportPhotoService;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Validation\ValidationException;
 
@@ -29,8 +30,10 @@ class CreateDailyReport extends CreateRecord
             return;
         }
 
+        $service = app(DailyReportPhotoService::class);
+
         foreach ($this->photoPaths as $path) {
-            $this->record->photos()->create(['file_path' => $path]);
+            $this->record->photos()->create($service->metadataFor($path));
         }
     }
 

@@ -6,6 +6,7 @@ use App\Enums\DailyReportStatus;
 use App\Enums\UserRole;
 use App\Filament\Resources\DailyReportResource;
 use App\Models\DailyReport;
+use App\Services\DailyReportPhotoService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
@@ -208,10 +209,11 @@ class EditDailyReport extends EditRecord
         }
 
         $kept = $this->data['file_path'] ?? [];
+        $service = app(DailyReportPhotoService::class);
 
         foreach ($kept as $path) {
             if (! in_array($path, $this->originalPhotoPaths, true)) {
-                $this->record->photos()->create(['file_path' => $path]);
+                $this->record->photos()->create($service->metadataFor($path));
             }
         }
 

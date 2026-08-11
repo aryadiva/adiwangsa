@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class DailyReportPhoto extends Model
 {
@@ -39,5 +40,15 @@ class DailyReportPhoto extends Model
     public function dailyReport(): BelongsTo
     {
         return $this->belongsTo(DailyReport::class);
+    }
+
+    public function signedUrl(int $expiresInMinutes = 60): string
+    {
+        return Storage::disk('photos')->temporaryUrl($this->file_path, now()->addMinutes($expiresInMinutes));
+    }
+
+    public function signedThumbnailUrl(int $expiresInMinutes = 60): string
+    {
+        return Storage::disk('photos')->temporaryUrl($this->thumbnail_path, now()->addMinutes($expiresInMinutes));
     }
 }
