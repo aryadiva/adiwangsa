@@ -8,8 +8,10 @@ use App\Enums\WeatherCondition;
 use App\Filament\Resources\DailyReportResource\Pages;
 use App\Models\DailyReport;
 use App\Services\DailyReportPhotoService;
+use App\Services\PdfDocumentService;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -207,6 +209,22 @@ class DailyReportResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('generate_pdf')
+                    ->label('Generate PDF')
+                    ->icon('heroicon-o-arrow-down-tray')
+                    ->requiresConfirmation()
+                    ->visible(fn (DailyReport $record): bool => auth()->user()?->role === UserRole::Admin
+                        && $record->status === DailyReportStatus::Published)
+                    ->action(function (DailyReport $record): void {
+                        $queued = app(PdfDocumentService::class)->queueDaily($record, auth()->id());
+
+                        Notification::make()
+                            ->title($queued
+                                ? 'Daily progress PDF queued for generation.'
+                                : 'A PDF already exists — download link sent.')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

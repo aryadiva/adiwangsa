@@ -39,6 +39,8 @@ final class ReportDataDTO
         public readonly array $milestones = [],
         public readonly array $metaData = [],
         public readonly string $generatedAt = '',
+        public readonly ?string $periodFrom = null,
+        public readonly ?string $periodTo = null,
     ) {}
 
     public static function forDailyReport(DailyReport $report): self
@@ -136,6 +138,8 @@ final class ReportDataDTO
             reportSummaries: $reportSummaries,
             milestones: $milestones,
             generatedAt: now()->toDateTimeString(),
+            periodFrom: $startDay->toDateString(),
+            periodTo: $endDay->toDateString(),
         );
     }
 
@@ -174,6 +178,8 @@ final class ReportDataDTO
             totalHours: number_format((float) $allocations->sum('hours_worked'), 2),
             workerRows: $workerRows,
             generatedAt: now()->toDateTimeString(),
+            periodFrom: $start->toDateString(),
+            periodTo: $end->toDateString(),
         );
     }
 }

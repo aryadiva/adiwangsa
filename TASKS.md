@@ -176,10 +176,14 @@
 
 
 ### 5.2 Filament PDF Actions
-- [ ] Table action `Generate PDF` dispatches `GeneratePdfJob` to queue
-- [ ] User gets Filament notification with download link when job completes
-- [ ] Store generated PDF path in `daily_reports` or `generated_documents` table — do not regenerate on every download
-- [ ] Weekly Digest: aggregate ONLY `published` reports; exclude `draft`/`need_approval`/`revision_requested`
+- [x] Table action `Generate PDF` dispatches `GeneratePdfJob` to queue
+  > *(DailyReportResource: Generate PDF on `published` reports, admin-only. ProjectResource: Weekly Digest PDF + Attendance Roster PDF with date-range modals. All via `app/Services/PdfDocumentService.php`)*
+- [x] User gets Filament notification with download link when job completes
+  > *(`PdfReadyNotification` now links to `generated-documents.download` route; Bell + mail)*
+- [x] Store generated PDF path in `daily_reports` or `generated_documents` table — do not regenerate on every download
+  > *(new `generated_documents` migration + `GeneratedDocument` model; `PdfDocumentService` reuses an existing doc matching subject+period instead of regenerating)*
+- [x] Weekly Digest: aggregate ONLY `published` reports; exclude `draft`/`need_approval`/`revision_requested`
+  > *(tested in 5.1 DTO + attendance roster job test; download route `routes/web.php` streams from `pdfs` disk, authorized to admin/owner/client)*
 
 ### 5.3 PDF Tests (Pest)
 - [ ] Use `Queue::fake()` / `Bus::fake()` to assert `GeneratePdfJob` is dispatched

@@ -7,13 +7,12 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
-use Illuminate\Support\Facades\Storage;
 
 class PdfReadyNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public DocumentType $type, public string $path) {}
+    public function __construct(public DocumentType $type, public string $downloadUrl) {}
 
     /**
      * @return list<string>
@@ -28,7 +27,7 @@ class PdfReadyNotification extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject("Your {$this->type->label()} is ready")
             ->line("The requested PDF ({$this->type->label()}) has been generated and is ready to download.")
-            ->action('Download PDF', $this->downloadUrl())
+            ->action('Download PDF', $this->downloadUrl)
             ->line('The download link expires in 24 hours.');
     }
 
@@ -39,13 +38,8 @@ class PdfReadyNotification extends Notification implements ShouldQueue
     {
         return [
             'message' => "Your {$this->type->label()} is ready to download.",
-            'url' => $this->downloadUrl(),
+            'url' => $this->downloadUrl,
             'document_type' => $this->type->value,
         ];
-    }
-
-    protected function downloadUrl(): string
-    {
-        return Storage::disk('pdfs')->temporaryUrl($this->path, now()->addDay());
     }
 }

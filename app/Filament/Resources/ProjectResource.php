@@ -6,12 +6,15 @@ use App\Enums\ProjectStatus;
 use App\Enums\UserRole;
 use App\Filament\Resources\ProjectResource\Pages;
 use App\Models\Project;
+use App\Services\PdfDocumentService;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 
 class ProjectResource extends Resource
 {
@@ -135,6 +138,64 @@ class ProjectResource extends Resource
             ->actions([
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
+                Tables\Actions\Action::make('generate_weekly_digest')
+                    ->label('Weekly Digest PDF')
+                    ->icon('heroicon-o-calendar-days')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->native(false)
+                            ->default(now()->subDays(7))
+                            ->required(),
+                        Forms\Components\DatePicker::make('to')
+                            ->native(false)
+                            ->default(now())
+                            ->afterOrEqual('from')
+                            ->required(),
+                    ])
+                    ->action(function (Project $record, array $data): void {
+                        $queued = app(PdfDocumentService::class)->queueWeekly(
+                            $record,
+                            Carbon::parse($data['from']),
+                            Carbon::parse($data['to']),
+                            auth()->id(),
+                        );
+
+                        Notification::make()
+                            ->title($queued
+                                ? 'Weekly digest PDF queued for generation.'
+                                : 'A digest for this period already exists — download link sent.')
+                            ->success()
+                            ->send();
+                    }),
+                Tables\Actions\Action::make('generate_attendance_roster')
+                    ->label('Attendance Roster PDF')
+                    ->icon('heroicon-o-list-bullet')
+                    ->form([
+                        Forms\Components\DatePicker::make('from')
+                            ->native(false)
+                            ->default(now()->subDays(7))
+                            ->required(),
+                        Forms\Components\DatePicker::make('to')
+                            ->native(false)
+                            ->default(now())
+                            ->afterOrEqual('from')
+                            ->required(),
+                    ])
+                    ->action(function (Project $record, array $data): void {
+                        $queued = app(PdfDocumentService::class)->queueAttendance(
+                            $record,
+                            Carbon::parse($data['from']),
+                            Carbon::parse($data['to']),
+                            auth()->id(),
+                        );
+
+                        Notification::make()
+                            ->title($queued
+                                ? 'Attendance roster PDF queued for generation.'
+                                : 'A roster for this period already exists — download link sent.')
+                            ->success()
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
