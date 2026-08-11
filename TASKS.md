@@ -215,9 +215,12 @@
   > *(this Spatie version exposes the subject relation as `activitiesAsSubject()` and stores diffs in `attribute_changes`, not `activities()`/`changes()`)*
 
 ### 6.2 Performance
-- [ ] Verify all indexes from Section 4 are present
-- [ ] Server-side pagination on all table views (no full result set loading)
-- [ ] Review N+1 queries in Filament resources; eager-load relationships
+- [x] Verify all indexes from Section 4 are present
+  > *(verified: `projects(client_id,status)`, `project_milestones(project_id,status)`, `daily_reports(site_id,report_date)` unique + `status` + `report_date`; all FK columns auto-indexed by `foreignUuid()`)*
+- [x] Server-side pagination on all table views (no full result set loading)
+  > *(every table uses Filament default pagination (10/page) — none call `paginated(false)`; verified via `getTableRecordsPerPage() === 10`)*
+- [x] Review N+1 queries in Filament resources; eager-load relationships
+  > *(Fixed real N+1 in `GeneratedDocumentResource::subject` closure — added `with(['dailyReport.site','project'])`; added `with(['site.project','createdBy'])` to `DailyReportResource::scopedQuery`. `->counts()` columns use `withCount`; dot-relationship columns auto-eager-loaded by Filament)*
 
 ### 6.3 Security Hardening
 - [ ] Rate-limit auth endpoints and client portal routes
