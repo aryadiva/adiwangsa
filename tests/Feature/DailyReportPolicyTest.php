@@ -87,3 +87,14 @@ it('keeps a published report immutable and draft hidden even when statuses chang
 
     expect($clientUser->can('view', $report))->toBeFalse();
 });
+
+it('allows a new report on a site and date whose previous report was soft deleted', function () {
+    $site = Site::factory()->create();
+    $report = DailyReport::factory()->create(['site_id' => $site->id, 'report_date' => now()]);
+
+    $report->delete();
+
+    $replacement = DailyReport::factory()->create(['site_id' => $site->id, 'report_date' => now()]);
+
+    expect($replacement->exists)->toBeTrue();
+});

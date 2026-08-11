@@ -61,14 +61,14 @@ class ProjectResource extends Resource
                     ->options(ProjectStatus::class)
                     ->required(),
                 Forms\Components\DatePicker::make('start_date')
-                    ->native(false),
+                    ->native(false)
+                    ->required(),
                 Forms\Components\DatePicker::make('target_end_date')
                     ->native(false)
                     ->afterOrEqual('start_date'),
                 Forms\Components\TextInput::make('budget')
                     ->numeric()
-                    ->minValue(0)
-                    ->required(),
+                    ->minValue(0),
                 Forms\Components\Select::make('timezone')
                     ->options(fn (): array => collect(\DateTimeZone::listIdentifiers())
                         ->filter(fn (string $tz): bool => str_starts_with($tz, 'UTC') || str_starts_with($tz, 'Asia/'))

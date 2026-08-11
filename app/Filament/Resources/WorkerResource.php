@@ -32,8 +32,7 @@ class WorkerResource extends Resource
                     ->maxLength(100),
                 Forms\Components\TextInput::make('daily_rate')
                     ->numeric()
-                    ->minValue(0)
-                    ->required(),
+                    ->minValue(0),
                 Forms\Components\Toggle::make('is_active')
                     ->inline(false)
                     ->default(true),

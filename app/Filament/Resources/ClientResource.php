@@ -34,12 +34,15 @@ class ClientResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('contact_person')
+                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
                     ->email()
+                    ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
                     ->tel()
+                    ->required()
                     ->maxLength(50),
                 Forms\Components\KeyValue::make('meta_data')
                     ->label('Additional Fields')
