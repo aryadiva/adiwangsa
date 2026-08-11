@@ -1,59 +1,140 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Construction Operations & Back-Office Management Dashboard
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A centralized, role-based internal tool that migrates manual, error-prone construction
+consultancy operations (Excel spreadsheets, WhatsApp threads, fragmented site photos)
+into a single web dashboard built with the **TALL stack**.
 
-## About Laravel
+## Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+- **Project Management** — track projects, site locations, milestones, and status indicators.
+- **Worker & Resource Directory** — worker pools and daily labor allocations per site.
+- **Daily Site Reporting** — digital logs submitted by Site Engineers with auto-saving
+  drafts, a review/approval queue, worker allocations, and photo uploads.
+- **Paperwork Engine** — dynamic, queued PDF generation for standard industry documents
+  (Daily Progress Reports, Weekly Site Executive Digest, Worker Attendance & Labor Roster).
+- **Client Visibility** — read-only portal for project owners / contracted clients to track
+  site activity with no access to administrative controls.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+This is a **single-tenant internal tool** (one consultancy, many clients/projects), not a
+multi-tenant SaaS.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Tech Stack
 
-## Learning Laravel
+| Component              | Technology                                     |
+| :--------------------- | :--------------------------------------------- |
+| Framework              | Laravel 11.x / 12.x (PHP 8.3+)                 |
+| Admin UI               | Filament PHP v3.x                              |
+| Reactivity             | Laravel Livewire v3.x                          |
+| Styling / Interactivity| Tailwind CSS + Alpine.js (Filament-bundled)    |
+| Database               | PostgreSQL 15+ (native `jsonb`)                |
+| PDF Generation         | Blade-to-PDF (PdfReportService + queued job)   |
+| RBAC                   | Filament + Eloquent policies / scopes          |
+| Queue                  | Laravel Queues (**Redis** driver)              |
+| File storage           | S3-compatible (AWS S3 / Spaces / **MinIO** in dev) |
+| Image processing       | Intervention Image                             |
+| Audit logging          | spatie/laravel-activitylog                     |
+| Notifications          | Laravel Notifications (mail + database)        |
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## Roles (RBAC)
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```
+[System User]
+      ├── Admin / Consultant ────► [Full Read/Write, Approval Queue, PDF Exports, System Config]
+      ├── Site Engineer ─────────► [Scoped CRUD: Assigned Sites, Daily Logs (Draft/Submit)]
+      └── Client User ───────────► [Scoped Read-Only: Assigned Projects, Published Reports]
+```
 
-## Laravel Sponsors
+- **Admin / Consultant** — full CRUD, exclusive publish/revision authority, triggers queued
+  PDF generation, manages users/assignments, views audit trail.
+- **Site Engineer** — create/update `daily_reports` for explicitly assigned project sites;
+  manage drafts and submit for approval; uploads photos and worker data; cannot publish.
+- **Client User** — strict read-only, only `published` reports, only their linked projects;
+  can download generated PDFs; notified on publication.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## Key Features
 
-### Premium Partners
+- **Daily Report state machine:** `draft → need_approval → published`, with
+  `revision_requested` as an editable branch. All transitions route through dedicated
+  model actions; resubmission snapshots history to `daily_report_revisions`.
+- **Draft auto-save** via Livewire polling with retry-on-failure for flaky mobile connectivity.
+- **Queued PDF generation** (`GeneratePdfJob`) — always background, never synchronous;
+  documents are stored on the `pdfs` disk and recorded in `generated_documents`.
+- **Photo uploads** to S3-compatible storage with automatic thumbnail generation and
+  photo-file reconciliation (dedupe + orphan prune).
+- **Audit trail** and **notifications** across approval workflow events.
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Getting Started (Local Dev — Laravel Sail)
 
-## Contributing
+Requires Docker. Prerequisites: PHP 8.3+, Composer, Docker/Sail.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# Install dependencies
+composer install && npm install
 
-## Code of Conduct
+# Configure environment
+cp .env.example .env        # set DB, REDIS, and S3/MinIO credentials
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Start the Sail stack (or: ./vendor/bin/sail up -d)
+sail up
 
-## Security Vulnerabilities
+# Run migrations + seed
+sail artisan migrate:fresh --seed
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Build frontend assets
+npm run build               # or: npm run dev
+```
+
+### Queued jobs (IMPORTANT)
+
+PDF generation, notifications, and image processing run on the **Redis queue**. You **must**
+have a queue worker running, otherwise queued jobs will never execute (e.g. the "Generated
+PDFs" list stays empty):
+
+```bash
+sail artisan queue:work --tries=3 --timeout=90
+```
+
+The local dev `compose.yaml` includes a dedicated `worker` service that starts automatically
+with `sail up`.
+
+> **NOTE:** The current `compose.yaml` is a **temporary, dev-only configuration** tuned for
+> local testing (Laravel Sail + MinIO). The MinIO container attaches to the `laravel.test`
+> network namespace, and the worker reaches it via the `http://laravel.test:9000` endpoint.
+> Production will use a real S3-compatible provider and a properly isolated worker service —
+> the compose file is *not* a blueprint for production infrastructure.
+
+## Commands
+
+```bash
+sail artisan migrate:fresh --seed   # reset DB with seed data
+sail artisan test                   # run the Pest test suite
+sail artisan test --filter=DailyReportPolicyTest
+./vendor/bin/pint                   # code style lint/format
+./vendor/bin/phpstan analyse        # static analysis (if configured)
+sail artisan photos:prune --dry-run # reconcile/prune orphan photo records
+```
+
+## Testing
+
+Pest feature tests cover:
+
+- **RBAC enforcement** — per-role allow/deny on `daily_reports`, `sites`, and `projects`;
+  clients cannot fetch `draft`/`need_approval` reports by guessing UUIDs.
+- **State machine transitions** — all legal transitions plus rejection of illegal ones.
+- **PDF generation** — queued job DTO assertions with a faked queue.
+
+Run the full suite before every commit; do not commit red tests.
+
+## Project Structure
+
+- `app/Filament/Resources/` — one Filament Resource per model; nested relation managers
+  for child data.
+- `app/Jobs/GeneratePdfJob.php` + `app/Services/PdfReportService.php` — queued PDF pipeline.
+- `app/DTOs/ReportDataDTO.php` — immutable, queue-safe data passed to Blade.
+- `resources/views/pdf/` — PDF Blade layouts (never inline HTML in services/jobs).
+- `app/Enums/` — backed PHP enums for all status fields (no magic strings).
+- `docs/prd.md` — the full v2 PRD / source of truth for resources, policies, and schema.
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Proprietary internal tool — construction consultancy operations dashboard.
