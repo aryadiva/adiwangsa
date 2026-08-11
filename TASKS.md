@@ -206,9 +206,13 @@
 ## Phase 6: Polish, Audit & Launch Prep
 
 ### 6.1 Audit Logging
-- [ ] Verify `LogsActivity` trait on `DailyReport`, `Project`, `ProjectMilestone`
-- [ ] Admin can view activity log per report (`View Activity Log` action)
-- [ ] Activity log shows: who changed status, old→new values, timestamp
+- [x] Verify `LogsActivity` trait on `DailyReport`, `Project`, `ProjectMilestone`
+  > *(DailyReport + Project already had it; added to `ProjectMilestone` with `logOnly(['title','status','target_date','completed_at'])` + `logOnlyDirty`)*
+- [x] Admin can view activity log per report (`View Activity Log` action)
+  > *(row action on `DailyReportResource` table, admin-only visible; opens modal rendering `resources/views/filament/activity-log.blade.php`)*
+- [x] Activity log shows: who changed status, old→new values, timestamp
+  > *(reads `attribute_changes` JSONB — causer name, `old.status`→`attributes.status`, and `created_at` in report project timezone)*
+  > *(this Spatie version exposes the subject relation as `activitiesAsSubject()` and stores diffs in `attribute_changes`, not `activities()`/`changes()`)*
 
 ### 6.2 Performance
 - [ ] Verify all indexes from Section 4 are present
