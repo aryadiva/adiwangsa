@@ -2,11 +2,13 @@
 
 namespace App\Filament\Resources;
 
+use App\Enums\DailyReportStatus;
 use App\Enums\UserRole;
 use App\Filament\Resources\DailyReportResource\Pages;
 use App\Models\DailyReport;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -40,7 +42,27 @@ class DailyReportResource extends Resource
 
     public static function table(Table $table): Table
     {
-        return $table;
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('site.name')->label('Site'),
+                Tables\Columns\TextColumn::make('site.project.name')->label('Project'),
+                Tables\Columns\TextColumn::make('report_date')->date(),
+                Tables\Columns\TextColumn::make('weather_condition'),
+                Tables\Columns\TextColumn::make('status')->badge(),
+                Tables\Columns\TextColumn::make('work_summary')->limit(50),
+            ])
+            ->filters([
+                Tables\Filters\SelectFilter::make('status')
+                    ->options(DailyReportStatus::class),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
     }
 
     public static function getPages(): array

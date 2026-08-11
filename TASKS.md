@@ -83,9 +83,9 @@
 - [x] **Rule:** Every test must assert BOTH allowed AND denied access per role. Do not skip failing assertions.
 
 ### 2.4 Filament Shield Configuration
-- [ ] Run `php artisan shield:generate --all`
-- [ ] Assign default roles and permissions in seeder
-- [ ] Verify login flow and role-based menu visibility
+- [x] Run `php artisan shield:generate --all`
+- [x] Assign default roles and permissions in seeder
+- [x] Verify login flow and role-based menu visibility
 
 ---
 
