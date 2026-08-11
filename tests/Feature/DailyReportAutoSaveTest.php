@@ -3,25 +3,10 @@
 use App\Filament\Resources\DailyReportResource\Pages\EditDailyReport;
 use App\Models\DailyReport;
 use App\Models\Project;
-use App\Models\Site;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
-
-function draftFor(Project $project, string $date): array
-{
-    $engineer = engineerAssignedTo($project);
-    $site = Site::factory()->create(['project_id' => $project->id]);
-
-    $report = DailyReport::factory()->create([
-        'site_id' => $site->id,
-        'created_by_user_id' => $engineer->id,
-        'report_date' => $date,
-    ]);
-
-    return [$engineer, $site, $report];
-}
 
 it('auto-saves draft scalar fields via saveDraft', function () {
     $project = Project::factory()->create();

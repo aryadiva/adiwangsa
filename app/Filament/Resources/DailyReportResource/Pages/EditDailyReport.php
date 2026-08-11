@@ -6,12 +6,15 @@ use App\Enums\DailyReportStatus;
 use App\Enums\UserRole;
 use App\Filament\Resources\DailyReportResource;
 use App\Models\DailyReport;
+use App\Models\DailyReportPhoto;
 use App\Services\DailyReportPhotoService;
 use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Throwable;
 
@@ -21,9 +24,6 @@ class EditDailyReport extends EditRecord
 
     protected static string $view = 'filament.pages.edit-daily-report';
 
-    /** @var list<string> */
-    protected array $originalPhotoPaths = [];
-
     /** @var array<string, mixed> */
     protected array $lastDraftState = [];
 
@@ -32,6 +32,13 @@ class EditDailyReport extends EditRecord
     public bool $draftSaveFailed = false;
 
     public bool $draftSaveInProgress = false;
+
+    /**
+     * Paths of site photos persisted in the DB whose file is missing from storage.
+     *
+     * @var list<string>
+     */
+    public array $missingPhotoPaths = [];
 
     protected function getHeaderActions(): array
     {
@@ -179,7 +186,12 @@ class EditDailyReport extends EditRecord
         $record = $this->record;
         if ($record instanceof DailyReport) {
             $data['file_path'] = $record->photos()->pluck('file_path')->all();
-            $this->originalPhotoPaths = $data['file_path'];
+
+            $disk = Storage::disk('photos');
+            $this->missingPhotoPaths = collect($data['file_path'])
+                ->filter(fn (string $path): bool => ! $disk->exists($path))
+                ->values()
+                ->all();
         }
 
         return $data;
@@ -208,17 +220,56 @@ class EditDailyReport extends EditRecord
             return;
         }
 
-        $kept = $this->data['file_path'] ?? [];
+        $kept = array_values($this->data['file_path'] ?? []);
         $service = app(DailyReportPhotoService::class);
 
-        foreach ($kept as $path) {
-            if (! in_array($path, $this->originalPhotoPaths, true)) {
-                $this->record->photos()->create($service->metadataFor($path));
-            }
+        /** @var list<string> $existing */
+        $existing = $this->record->photos()->pluck('file_path')->all();
+
+        // Insert a row for every kept path not yet persisted (new uploads).
+        foreach (array_values(array_diff($kept, $existing)) as $path) {
+            $this->record->photos()->create($service->metadataFor($path));
         }
 
-        $this->record->photos()
-            ->whereIn('file_path', array_diff($this->originalPhotoPaths, $kept))
-            ->delete();
+        // Delete rows for paths that are no longer kept (removed in this save).
+        $removed = array_values(array_diff($existing, $kept));
+        if ($removed !== []) {
+            $this->record->photos()
+                ->whereIn('file_path', $removed)
+                ->delete();
+        }
+
+        // Deduplicate any leftover duplicate rows for retained paths.
+        $seen = [];
+
+        /** @var Collection<int, DailyReportPhoto> $photos */
+        $photos = $this->record->photos()
+            ->whereIn('file_path', $kept)
+            ->orderBy('created_at')
+            ->get();
+
+        foreach ($photos as $photo) {
+            $key = $photo->file_path;
+
+            if (isset($seen[$key])) {
+                $photo->delete();
+
+                continue;
+            }
+
+            $seen[$key] = true;
+        }
+
+        $this->syncMissingPhotoPaths($kept);
+    }
+
+    protected function syncMissingPhotoPaths(array $paths): void
+    {
+        $disk = Storage::disk('photos');
+
+        $this->missingPhotoPaths = collect($paths)
+            ->filter(fn (string $path): bool => ! $disk->exists($path))
+            ->values()
+            ->all();
     }
 }

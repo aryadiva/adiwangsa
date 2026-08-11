@@ -27,6 +27,18 @@
         </template>
     </div>
 
+    @if (filled($this->missingPhotoPaths))
+        <div class="mb-4 rounded-lg border border-danger-200 bg-danger-50 p-3 text-sm text-danger-700">
+            <strong>{{ count($this->missingPhotoPaths) }} site photo(s) referenced but missing from storage.</strong>
+            <span class="mt-1 block">These cannot be displayed until re-uploaded. Missing:</span>
+            <ul class="mt-1 list-inside list-disc">
+                @foreach ($this->missingPhotoPaths as $path)
+                    <li class="break-all font-mono text-xs">{{ basename($path) }} ({{ $path }})</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <x-filament-panels::form
         id="form"
         :wire:key="$this->getId() . '.forms.' . $this->getFormStatePath()"
