@@ -3,13 +3,14 @@
 namespace App\Filament\Resources\ProjectResource\RelationManagers;
 
 use App\Enums\ProjectMilestoneStatus;
+use App\Models\Project;
+use App\Models\ProjectMilestone;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ProjectMilestonesRelationManager extends RelationManager
 {
@@ -78,11 +79,14 @@ class ProjectMilestonesRelationManager extends RelationManager
             ->headerActions([
                 Tables\Actions\CreateAction::make()
                     ->mutateFormDataUsing(function (array $data): array {
+                        /** @var Project $project */
+                        $project = $this->ownerRecord;
+
+                        /** @var Builder<ProjectMilestone> $query */
+                        $query = $project->milestones();
+
                         $data['sort_order'] = $data['sort_order']
-                            ?? $this->ownerRecord
-                                ->milestones()
-                                ->withTrashed()
-                                ->max('sort_order') + 1;
+                            ?? $query->withTrashed()->max('sort_order') + 1;
 
                         return $data;
                     }),
@@ -96,10 +100,5 @@ class ProjectMilestonesRelationManager extends RelationManager
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
-    }
-
-    protected function getEloquentQuery(): Builder
-    {
-        return parent::getEloquentQuery()->withoutGlobalScope(SoftDeletingScope::class);
     }
 }

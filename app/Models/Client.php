@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,16 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property string|null $user_id
+ * @property string $company_name
+ * @property string|null $contact_person
+ * @property string|null $email
+ * @property string|null $phone
+ * @property array $meta_data
+ * @property-read User|null $user
+ * @property-read Collection<int, Project> $projects
+ */
 class Client extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;

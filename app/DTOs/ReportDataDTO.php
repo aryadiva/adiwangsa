@@ -7,6 +7,7 @@ use App\Enums\DocumentType;
 use App\Enums\ProjectMilestoneStatus;
 use App\Models\DailyReport;
 use App\Models\Project;
+use App\Models\Site;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -46,18 +47,18 @@ final class ReportDataDTO
     public static function forDailyReport(DailyReport $report): self
     {
         $site = $report->site;
-        $project = $site?->project;
+        $project = $site->project;
         $workers = $report->workerAllocations;
 
         return new self(
             type: DocumentType::DailyProgress,
             title: DocumentType::DailyProgress->label(),
-            projectName: $project?->name ?? '',
-            projectCode: $project?->code ?? '',
-            clientCompany: $project?->client?->company_name ?? '',
-            siteName: $site?->name,
-            reportDate: $report->report_date?->toDateString(),
-            weather: $report->weather_condition?->value,
+            projectName: $project->name,
+            projectCode: $project->code,
+            clientCompany: $project->client->company_name,
+            siteName: $site->name,
+            reportDate: $report->report_date->toDateString(),
+            weather: $report->weather_condition->value,
             workSummary: $report->work_summary,
             delaysOrIssues: $report->delays_or_issues,
             workerCount: $workers->count(),
@@ -72,8 +73,8 @@ final class ReportDataDTO
                 ->all(),
             workerRows: $workers
                 ->map(fn ($allocation): array => [
-                    'name' => $allocation->worker?->full_name,
-                    'trade' => $allocation->worker?->trade_skill,
+                    'name' => $allocation->worker->full_name,
+                    'trade' => $allocation->worker->trade_skill,
                     'hours' => (string) $allocation->hours_worked,
                     'remarks' => $allocation->remarks,
                 ])
@@ -93,6 +94,7 @@ final class ReportDataDTO
         $startDay = $start->copy()->startOfDay();
         $endDay = $end->copy()->endOfDay();
 
+        /** @var Collection<int, Site> $sites */
         $sites = $project->sites()
             ->with(['dailyReports' => fn ($query) => $query
                 ->where('status', DailyReportStatus::Published)
@@ -101,15 +103,18 @@ final class ReportDataDTO
             ])
             ->get();
 
-        $reports = $sites->flatMap(fn ($site) => $site->dailyReports
-            ->map(fn ($report): array => ['site' => $site->name, 'report' => $report]))
+        $reports = $sites->flatMap(function (Site $site) {
+            return $site->dailyReports->map(function (DailyReport $report) use ($site): array {
+                return ['site' => $site->name, 'report' => $report];
+            });
+        })
             ->values();
 
         $reportSummaries = $reports
             ->map(fn (array $item): array => [
-                'date' => $item['report']->report_date?->toDateString(),
+                'date' => $item['report']->report_date->toDateString(),
                 'site' => $item['site'],
-                'weather' => $item['report']->weather_condition?->value,
+                'weather' => $item['report']->weather_condition->value,
                 'summary' => $item['report']->work_summary,
                 'hours' => number_format((float) $item['report']->workerAllocations->sum('hours_worked'), 2),
                 'delay' => $item['report']->delays_or_issues,
@@ -131,7 +136,7 @@ final class ReportDataDTO
             title: DocumentType::WeeklyDigest->label(),
             projectName: $project->name,
             projectCode: $project->code,
-            clientCompany: $project->client?->company_name ?? '',
+            clientCompany: $project->client->company_name,
             dateRange: $startDay->toDateString().' — '.$endDay->toDateString(),
             workerCount: $reports->sum(fn (array $item): int => $item['report']->workerAllocations->count()),
             totalHours: number_format((float) $reports->sum(fn (array $item): float => $item['report']->workerAllocations->sum('hours_worked')), 2),
@@ -167,12 +172,14 @@ final class ReportDataDTO
             ->values()
             ->all();
 
+        $first = $reports->first();
+
         return new self(
             type: DocumentType::AttendanceRoster,
             title: DocumentType::AttendanceRoster->label(),
-            projectName: $reports->first()?->site?->project?->name ?? '',
-            projectCode: $reports->first()?->site?->project?->code ?? '',
-            clientCompany: $reports->first()?->site?->project?->client?->company_name ?? '',
+            projectName: $first?->site->project->name ?? '',
+            projectCode: $first?->site->project->code ?? '',
+            clientCompany: $first?->site->project->client->company_name ?? '',
             dateRange: $start->toDateString().' — '.$end->toDateString(),
             workerCount: count($workerRows),
             totalHours: number_format((float) $allocations->sum('hours_worked'), 2),

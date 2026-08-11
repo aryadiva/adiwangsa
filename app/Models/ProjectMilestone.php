@@ -7,7 +7,18 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 
+/**
+ * @property string $project_id
+ * @property string $title
+ * @property string|null $description
+ * @property Carbon $target_date
+ * @property Carbon|null $completed_at
+ * @property ProjectMilestoneStatus $status
+ * @property int $sort_order
+ * @property-read Project $project
+ */
 class ProjectMilestone extends Model
 {
     use HasUuids, SoftDeletes;

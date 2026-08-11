@@ -6,6 +6,13 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * @property string $daily_report_id
+ * @property array $snapshot
+ * @property string|null $edited_by_user_id
+ * @property-read DailyReport $dailyReport
+ * @property-read User|null $editedBy
+ */
 class DailyReportRevision extends Model
 {
     use HasUuids;

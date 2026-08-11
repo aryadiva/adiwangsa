@@ -7,6 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property string $daily_report_id
+ * @property string $worker_id
+ * @property string $hours_worked
+ * @property string|null $remarks
+ * @property-read DailyReport $dailyReport
+ * @property-read Worker $worker
+ */
 class DailyReportWorker extends Model
 {
     use HasUuids, SoftDeletes;

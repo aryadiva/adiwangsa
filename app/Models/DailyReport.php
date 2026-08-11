@@ -18,16 +18,30 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
 /**
- * @property DailyReportStatus $status
+ * @property string $id
  * @property string $site_id
- * @property-read Collection<int, DailyReportWorker> $workerAllocations
+ * @property string|null $created_by_user_id
+ * @property string|null $reviewed_by_user_id
+ * @property Carbon $report_date
+ * @property WeatherCondition $weather_condition
+ * @property string $work_summary
+ * @property string|null $delays_or_issues
+ * @property DailyReportStatus $status
+ * @property string|null $admin_notes
+ * @property array $meta_data
+ * @property-read Site $site
+ * @property-read User|null $createdBy
+ * @property-read User|null $reviewedBy
  * @property-read Collection<int, DailyReportRevision> $revisions
  * @property-read Collection<int, DailyReportPhoto> $photos
+ * @property-read Collection<int, DailyReportWorker> $workerAllocations
+ * @property-read Collection<int, GeneratedDocument> $generatedDocuments
  *
  * @method static Builder<static> forSiteEngineer(User $user)
  * @method static Builder<static> forClient(User $user)
@@ -174,7 +188,7 @@ class DailyReport extends Model
 
         $this->createdBy?->notify(new ReportApprovedNotification($this));
 
-        $clientUser = $this->site?->project?->client?->user;
+        $clientUser = $this->site->project->client->user;
         $clientUser?->notify(new ReportPublishedNotification($this));
     }
 

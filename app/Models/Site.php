@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,6 +10,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property string $project_id
+ * @property string $name
+ * @property string|null $address
+ * @property string|null $latitude
+ * @property string|null $longitude
+ * @property-read Project $project
+ * @property-read Collection<int, DailyReport> $dailyReports
+ */
 class Site extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;

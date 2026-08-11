@@ -7,8 +7,21 @@ use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property string|null $daily_report_id
+ * @property string|null $project_id
+ * @property DocumentType $document_type
+ * @property string $file_path
+ * @property Carbon|null $period_from
+ * @property Carbon|null $period_to
+ * @property string|null $generated_by_user_id
+ * @property-read DailyReport|null $dailyReport
+ * @property-read Project|null $project
+ * @property-read User|null $generatedBy
+ */
 class GeneratedDocument extends Model
 {
     use HasUuids, SoftDeletes;

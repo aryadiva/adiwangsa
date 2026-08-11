@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @property string $daily_report_id
+ * @property string $file_path
+ * @property string|null $thumbnail_path
+ * @property string|null $caption
+ * @property int|null $file_size_bytes
+ * @property-read DailyReport $dailyReport
+ */
 class DailyReportPhoto extends Model
 {
     use HasUuids, SoftDeletes;

@@ -2,12 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * @property string $full_name
+ * @property string|null $trade_skill
+ * @property string|null $daily_rate
+ * @property bool $is_active
+ * @property array $meta_data
+ * @property-read Collection<int, DailyReportWorker> $reportAllocations
+ */
 class Worker extends Model
 {
     use HasFactory, HasUuids, SoftDeletes;

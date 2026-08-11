@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -17,7 +18,13 @@ use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
 
 /**
+ * @property string $name
+ * @property string $email
+ * @property string $password
  * @property UserRole $role
+ * @property bool $is_active
+ * @property-read Collection<int, Project> $projects
+ * @property-read Client|null $client
  *
  * @method static \Illuminate\Database\Eloquent\Builder<static> whereRole(UserRole|string $role)
  */

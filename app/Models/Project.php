@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ProjectStatus;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,6 +15,21 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Activitylog\Models\Concerns\LogsActivity;
 use Spatie\Activitylog\Support\LogOptions;
 
+/**
+ * @property string|null $client_id
+ * @property string $name
+ * @property string $code
+ * @property ProjectStatus $status
+ * @property \Illuminate\Support\Carbon $start_date
+ * @property \Illuminate\Support\Carbon|null $target_end_date
+ * @property string|null $budget
+ * @property string|null $timezone
+ * @property array $meta_data
+ * @property-read Client $client
+ * @property-read Collection<int, ProjectMilestone> $milestones
+ * @property-read Collection<int, Site> $sites
+ * @property-read Collection<int, User> $engineers
+ */
 class Project extends Model
 {
     use HasFactory, HasUuids, LogsActivity, SoftDeletes;
