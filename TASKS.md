@@ -76,11 +76,11 @@
 - [x] Apply scopes in all Filament Resources' `getEloquentQuery()` methods
 
 ### 2.3 RBAC Feature Tests (Pest)
-- [ ] `DailyReportPolicyTest` — test each role can/cannot view/edit/delete reports
-- [ ] `ProjectPolicyTest` — test each role's project visibility
-- [ ] `ClientVisibilityTest` — assert client CANNOT see `draft`/`need_approval`/`revision_requested` reports (even by guessing UUID)
-- [ ] `SiteEngineerScopeTest` — assert engineer cannot see reports for unassigned sites
-- [ ] **Rule:** Every test must assert BOTH allowed AND denied access per role. Do not skip failing assertions.
+- [x] `DailyReportPolicyTest` — test each role can/cannot view/edit/delete reports
+- [x] `ProjectPolicyTest` — test each role's project visibility
+- [x] `ClientVisibilityTest` — assert client CANNOT see `draft`/`need_approval`/`revision_requested` reports (even by guessing UUID)
+- [x] `SiteEngineerScopeTest` — assert engineer cannot see reports for unassigned sites
+- [x] **Rule:** Every test must assert BOTH allowed AND denied access per role. Do not skip failing assertions.
 
 ### 2.4 Filament Shield Configuration
 - [ ] Run `php artisan shield:generate --all`
