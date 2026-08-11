@@ -138,10 +138,11 @@
 ## Phase 4: Milestones & Notifications
 
 ### 4.1 ProjectMilestoneResource
-- [ ] Create `app/Filament/Resources/ProjectMilestoneResource.php`
-- [ ] Add as RelationManager on `ProjectResource` (inline table with progress badges)
-- [ ] Fields: title, description, target_date, completed_at, status, sort_order
-- [ ] Sortable/reorderable by `sort_order`
+- [x] Create `app/Filament/Resources/ProjectMilestoneResource.php`
+  > *(implemented as `ProjectResource/RelationManagers/ProjectMilestonesRelationManager.php` per AGENTS.md "ProjectMilestoneResource as a relation manager on ProjectResource" + PRD §6.2 — nested, not a standalone top-level resource)*
+- [x] Add as RelationManager on `ProjectResource` (inline table with progress badges)
+- [x] Fields: title, description, target_date, completed_at, status, sort_order
+- [x] Sortable/reorderable by `sort_order`
 
 ### 4.2 Notifications
 - [ ] Create notification classes:

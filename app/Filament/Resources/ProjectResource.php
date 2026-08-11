@@ -143,6 +143,13 @@ class ProjectResource extends Resource
             ]);
     }
 
+    public static function getRelations(): array
+    {
+        return [
+            ProjectResource\RelationManagers\ProjectMilestonesRelationManager::class,
+        ];
+    }
+
     public static function getPages(): array
     {
         return [
