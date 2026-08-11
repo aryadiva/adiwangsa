@@ -151,6 +151,7 @@
   - [x] `RevisionRequestedNotification` (to engineer, on `revision_requested`)
   - [x] `ReportPublishedNotification` (to client, on `published` ONLY — never intermediate states)
 - [x] Channels: mail + database (Filament notification bell)
+  > *(added `notifications` table migration with `uuidMorphs` — was missing, required for the database channel; enabled bell via `AdminPanelProvider::databaseNotifications()`)*
 - [x] **Verify:** Client notification listener is scoped strictly to `published` transition
   > *(dispatched from `DailyReport::approveAndPublish()` only — never on draft/need_approval/revision_requested)*
 - [x] **Test:** Notification fires on correct transition; does NOT fire on wrong transition
