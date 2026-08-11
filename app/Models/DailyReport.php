@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\DailyReportStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -15,6 +16,9 @@ use Spatie\Activitylog\Support\LogOptions;
 /**
  * @property DailyReportStatus $status
  * @property string $site_id
+ *
+ * @method static Builder<static> forSiteEngineer(User $user)
+ * @method static Builder<static> forClient(User $user)
  */
 class DailyReport extends Model
 {
@@ -87,5 +91,21 @@ class DailyReport extends Model
     public function workerAllocations(): HasMany
     {
         return $this->hasMany(DailyReportWorker::class);
+    }
+
+    public function scopeForSiteEngineer(Builder $query, User $user): Builder
+    {
+        return $query->whereHas('site.project', function (Builder $q) use ($user): void {
+            $q->whereHas('engineers', fn (Builder $engineers) => $engineers->whereKey($user->id));
+        });
+    }
+
+    public function scopeForClient(Builder $query, User $user): Builder
+    {
+        $projectIds = $user->client?->projects()->pluck('id') ?? collect();
+
+        return $query
+            ->where('status', DailyReportStatus::Published)
+            ->whereHas('site', fn (Builder $sites) => $sites->whereIn('project_id', $projectIds));
     }
 }

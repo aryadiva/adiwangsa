@@ -71,9 +71,9 @@
 - [x] **Verify:** No `Model::all()` or unscoped `Model::query()` in any policy or resource
 
 ### 2.2 Eloquent Query Scopes
-- [ ] `DailyReport::scopeForSiteEngineer($query, User $user)` — filter by `project_user` assignments
-- [ ] `DailyReport::scopeForClient($query, User $user)` — filter by `client_id` + enforce `status = published`
-- [ ] Apply scopes in all Filament Resources' `getEloquentQuery()` methods
+- [x] `DailyReport::scopeForSiteEngineer($query, User $user)` — filter by `project_user` assignments
+- [x] `DailyReport::scopeForClient($query, User $user)` — filter by `client_id` + enforce `status = published`
+- [x] Apply scopes in all Filament Resources' `getEloquentQuery()` methods
 
 ### 2.3 RBAC Feature Tests (Pest)
 - [ ] `DailyReportPolicyTest` — test each role can/cannot view/edit/delete reports
