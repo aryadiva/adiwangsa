@@ -8,5 +8,5 @@ Route::get('/', function () {
 });
 
 Route::get('/generated-documents/{generatedDocument}/download', GeneratedDocumentDownloadController::class)
-    ->middleware(['auth'])
+    ->middleware(['auth', 'throttle:document-downloads'])
     ->name('generated-documents.download');

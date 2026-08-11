@@ -23,6 +23,7 @@ use Spatie\Permission\Traits\HasRoles;
  * @property string $password
  * @property UserRole $role
  * @property bool $is_active
+ * @property bool $must_change_password
  * @property-read Collection<int, Project> $projects
  * @property-read Client|null $client
  *
@@ -57,6 +58,7 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'role',
         'is_active',
+        'must_change_password',
     ];
 
     /**
@@ -81,6 +83,7 @@ class User extends Authenticatable implements FilamentUser
             'password' => 'hashed',
             'role' => UserRole::class,
             'is_active' => 'boolean',
+            'must_change_password' => 'boolean',
         ];
     }
 

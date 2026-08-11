@@ -66,6 +66,7 @@ class UserResource extends Resource
                     ->revealable()
                     ->dehydrated(fn (?string $state): bool => filled($state))
                     ->required(fn (string $operation): bool => $operation === 'create')
+                    ->minLength(8)
                     ->maxLength(255),
             ]);
     }
