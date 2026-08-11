@@ -244,16 +244,33 @@
 
 ---
 
-## Phase 7: Bug Fixing & Touch Up
+## Phase 7: Bug Fixing, Touch Up & Localization
 
 > All subsequent fixes and updates fall under this phase. Commit style: `[Phase 7] <imperative summary>`.
+> Former **Phase 8** (localization) was merged into this phase; there is no separate Phase 8.
 
 ### 7.1 Bug Fixes
 - [x] Client `Change Password` page redirected back to Dashboard for non-forced users
   > *(removed the early redirect in `ChangePassword::mount()` that made the page forced-reset-only; now reachable voluntarily by any authenticated client. Regression tests added: `PanelLoginTest` (client authenticates to client panel; same creds rejected on admin panel) + `SecurityHardeningTest` (client reaches change-password voluntarily).)*
+- [x] Fix site photos invisible in Filament preview via signed URLs `94a7862`
+  > *(root cause: `DailyReportResource` `FileUpload` lacked `->visibility('private')` — Filament defaults component visibility to `public`, so the preview used an unsigned `Storage::url()` against the private MinIO bucket → HTTP 403. Added `->visibility('private')` + regression test in `DailyReportResourceFormTest`.)*
+- [x] Fix empty "Generated PDFs" list — no queue worker consuming jobs `6d1d09a`
+  > *(root cause: `GeneratePdfJob` (projects + daily reports) queued to Redis, but no `queue:work` process ever ran, so `generated_documents` stayed empty. Added a dedicated `worker` compose service (dev-only) running `queue:work redis --stop-when-empty` in a durable `while true` loop; MinIO reached via `http://laravel.test:9000` since minio shares `laravel.test`'s network namespace. See `compose.yaml` note — dev-only, not a production blueprint.)*
 
-### 7.2 Touch Ups
-- [ ]
+### 7.2 Photo Upload & Reconciliation
+- [x] Reconcile daily report photos: dedupe, prune orphans, warn on missing `fa20eeb`
+  > *(`EditDailyReport::afterSave` now diffs kept-vs-existing photo paths — inserts new rows, deletes removed rows, dedupes stale duplicates; exposes missing paths to the edit form via a warning banner. Added `photos:prune` artisan command (`--dry-run` supported) that soft-deletes orphan/duplicate `daily_report_photos` rows. Moved shared `draftFor()` fixture helper into `tests/Support/helpers.php` so reconciliation tests run standalone.)*
+
+### 7.3 Localization (merged from former Phase 8)
+- [x] Add per-user EN/ID language toggle `7465822`
+  > *(custom Livewire `LanguageSwitcher` toggle button mounted in both Filament panels' topbars (`USER_MENU_BEFORE`); persists `users.locale` (default `en`, migration `2026_08_11_090000`) across logout/login; applied each request via `SetLocale` middleware + `App\Support\LocaleContext`.)*
+- [x] Localize Filament core UI + app strings
+  > *(published Filament en/id panel translations (`lang/vendor/*`, pruned to en+id); added `lang/en` + `lang/id` PHP arrays for `pdf.*`, `weather`, and `enum` groups; added `getLabel()` returning `__()` on `WeatherCondition`, `DailyReportStatus`, `ProjectStatus`, `ProjectMilestoneStatus`, `DocumentType`.)*
+- [x] Localize PDF templates
+  > *(`ReportDataDTO` gains a `locale` field baked from the requesting user (`PdfDocumentService`); `PdfReportService` sets app + Carbon locale before render; all three `pdf/*.blade.php` templates use `__('pdf.*')`, `translatedFormat()` dates, and localized weather.)*
+- [x] Relabel currency USD → IDR (no conversion)
+  > *(`ProjectResource` budget + `WorkerResource` daily_rate changed `->money('USD')` → `->money('IDR')`; factories re-seeded to IDR-scale dummy values — daily_rate ~Rp 1.3M–4M, budget ~Rp 16B–800B.)*
+- [x] **Tests:** locale defaults, per-user persistence, livewire toggle, IDR formatting, PDF DTO locale baking, enum translation `LocaleSwitchingTest`
 
 ---
 
