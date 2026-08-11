@@ -111,11 +111,12 @@
     > *(deviated from "tab filter" — Filament v3.3.54 lacks `Table::tabs()`; implemented as nav badge + count-in-filter instead)*
 
 ### 3.2 Auto-Save (Draft State)
-- [ ] Implement `wire:poll.10s="saveDraft"` on edit form when `status === draft`
-- [ ] Alpine.js store to hold form state client-side
-- [ ] Retry-on-failure banner: "Unsaved changes — retrying" (not just timestamp)
-- [ ] Visual indicator in topbar: "Draft Saved at HH:mm:ss" / error state
-- [ ] **Test:** Auto-save persists data; retry works after simulated disconnect
+- [x] Implement `wire:poll.10s="saveDraft"` on edit form when `status === draft`
+  > *(implemented as `:wire:poll="'10s saveDraft'"` rendered only when draft — equivalent Livewire interval+method form of `wire:poll.10s="saveDraft"`)*
+- [x] Alpine.js store to hold form state client-side
+- [x] Retry-on-failure banner: "Unsaved changes — retrying" (not just timestamp)
+- [x] Visual indicator in topbar: "Draft Saved at HH:mm:ss" / error state
+- [x] **Test:** Auto-save persists data; retry works after simulated disconnect
 
 ### 3.3 State Machine Actions
 - [ ] `submitForApproval()` — Site Engineer action, transitions `draft` → `need_approval`
