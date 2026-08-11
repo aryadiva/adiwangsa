@@ -92,8 +92,8 @@
 ## Phase 3: Daily Report Resource & Auto-Save
 
 ### 3.1 DailyReportResource (Filament)
-- [ ] Create `app/Filament/Resources/DailyReportResource.php`
-- [ ] **Form schema:**
+- [x] Create `app/Filament/Resources/DailyReportResource.php`
+- [x] **Form schema:**
   - Site picker: filtered by user's assigned projects (`project_user`)
   - `report_date` (DatePicker)
   - `weather_condition` (Select enum)
@@ -103,11 +103,12 @@
   - Photo uploads: `FileUpload` (multiple, `image/*`, max 10MB, S3 disk)
   - `meta_data`: `KeyValue` or `Group` component for flexible fields
   - `admin_notes` (Textarea, visible only to admin)
-- [ ] **Duplicate prevention:** App-layer check for `(site_id, report_date)` uniqueness in form validation with friendly error message
-- [ ] **Table:**
+- [x] **Duplicate prevention:** App-layer check for `(site_id, report_date)` uniqueness in form validation with friendly error message
+- [x] **Table:**
   - Columns: report_date, site.name, status badge, created_by.name
   - Filters: status, date range, site
-  - Admin badge tab filter for `need_approval` with count indicator
+  - Admin `need_approval` indicator: navigation badge count + live count in status filter option
+    > *(deviated from "tab filter" — Filament v3.3.54 lacks `Table::tabs()`; implemented as nav badge + count-in-filter instead)*
 
 ### 3.2 Auto-Save (Draft State)
 - [ ] Implement `wire:poll.10s="saveDraft"` on edit form when `status === draft`
