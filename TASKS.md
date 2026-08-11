@@ -244,6 +244,19 @@
 
 ---
 
+## Phase 7: Bug Fixing & Touch Up
+
+> All subsequent fixes and updates fall under this phase. Commit style: `[Phase 7] <imperative summary>`.
+
+### 7.1 Bug Fixes
+- [x] Client `Change Password` page redirected back to Dashboard for non-forced users
+  > *(removed the early redirect in `ChangePassword::mount()` that made the page forced-reset-only; now reachable voluntarily by any authenticated client. Regression tests added: `PanelLoginTest` (client authenticates to client panel; same creds rejected on admin panel) + `SecurityHardeningTest` (client reaches change-password voluntarily).)*
+
+### 7.2 Touch Ups
+- [ ]
+
+---
+
 ## Appendix: Quick Commands
 
 ```bash
