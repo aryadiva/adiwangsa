@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Enums\DailyReportStatus;
+use DomainException;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,6 +18,9 @@ use Spatie\Activitylog\Support\LogOptions;
 /**
  * @property DailyReportStatus $status
  * @property string $site_id
+ * @property-read Collection<int, DailyReportWorker> $workerAllocations
+ * @property-read Collection<int, DailyReportRevision> $revisions
+ * @property-read Collection<int, DailyReportPhoto> $photos
  *
  * @method static Builder<static> forSiteEngineer(User $user)
  * @method static Builder<static> forClient(User $user)
@@ -107,5 +112,89 @@ class DailyReport extends Model
         return $query
             ->where('status', DailyReportStatus::Published)
             ->whereHas('site', fn (Builder $sites) => $sites->whereIn('project_id', $projectIds));
+    }
+
+    /**
+     * @return list<DailyReportStatus>
+     */
+    public function allowedNextStatuses(): array
+    {
+        $map = [
+            DailyReportStatus::Draft->value => [DailyReportStatus::NeedApproval],
+            DailyReportStatus::NeedApproval->value => [DailyReportStatus::Published, DailyReportStatus::RevisionRequested],
+            DailyReportStatus::RevisionRequested->value => [DailyReportStatus::NeedApproval],
+            DailyReportStatus::Published->value => [],
+        ];
+
+        foreach ($map as $source => $next) {
+            if ($source === $this->status->value) {
+                return $next;
+            }
+        }
+
+        return [];
+    }
+
+    protected function assertCanTransitionTo(DailyReportStatus $next): void
+    {
+        if (! in_array($next, $this->allowedNextStatuses(), true)) {
+            throw new DomainException(
+                "Illegal status transition from [{$this->status->value}] to [{$next->value}]."
+            );
+        }
+    }
+
+    public function submitForApproval(): void
+    {
+        $this->assertCanTransitionTo(DailyReportStatus::NeedApproval);
+        $this->forceFill(['status' => DailyReportStatus::NeedApproval])->save();
+    }
+
+    public function approveAndPublish(?string $reviewedByUserId = null): void
+    {
+        $this->assertCanTransitionTo(DailyReportStatus::Published);
+        $this->forceFill([
+            'status' => DailyReportStatus::Published,
+            'reviewed_by_user_id' => $reviewedByUserId,
+        ])->save();
+    }
+
+    public function requestRevision(?string $adminNotes = null): void
+    {
+        $this->assertCanTransitionTo(DailyReportStatus::RevisionRequested);
+        $this->forceFill([
+            'status' => DailyReportStatus::RevisionRequested,
+            'admin_notes' => $adminNotes,
+        ])->save();
+    }
+
+    public function resubmitForApproval(?string $editedByUserId = null): void
+    {
+        $this->assertCanTransitionTo(DailyReportStatus::NeedApproval);
+
+        $this->revisions()->create([
+            'snapshot' => $this->buildSnapshot(),
+            'edited_by_user_id' => $editedByUserId,
+        ]);
+
+        $this->forceFill(['status' => DailyReportStatus::NeedApproval])->save();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function buildSnapshot(): array
+    {
+        return array_merge($this->getAttributes(), [
+            'worker_allocations' => $this->workerAllocations
+                ->map(fn (DailyReportWorker $worker): array => [
+                    'worker_id' => $worker->worker_id,
+                    'hours_worked' => (string) $worker->hours_worked,
+                    'remarks' => $worker->remarks,
+                ])
+                ->values()
+                ->all(),
+            'photo_paths' => $this->photos()->pluck('file_path')->all(),
+        ]);
     }
 }

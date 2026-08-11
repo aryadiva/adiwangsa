@@ -119,12 +119,12 @@
 - [x] **Test:** Auto-save persists data; retry works after simulated disconnect
 
 ### 3.3 State Machine Actions
-- [ ] `submitForApproval()` — Site Engineer action, transitions `draft` → `need_approval`
-- [ ] `approveAndPublish()` — Admin action, transitions `need_approval` → `published`, fires client notification
-- [ ] `requestRevision()` — Admin action (modal with `admin_notes`), transitions `need_approval` → `revision_requested`, fires engineer notification
-- [ ] `resubmitForApproval()` — Site Engineer action, transitions `revision_requested` → `need_approval`, **MUST write snapshot to `daily_report_revisions` first**
-- [ ] **Guard:** `published` is terminal — no direct edits; only new revision cycle can reopen (if built)
-- [ ] **Test (Pest):** Legal transitions pass; illegal transitions (e.g. `draft` → `published`) are rejected
+- [x] `submitForApproval()` — Site Engineer action, transitions `draft` → `need_approval`
+- [x] `approveAndPublish()` — Admin action, transitions `need_approval` → `published` — *notification dispatch wired in 4.2 when notification classes exist*
+- [x] `requestRevision()` — Admin action (modal with `admin_notes`), transitions `need_approval` → `revision_requested` — *notification dispatch wired in 4.2*
+- [x] `resubmitForApproval()` — Site Engineer action, transitions `revision_requested` → `need_approval`, **writes snapshot to `daily_report_revisions` before the transition**
+- [x] **Guard:** `published` is terminal — no direct edits (Save locked + backend block)
+- [x] **Test (Pest):** Legal transitions pass; illegal transitions (e.g. `draft` → `published`) are rejected
 
 ### 3.4 Photo Upload & Processing
 - [ ] Server-side MIME sniffing (not extension-based) — reject mismatches
