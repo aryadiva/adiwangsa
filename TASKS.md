@@ -186,9 +186,12 @@
   > *(tested in 5.1 DTO + attendance roster job test; download route `routes/web.php` streams from `pdfs` disk, authorized to admin/owner/client)*
 
 ### 5.3 PDF Tests (Pest)
-- [ ] Use `Queue::fake()` / `Bus::fake()` to assert `GeneratePdfJob` is dispatched
-- [ ] Assert DTO passed to Blade view contains correct data (do not test rendered PDF bytes)
-- [ ] Test Weekly Digest excludes non-published reports
+- [x] Use `Queue::fake()` / `Bus::fake()` to assert `GeneratePdfJob` is dispatched
+  > *(GeneratePdfJobTest: `Bus::fake` + `Bus::assertDispatched` verifying the built DTO payload reaches the queued job, not a synchronous render)*
+- [x] Assert DTO passed to Blade view contains correct data (do not test rendered PDF bytes)
+  > *(PdfReportServiceTest: mock `Barryvdh\DomPDF\PDF`, assert `loadView('pdf.daily-progress'|'pdf.weekly-digest', ['dto' => $dto])` — no byte-level assertions)*
+- [x] Test Weekly Digest excludes non-published reports
+  > *(PdfReportServiceTest: draft/need_approval/revision_requested + out-of-range excluded from `forWeeklyDigest`)*
 
 ### 5.4 Client Portal
 - [ ] Client read-only dashboard: list of assigned projects, `published` daily reports only

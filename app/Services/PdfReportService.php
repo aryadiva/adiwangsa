@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\DTOs\ReportDataDTO;
 use App\Enums\DocumentType;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\DomPDF\PDF;
 
 /**
  * Renders a ReportDataDTO through the matching Blade template in
@@ -12,6 +12,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
  */
 class PdfReportService
 {
+    public function __construct(protected PDF $pdf) {}
+
     public function render(ReportDataDTO $dto): string
     {
         $view = match ($dto->type) {
@@ -20,6 +22,6 @@ class PdfReportService
             DocumentType::AttendanceRoster => 'pdf.attendance-roster',
         };
 
-        return Pdf::loadView($view, ['dto' => $dto])->output();
+        return $this->pdf->loadView($view, ['dto' => $dto])->output();
     }
 }

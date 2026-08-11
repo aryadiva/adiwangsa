@@ -7,6 +7,7 @@ use App\Enums\ProjectMilestoneStatus;
 use App\Models\DailyReport;
 use App\Models\ProjectMilestone;
 use App\Services\PdfReportService;
+use Barryvdh\DomPDF\PDF;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 
@@ -79,14 +80,45 @@ it('excludes non-published and out-of-range reports from the weekly digest DTO',
         ->and($dto->milestones[0]['title'])->toBe('Foundation Slab');
 });
 
-it('renders a daily report DTO into valid pdf bytes', function () {
+it('passes the daily report DTO to the daily-progress Blade view', function () {
     [, , $report] = reportWithWorkersAndPhoto();
     $dto = ReportDataDTO::forDailyReport($report);
 
-    $bytes = (new PdfReportService)->render($dto);
+    $this->mock(PDF::class, function ($mock) use ($dto) {
+        $mock->shouldReceive('loadView')
+            ->once()
+            ->with('pdf.daily-progress', Mockery::on(
+                fn (array $data): bool => ($data['dto'] ?? null) === $dto
+                    && $data['dto']->type === DocumentType::DailyProgress
+                    && $data['dto']->workSummary === 'Excavation completed for Block A.'
+            ))
+            ->andReturnSelf();
+        $mock->shouldReceive('output')->andReturn('rendered-pdf-bytes');
+    });
 
-    expect($bytes)->toBeString()
-        ->and(str_starts_with($bytes, '%PDF'))->toBeTrue();
+    $bytes = $this->app->make(PdfReportService::class)->render($dto);
+
+    expect($bytes)->toBe('rendered-pdf-bytes');
+});
+
+it('passes the weekly digest DTO to the weekly-digest Blade view', function () {
+    [$project] = reportWithWorkersAndPhoto();
+    $dto = ReportDataDTO::forWeeklyDigest($project, Carbon::now()->subDays(7), Carbon::now());
+
+    $this->mock(PDF::class, function ($mock) use ($dto) {
+        $mock->shouldReceive('loadView')
+            ->once()
+            ->with('pdf.weekly-digest', Mockery::on(
+                fn (array $data): bool => ($data['dto'] ?? null) === $dto
+                    && $data['dto']->type === DocumentType::WeeklyDigest
+            ))
+            ->andReturnSelf();
+        $mock->shouldReceive('output')->andReturn('digest-bytes');
+    });
+
+    $bytes = $this->app->make(PdfReportService::class)->render($dto);
+
+    expect($bytes)->toBe('digest-bytes');
 });
 
 it('builds an attendance roster DTO grouped by worker', function () {
