@@ -12,6 +12,7 @@ use App\Models\Project;
 use App\Models\User;
 use App\Notifications\PdfReadyNotification;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * Central dispatcher for PDF generation. Refuses to regenerate a document
@@ -117,5 +118,22 @@ class PdfDocumentService
     protected function userLocale(?string $userId): ?string
     {
         return $userId ? User::find($userId)?->locale : null;
+    }
+
+    /**
+     * Remove a generated document. If the object still exists on the `pdfs`
+     * disk it is deleted first, then the record is soft-deleted. A record
+     * whose file is already gone (e.g. pruned in MinIO) is still removed.
+     */
+    public function delete(GeneratedDocument $document): void
+    {
+        $disk = Storage::disk('pdfs');
+        $path = $document->file_path;
+
+        if ($path !== '' && $disk->exists($path)) {
+            $disk->delete($path);
+        }
+
+        $document->delete();
     }
 }

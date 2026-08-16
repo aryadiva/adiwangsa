@@ -1,9 +1,12 @@
 <?php
 
 use App\Enums\DocumentType;
+use App\Filament\Resources\GeneratedDocumentResource\Pages\ListGeneratedDocuments;
 use App\Models\GeneratedDocument;
 use App\Models\Project;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Storage;
+use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
 
@@ -41,4 +44,35 @@ it('scopes generated documents for a site engineer to assigned projects only', f
         ->assertOk()
         ->assertSee('Assigned Tower')
         ->assertDontSee('Foreign Facility');
+});
+
+it('delete action removes the pdf from storage and soft-deletes the record', function () {
+    Storage::fake('pdfs');
+    $admin = adminUser();
+    $project = Project::factory()->create();
+    $doc = generatedDoc($project);
+    Storage::disk('pdfs')->put($doc->file_path, 'pdf bytes');
+
+    Livewire::actingAs($admin)
+        ->test(ListGeneratedDocuments::class)
+        ->callTableAction('delete', $doc)
+        ->assertSuccessful();
+
+    Storage::disk('pdfs')->assertMissing($doc->file_path);
+    expect($doc->fresh()->trashed())->toBeTrue();
+});
+
+it('delete action succeeds when the pdf is already missing, deleting just the record', function () {
+    Storage::fake('pdfs');
+    $admin = adminUser();
+    $project = Project::factory()->create();
+    $doc = generatedDoc($project);
+
+    Storage::disk('pdfs')->assertMissing($doc->file_path);
+    Livewire::actingAs($admin)
+        ->test(ListGeneratedDocuments::class)
+        ->callTableAction('delete', $doc)
+        ->assertSuccessful();
+
+    expect($doc->fresh()->trashed())->toBeTrue();
 });

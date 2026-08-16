@@ -4,6 +4,7 @@ use App\Enums\DailyReportStatus;
 use App\Jobs\GeneratePdfJob;
 use App\Models\DailyReport;
 use App\Models\GeneratedDocument;
+use App\Models\Project;
 use App\Models\User;
 use App\Notifications\PdfReadyNotification;
 use App\Services\PdfDocumentService;
@@ -11,6 +12,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
@@ -104,4 +106,40 @@ it('queues an attendance roster job using only published reports', function () {
 
     expect($queued)->toBeTrue();
     Bus::assertDispatched(GeneratePdfJob::class);
+});
+
+it('deletes the object and the record when the file exists on the pdf disk', function () {
+    Storage::fake('pdfs');
+    $admin = User::factory()->admin()->create();
+    Storage::disk('pdfs')->put('documents/delete-me.pdf', 'pdf bytes');
+
+    $document = GeneratedDocument::create([
+        'project_id' => Project::factory()->create()->id,
+        'document_type' => 'weekly_digest',
+        'file_path' => 'documents/delete-me.pdf',
+        'generated_by_user_id' => $admin->id,
+    ]);
+
+    app(PdfDocumentService::class)->delete($document);
+
+    Storage::disk('pdfs')->assertMissing('documents/delete-me.pdf');
+    expect($document->fresh()->trashed())->toBeTrue();
+});
+
+it('deletes only the record when the file is already gone from the pdf disk', function () {
+    Storage::fake('pdfs');
+    $admin = User::factory()->admin()->create();
+
+    $document = GeneratedDocument::create([
+        'project_id' => Project::factory()->create()->id,
+        'document_type' => 'weekly_digest',
+        'file_path' => 'documents/orphan.pdf',
+        'generated_by_user_id' => $admin->id,
+    ]);
+
+    Storage::disk('pdfs')->assertMissing('documents/orphan.pdf');
+    app(PdfDocumentService::class)->delete($document);
+
+    Storage::disk('pdfs')->assertMissing('documents/orphan.pdf');
+    expect($document->fresh()->trashed())->toBeTrue();
 });

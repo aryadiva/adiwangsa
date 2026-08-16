@@ -6,6 +6,7 @@ use App\Enums\DocumentType;
 use App\Enums\UserRole;
 use App\Filament\Resources\GeneratedDocumentResource\Pages;
 use App\Models\GeneratedDocument;
+use App\Services\PdfDocumentService;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -88,6 +89,17 @@ class GeneratedDocumentResource extends Resource
                     ->icon('heroicon-o-arrow-down-tray')
                     ->url(fn (GeneratedDocument $record): string => route('generated-documents.download', $record))
                     ->openUrlInNewTab(),
+                Tables\Actions\Action::make('delete')
+                    ->label('Delete')
+                    ->icon('heroicon-o-trash')
+                    ->color('danger')
+                    ->requiresConfirmation()
+                    ->modalHeading('Delete this document?')
+                    ->modalDescription('The PDF is removed from object storage and the record is deleted.')
+                    ->successNotificationTitle('Document deleted')
+                    ->action(function (GeneratedDocument $record): void {
+                        app(PdfDocumentService::class)->delete($record);
+                    }),
             ])
             ->bulkActions([]);
     }
