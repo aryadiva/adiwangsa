@@ -7,6 +7,7 @@ use App\Models\DailyReport;
 use App\Models\Project;
 use App\Models\Site;
 use App\Models\User;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
@@ -28,7 +29,18 @@ it('renders the full form schema for an admin', function () {
         ->assertFormFieldExists('admin_notes');
 });
 
-it('keeps the site photos upload visibility private so signed URLs are used for preview', function () {
+it('emits a signed preview URL and never falls back to an unsigned object URL', function () {
+    $disk = Mockery::mock(Filesystem::class);
+    $disk->shouldReceive('temporaryUrl')
+        ->once()
+        ->with('daily-report-photos/preview.jpg', Mockery::type(DateTimeInterface::class))
+        ->andReturn('http://192.168.10.201:9000/construction-ops/daily-report-photos/preview.jpg?X-Amz-Signature=abc');
+    $disk->shouldReceive('exists')->once()->andReturn(true);
+    $disk->shouldReceive('size')->once()->andReturn(42);
+    $disk->shouldReceive('mimeType')->once()->andReturn('image/jpeg');
+    $disk->shouldNotReceive('url');
+    Storage::set('photos', $disk);
+
     $admin = adminUser();
     $page = Livewire::actingAs($admin)->test(CreateDailyReport::class);
 
@@ -37,6 +49,15 @@ it('keeps the site photos upload visibility private so signed URLs are used for 
 
     expect($field)->not->toBeNull();
     expect($field->getVisibility())->toBe('private');
+
+    $field->state(['daily-report-photos/preview.jpg']);
+    $files = $field->getUploadedFiles();
+
+    expect($files)->toHaveCount(1)
+        ->and($files[0]['url'])->toContain('X-Amz-Signature=')
+        ->and($files[0]['size'])->toBe(42);
+
+    Storage::fake('photos');
 });
 
 it('exposes every site in the picker to an admin', function () {

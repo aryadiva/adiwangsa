@@ -8,13 +8,13 @@ $devDiskConfig = [
     'secret' => 'password',
     'region' => 'us-east-1',
     'bucket' => 'construction-ops',
-    'endpoint' => 'http://minio:9000',
-    'url' => 'http://localhost:9000/construction-ops',
+    'endpoint' => 'http://192.168.10.201:9000',
+    'url' => 'http://192.168.10.201:9000/construction-ops',
     'use_path_style_endpoint' => true,
     'visibility' => 'private',
 ];
 
-test('photos and pdfs disks split S3 API endpoint from browser-facing url', function () use ($devDiskConfig) {
+test('photos and pdfs disks use a single browser+container-addressable endpoint', function () use ($devDiskConfig) {
     config(['filesystems.disks.photos' => $devDiskConfig]);
     config(['filesystems.disks.pdfs' => $devDiskConfig]);
 
@@ -22,13 +22,18 @@ test('photos and pdfs disks split S3 API endpoint from browser-facing url', func
         $disk = Storage::disk($name);
         $config = config("filesystems.disks.$name");
 
+        $endpointHost = parse_url($config['endpoint'], PHP_URL_HOST);
+        $urlHost = parse_url($disk->url('daily-report-photos/abc.jpg'), PHP_URL_HOST);
+
         expect($config['driver'])->toBe('s3')
             ->and($config['visibility'])->toBe('private')
             ->and($config['use_path_style_endpoint'])->toBeTrue()
-            // SDK API calls are fed the internal MinIO host over the sail bridge...
-            ->and($config['endpoint'])->toBe('http://minio:9000')
-            // ...while generated URLs point at the host-published MinIO port.
-            ->and(parse_url($disk->url('daily-report-photos/abc.jpg'), PHP_URL_HOST))->toBe('localhost');
+            // A single address is used for BOTH SDK API calls and browser-facing
+            // URLs, so no /etc/hosts entry is needed and no docker-internal name
+            // (e.g. "minio") leaks into a browser-resolved host.
+            ->and($endpointHost)->toBe('192.168.10.201')
+            ->and($urlHost)->toBe('192.168.10.201')
+            ->and($endpointHost)->not->toBeIn(['minio', 'localhost', 'laravel.test']);
     }
 });
 

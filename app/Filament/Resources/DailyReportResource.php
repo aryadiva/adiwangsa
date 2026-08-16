@@ -10,6 +10,7 @@ use App\Models\DailyReport;
 use App\Services\DailyReportPhotoService;
 use App\Services\PdfDocumentService;
 use Filament\Forms;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -120,7 +121,7 @@ class DailyReportResource extends Resource
                             ->label('Remarks'),
                     ])
                     ->columnSpanFull(),
-                Forms\Components\FileUpload::make('file_path')
+                FileUpload::make('file_path')
                     ->label('Site Photos')
                     ->multiple()
                     ->image()
@@ -131,6 +132,34 @@ class DailyReportResource extends Resource
                     ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
                     ->storeFileNamesIn('file_names')
                     ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(DailyReportPhotoService::class)->store($file))
+                    ->getUploadedFileUsing(function (FileUpload $component, string $file, $storedFileNames): array {
+                        $storage = $component->getDisk();
+
+                        try {
+                            $url = $storage->temporaryUrl($file, now()->addMinutes(5));
+                        } catch (\Throwable $e) {
+                            throw new \RuntimeException(
+                                "Could not build a signed preview URL for site photo [{$file}]. "
+                                .'Verify AWS_ENDPOINT is reachable from both the app and the browser — it cannot be a docker-internal hostname.'
+                            );
+                        }
+
+                        try {
+                            $exists = $storage->exists($file);
+                            $size = $exists ? $storage->size($file) : 0;
+                            $type = $exists ? $storage->mimeType($file) : null;
+                        } catch (\Throwable $e) {
+                            $size = 0;
+                            $type = null;
+                        }
+
+                        return [
+                            'name' => basename($file),
+                            'size' => $size,
+                            'type' => $type,
+                            'url' => $url,
+                        ];
+                    })
                     ->columnSpanFull(),
                 Forms\Components\KeyValue::make('meta_data')
                     ->label('Additional Fields')

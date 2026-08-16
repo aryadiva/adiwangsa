@@ -3,6 +3,7 @@
 use App\Models\DailyReport;
 use App\Models\DailyReportPhoto;
 use App\Services\DailyReportPhotoService;
+use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -58,6 +59,17 @@ it('downsizes the thumbnail to the configured width', function () {
     $thumbnail = $manager->decode(Storage::disk('photos')->get($meta['thumbnail_path']));
 
     expect($thumbnail->width())->toBeLessThanOrEqual(DailyReportPhotoService::THUMBNAIL_WIDTH);
+});
+
+it('surfaces a clear error when the photo disk write silently fails', function () {
+    $disk = Mockery::mock(Filesystem::class);
+    $disk->shouldReceive('put')->once()->andReturn(false);
+    Storage::set('photos', $disk);
+
+    $service = app(DailyReportPhotoService::class);
+
+    expect(fn () => $service->store(photoImage()))
+        ->toThrow(RuntimeException::class, 'Could not store the photo');
 });
 
 it('rejects a file whose content is not an allowed image', function () {

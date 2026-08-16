@@ -34,7 +34,9 @@ class DailyReportPhotoService
         $disk = Storage::disk($this->disk);
         $path = $this->originalPathFor($file->getClientOriginalExtension());
 
-        $disk->put($path, $content);
+        if ($disk->put($path, $content) === false) {
+            throw new RuntimeException('Could not store the photo on the configured photo disk.');
+        }
 
         $this->createThumbnail($disk, $path, $content);
 
@@ -109,6 +111,8 @@ class DailyReportPhotoService
 
         $encoded = $image->encodeUsingFileExtension('jpg', quality: 75);
 
-        $disk->put($this->thumbnailPathFor($path), (string) $encoded);
+        if ($disk->put($this->thumbnailPathFor($path), (string) $encoded) === false) {
+            throw new RuntimeException('Could not store the photo thumbnail on the configured photo disk.');
+        }
     }
 }

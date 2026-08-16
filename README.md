@@ -100,11 +100,18 @@ with `sail up`.
 > **NOTE:** `compose.yaml` is a **single, portable** file usable in both development and
 > self-hosted production. Every service (app, worker, pgsql, redis, mailpit, minio) is a
 > normal networked container that talks to peers over an internal bridge by DNS name — no
-> service shares another's network namespace. Environment drives the deployment profile:
-> * **Dev:** `AWS_ENDPOINT=http://minio:9000` (SDK calls) + `AWS_URL=http://localhost:9000/...`
->   (browser-facing signed URLs) → local MinIO.
-> * **Prod:** external S3/DB/Redis — set `AWS_ENDPOINT=` empty + `AWS_URL` to the real bucket
->   URL, point `DB_HOST`/`REDIS_HOST`/`MAIL_HOST` outward, and strip the bundled infra services.
+> service shares another's network namespace. Environment drives the deployment profile.
+> Object storage uses a **single addressable host** — the AWS SDK signs presigned URLs
+> against `AWS_ENDPOINT`, so it (and the browser) must both resolve the same host:
+> * **Dev:** `AWS_ENDPOINT=http://<YOUR-LAN-IP>:9000` + `AWS_URL` set to the same LAN IP.
+>   The LAN IP must be reachable from the app container AND from the browser — this works
+>   because MinIO publishes port 9000 on `0.0.0.0`. No `/etc/hosts` entry is needed.
+> * **Prod (real S3):** `AWS_ENDPOINT=` empty + `AWS_URL` to the real bucket URL.
+> * **Prod (self-hosted MinIO behind Caddy):** point `AWS_ENDPOINT` and `AWS_URL` at the same
+>   public host Caddy proxies to the MinIO container (e.g. `https://minio.example.com`).
+>   Caddy proxies the app domain to `laravel.test`; the worker inherits the app's `.env`
+>   (bind-mounted) and needs no endpoint overrides. Only MinIO must be browser-facing (photo
+>   previews fetch signed object URLs directly) — DB/Redis/mail and PDF downloads stay internal.
 > The worker inherits the app's `.env` (bind-mounted) and needs no endpoint overrides.
 
 ## Commands
