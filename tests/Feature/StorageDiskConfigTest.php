@@ -8,8 +8,8 @@ $devDiskConfig = [
     'secret' => 'password',
     'region' => 'us-east-1',
     'bucket' => 'construction-ops',
-    'endpoint' => 'http://192.168.10.201:9000',
-    'url' => 'http://192.168.10.201:9000/construction-ops',
+    'endpoint' => 'http://host.docker.internal:9000',
+    'url' => 'http://host.docker.internal:9000/construction-ops',
     'use_path_style_endpoint' => true,
     'visibility' => 'private',
 ];
@@ -29,10 +29,10 @@ test('photos and pdfs disks use a single browser+container-addressable endpoint'
             ->and($config['visibility'])->toBe('private')
             ->and($config['use_path_style_endpoint'])->toBeTrue()
             // A single address is used for BOTH SDK API calls and browser-facing
-            // URLs, so no /etc/hosts entry is needed and no docker-internal name
-            // (e.g. "minio") leaks into a browser-resolved host.
-            ->and($endpointHost)->toBe('192.168.10.201')
-            ->and($urlHost)->toBe('192.168.10.201')
+            // URLs, so no /etc/hosts entry is needed and no machine-specific IP
+            // or docker-internal name (e.g. "minio") appears in a signed URL.
+            ->and($endpointHost)->toBe('host.docker.internal')
+            ->and($urlHost)->toBe('host.docker.internal')
             ->and($endpointHost)->not->toBeIn(['minio', 'localhost', 'laravel.test']);
     }
 });

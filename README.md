@@ -63,39 +63,47 @@ multi-tenant SaaS.
   photo-file reconciliation (dedupe + orphan prune).
 - **Audit trail** and **notifications** across approval workflow events.
 
-## Getting Started (Local Dev — Laravel Sail)
+## Getting Started (clone → run)
 
-Requires Docker. Prerequisites: PHP 8.3+, Composer, Docker/Sail.
+Requires only **Docker** (Compose v2). No PHP, Composer, or Node on the host.
 
 ```bash
-# Install dependencies
-composer install && npm install
+git clone <this-repo> && cd <repo>
+docker compose up -d --build        # or: make up
+```
 
-# Configure environment
-cp .env.example .env        # set DB, REDIS, and S3/MinIO credentials
+On first start the web container self-bootstraps in the background:
 
-# Start the Sail stack (or: ./vendor/bin/sail up -d)
-sail up
+1. Creates `.env` from `.env.example` and generates an `APP_KEY`.
+2. Waits for PostgreSQL/Redis/MinIO, runs `migrate` + seeds demo data.
+3. Creates the MinIO `construction-ops` bucket.
+4. Starts the PHP server (and the queue `worker` service runs jobs).
 
-# Run migrations + seed
+Then open the app at <http://localhost/admin> and log in with a seeded admin account
+(see the next section). A `Makefile` wraps the common commands: `make up`, `make down`,
+`make logs`, `make fresh`, `make test`.
+
+> **One-liner is a local demo**. Everything—composer/npm install, asset build, migrations,
+> seeding—runs inside the image; your host stays clean (PHP/Composer/Node not required).
+
+### Daily snapshot of the dev workflow
+
+If you prefer developing against a live, editable bind-mount instead of the self-contained
+image (e.g. hot-reload with Vite), run the classic Sail flow after `composer install`:
+
+```bash
+composer install && npm install     # host deps (dev only)
+cp .env.example .env
+docker compose up -d                 # or: ./vendor/bin/sail up -d
 sail artisan migrate:fresh --seed
-
-# Build frontend assets
-npm run build               # or: npm run dev
+npm run build                        # or: npm run dev
 ```
 
 ### Queued jobs (IMPORTANT)
 
-PDF generation, notifications, and image processing run on the **Redis queue**. You **must**
-have a queue worker running, otherwise queued jobs will never execute (e.g. the "Generated
-PDFs" list stays empty):
-
-```bash
-sail artisan queue:work --tries=3 --timeout=90
-```
-
-The local dev `compose.yaml` includes a dedicated `worker` service that starts automatically
-with `sail up`.
+PDF generation, notifications, and image processing run on the **Redis queue**. The `worker`
+service is part of the stack and starts automatically, so jobs are processed without any
+extra step. To observe them live: `docker compose logs -f worker`.
 
 > **NOTE:** `compose.yaml` is a **single, portable** file usable in both development and
 > self-hosted production. Every service (app, worker, pgsql, redis, mailpit, minio) is a
