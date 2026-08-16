@@ -272,6 +272,11 @@
   > *(`ProjectResource` budget + `WorkerResource` daily_rate changed `->money('USD')` → `->money('IDR')`; factories re-seeded to IDR-scale dummy values — daily_rate ~Rp 1.3M–4M, budget ~Rp 16B–800B.)*
 - [x] **Tests:** locale defaults, per-user persistence, livewire toggle, IDR formatting, PDF DTO locale baking, enum translation `LocaleSwitchingTest`
 
+### 7.4 Infrastructure & Deployment Composing
+- [x] Remove temporary MinIO network-namespace hack — make `compose.yaml` portable (dev + prod)
+  > *(supersedes the TEMP dev-only worker workaround in 7.1 `6d1d09a`. Root cause of the "weird" networking: `.env` used `AWS_ENDPOINT=http://localhost:9000`, which only worked while `minio` was jammed into `laravel.test`'s network namespace (`network_mode: service:laravel.test`) with its ports hoisted onto the app container — and the isolated `worker` could only reach MinIO via a hardcoded `http://laravel.test:9000` override. Fix: **split endpoint from URL**. `minio` is now a normal networked service (own `networks: [sail]` + own `ports` + `restart`); app restored its `depends_on: minio`; `worker` drops the hardcoded AWS overrides and inherits `.env`. In `.env`/`.env.example`: `AWS_ENDPOINT=http://minio:9000` (SDK API over the sail bridge) + `AWS_URL=http://localhost:9000/${AWS_BUCKET}` (browser-facing signed URLs). Prod profile = `AWS_ENDPOINT=` empty + real `AWS_URL`/external hosts — same compose file, driven by `.env`. No service shares another's namespace; peers resolve each other by DNS name.)*
+- [x] **Test:** `StorageDiskConfigTest` — asserts `photos`/`pdfs` S3 disks keep the API endpoint distinct from the browser URL (dev) and serve real S3 URLs with no endpoint override (prod) `StorageDiskConfigTest`
+
 ---
 
 ## Appendix: Quick Commands

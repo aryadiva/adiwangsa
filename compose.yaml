@@ -11,8 +11,6 @@ services:
         ports:
             - '${APP_PORT:-80}:80'
             - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
-            - '${FORWARD_MINIO_PORT:-9000}:9000'
-            - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
         environment:
             WWWUSER: '${WWWUSER}'
             LARAVEL_SAIL: 1
@@ -27,6 +25,7 @@ services:
             - pgsql
             - redis
             - mailpit
+            - minio
     worker:
         build:
             context: './vendor/laravel/sail/runtimes/8.5'
@@ -36,10 +35,7 @@ services:
         image: 'sail-8.5/app'
         environment:
             WWWUSER: '${WWWUSER}'
-            SUPERVISOR_PHP_USER: root
             LARAVEL_SAIL: 1
-            AWS_ENDPOINT: 'http://laravel.test:9000'
-            AWS_URL: 'http://laravel.test:9000/${AWS_BUCKET:-construction-ops}'
         working_dir: '/var/www/html'
         volumes:
             - '.:/var/www/html'
@@ -107,9 +103,14 @@ services:
         environment:
             MINIO_ROOT_USER: sail
             MINIO_ROOT_PASSWORD: password
+        ports:
+            - '${FORWARD_MINIO_PORT:-9000}:9000'
+            - '${FORWARD_MINIO_CONSOLE_PORT:-8900}:8900'
         volumes:
             - 'sail-minio:/data'
-        network_mode: 'service:laravel.test'
+        networks:
+            - sail
+        restart: unless-stopped
         command: 'minio server /data --console-address ":8900"'
         healthcheck:
             test:

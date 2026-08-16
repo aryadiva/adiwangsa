@@ -97,11 +97,15 @@ sail artisan queue:work --tries=3 --timeout=90
 The local dev `compose.yaml` includes a dedicated `worker` service that starts automatically
 with `sail up`.
 
-> **NOTE:** The current `compose.yaml` is a **temporary, dev-only configuration** tuned for
-> local testing (Laravel Sail + MinIO). The MinIO container attaches to the `laravel.test`
-> network namespace, and the worker reaches it via the `http://laravel.test:9000` endpoint.
-> Production will use a real S3-compatible provider and a properly isolated worker service —
-> the compose file is *not* a blueprint for production infrastructure.
+> **NOTE:** `compose.yaml` is a **single, portable** file usable in both development and
+> self-hosted production. Every service (app, worker, pgsql, redis, mailpit, minio) is a
+> normal networked container that talks to peers over an internal bridge by DNS name — no
+> service shares another's network namespace. Environment drives the deployment profile:
+> * **Dev:** `AWS_ENDPOINT=http://minio:9000` (SDK calls) + `AWS_URL=http://localhost:9000/...`
+>   (browser-facing signed URLs) → local MinIO.
+> * **Prod:** external S3/DB/Redis — set `AWS_ENDPOINT=` empty + `AWS_URL` to the real bucket
+>   URL, point `DB_HOST`/`REDIS_HOST`/`MAIL_HOST` outward, and strip the bundled infra services.
+> The worker inherits the app's `.env` (bind-mounted) and needs no endpoint overrides.
 
 ## Commands
 
