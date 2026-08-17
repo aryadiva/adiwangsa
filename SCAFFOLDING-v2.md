@@ -1,13 +1,13 @@
 # Scaffolding Instructions
 
 > **Prerequisites:** Docker + Docker Compose (for Laravel Sail), PHP 8.3+, Composer 2.x, Node.js 20+, Git.
-> **Reference:** `prd.md` (v3 PRD, v0.2.0 build) and `AGENTS.md` are the source of truth.
+> **Reference:** `prd-v2.md` (v3 PRD, v0.2.0 build) and `AGENTS-v2.md` are the source of truth.
 >
 > **v0.2.0 note:** this file describes the original clean-scaffold flow (still valid for a fresh clone).
 > The steps below don't change structurally for v0.2.0 — no new services, no new Composer/npm packages
 > are currently expected (live-camera capture uses native browser APIs, not a new dependency; email
 > delivery reuses the already-provisioned Mailpit service). If a Phase 8 task does turn out to need a
-> new package, note it in the PR per `AGENTS.md` boundaries and add it here.
+> new package, note it in the PR per `AGENTS-v2.md` boundaries and add it here.
 
 ---
 

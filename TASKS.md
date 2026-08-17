@@ -1,6 +1,6 @@
 # Development Tasks — Construction Operations Dashboard
 
-> **Reference:** `prd.md` (v2 PRD) is the source of truth. `AGENTS.md` is the fast-reference.
+> **Reference:** `prd-v2.md` (v2 PRD) is the source of truth. `AGENTS-v2.md` is the fast-reference.
 > **Commit style:** `[Phase N] short imperative summary` (e.g. `[Phase 1] Add daily_reports migration with UUID PK`).
 > **Pre-commit checklist:** `pint` + `pest` must pass before every commit.
 
@@ -139,7 +139,7 @@
 
 ### 4.1 ProjectMilestoneResource
 - [x] Create `app/Filament/Resources/ProjectMilestoneResource.php`
-  > *(implemented as `ProjectResource/RelationManagers/ProjectMilestonesRelationManager.php` per AGENTS.md "ProjectMilestoneResource as a relation manager on ProjectResource" + PRD §6.2 — nested, not a standalone top-level resource)*
+  > *(implemented as `ProjectResource/RelationManagers/ProjectMilestonesRelationManager.php` per AGENTS-v2.md "ProjectMilestoneResource as a relation manager on ProjectResource" + PRD §6.2 — nested, not a standalone top-level resource)*
 - [x] Add as RelationManager on `ProjectResource` (inline table with progress badges)
 - [x] Fields: title, description, target_date, completed_at, status, sort_order
 - [x] Sortable/reorderable by `sort_order`

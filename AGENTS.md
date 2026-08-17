@@ -1,7 +1,7 @@
-# AGENTS.md
+# AGENTS-v2.md
 
 Construction Operations & Back-Office Management Dashboard — Laravel 11/12 + Filament v3 (TALL stack), PostgreSQL 15+.
-Full spec lives in `docs/prd.md` (the v2 PRD). Read it before implementing any resource, policy, or migration —
+Full spec lives in `docs/prd-v2.md` (the v2 PRD). Read it before implementing any resource, policy, or migration —
 this file is the fast-reference; the PRD is the source of truth when they conflict.
 
 ## Stack

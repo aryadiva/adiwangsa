@@ -30,8 +30,8 @@ multi-tenant SaaS.
 > **v0.2.0 (in progress):** based on client feedback after v0.1.0 launch, this revision adds weighted
 > milestone/sub-job tracking, shift-based daily reports with automatic target/deficit tracking, an
 > automated delay-cascade + mitigation workflow, a new HRD role for live-camera attendance capture,
-> bi-weekly payroll, and **replaces the client web portal with emailed PDF reports**. See `prd.md`
-> (v3) and `TASKS.md` Phase 8 for full detail.
+> bi-weekly payroll, and **replaces the client web portal with emailed PDF reports**. See `prd-v2.md`
+> (v3) and `TASKS-v2.md` Phase 8 for full detail.
 
 ## Tech Stack
 
@@ -181,7 +181,7 @@ Pest feature tests cover:
 - **Email delivery** *(v0.2.0)* — `Mail::fake()` assertions on recipients and attachment
   for the client PDF report send.
 - **Weight validation, target accumulation, and payroll calculation** *(v0.2.0)* — see
-  `prd.md` §8.4 for the full test matrix.
+  `prd-v2.md` §8.4 for the full test matrix.
 
 Run the full suite before every commit; do not commit red tests.
 
@@ -199,7 +199,7 @@ Run the full suite before every commit; do not commit red tests.
 - `app/Enums/` — backed PHP enums for all status fields (no magic strings), including the
   *(v0.2.0)* `UserRole::Hrd` and sub-job delay color states.
 - `app/Filament/Client/*` — **removed in v0.2.0**; the client Filament panel no longer exists.
-- `docs/prd.md` — the full **v3 PRD** / source of truth for resources, policies, and schema.
+- `docs/prd-v2.md` — the full **v3 PRD** / source of truth for resources, policies, and schema.
 
 ## License
 

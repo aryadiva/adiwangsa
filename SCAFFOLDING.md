@@ -1,7 +1,7 @@
 # Scaffolding Instructions
 
 > **Prerequisites:** Docker + Docker Compose (for Laravel Sail), PHP 8.3+, Composer 2.x, Node.js 20+, Git.
-> **Reference:** `prd.md` (v2 PRD) and `AGENTS.md` are the source of truth.
+> **Reference:** `prd-v2.md` (v2 PRD) and `AGENTS-v2.md` are the source of truth.
 
 ---
 

@@ -1,6 +1,6 @@
 # Development Tasks — Construction Operations Dashboard
 
-> **Reference:** `prd.md` (**v3 PRD**, v0.2.0 build) is the source of truth. `AGENTS.md` is the fast-reference.
+> **Reference:** `prd-v2.md` (**v3 PRD**, v0.2.0 build) is the source of truth. `AGENTS-v2.md` is the fast-reference.
 > **Commit style:** `[Phase N] short imperative summary` (e.g. `[Phase 1] Add daily_reports migration with UUID PK`).
 > **Pre-commit checklist:** `pint` + `pest` must pass before every commit.
 >
@@ -8,7 +8,7 @@
 > the v0.2.0 client-feedback build: weighted milestones/sub-jobs, shift-based daily reports with an automated
 > target/deficit engine, an automated delay cascade + mitigation workflow, removal of the client Filament
 > portal in favor of emailed PDF reports, worker/attendance/payroll additions, and a new HRD role with
-> live-camera-only capture (also now enforced for Site Engineer progress photos). See `prd.md` v3 changelog
+> live-camera-only capture (also now enforced for Site Engineer progress photos). See `prd-v2.md` v3 changelog
 > for the full rationale behind each change.
 
 ---
@@ -146,7 +146,7 @@
 
 ### 4.1 ProjectMilestoneResource
 - [x] Create `app/Filament/Resources/ProjectMilestoneResource.php`
-  > *(implemented as `ProjectResource/RelationManagers/ProjectMilestonesRelationManager.php` per AGENTS.md "ProjectMilestoneResource as a relation manager on ProjectResource" + PRD §6.2 — nested, not a standalone top-level resource)*
+  > *(implemented as `ProjectResource/RelationManagers/ProjectMilestonesRelationManager.php` per AGENTS-v2.md "ProjectMilestoneResource as a relation manager on ProjectResource" + PRD §6.2 — nested, not a standalone top-level resource)*
 - [x] Add as RelationManager on `ProjectResource` (inline table with progress badges)
 - [x] Fields: title, description, target_date, completed_at, status, sort_order
 - [x] Sortable/reorderable by `sort_order`
@@ -304,7 +304,7 @@
 
 ## Phase 8: v0.2.0 — Client Feedback Build
 
-> All tasks below are new for v0.2.0. Commit style: `[Phase 8] <imperative summary>`. Reference `prd.md` v3,
+> All tasks below are new for v0.2.0. Commit style: `[Phase 8] <imperative summary>`. Reference `prd-v2.md` v3,
 > §4–§8, for exact schema/behavior. Sub-phases are ordered by dependency (schema → engine → UI → removal → payroll → roles),
 > but can be parallelized across contributors once 8.1 is merged since most subsequent work reads from its tables.
 

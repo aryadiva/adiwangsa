@@ -1,14 +1,14 @@
-# AGENTS.md
+# AGENTS-v2.md
 
 Construction Operations & Back-Office Management Dashboard — Laravel 11/12 + Filament v3 (TALL stack), PostgreSQL 15+.
-Full spec lives in `docs/prd.md` (the **v3 PRD**, driving the v0.2.0 build). Read it before implementing any resource,
+Full spec lives in `docs/prd-v2.md` (the **v2 PRD**, driving the v0.2.0 build). Read it before implementing any resource,
 policy, or migration — this file is the fast-reference; the PRD is the source of truth when they conflict.
 
 > **v0.2.0 in progress.** v0.1.0 (Phases 1–7) is complete and live. This revision layers in client feedback:
 > sub-job/weighted milestone tracking, shift-based daily reports with an auto-target/deficit engine, an automated
 > delay cascade with a mitigation workflow, removal of the client Filament portal in favor of emailed PDF reports,
-> a new HRD role with live-camera-only attendance capture, and bi-weekly payroll. See `prd.md` changelog and
-> `TASKS.md` Phase 8 for the full breakdown. Items below marked `v3` reflect this revision.
+> a new HRD role with live-camera-only attendance capture, and bi-weekly payroll. See `prd-v2.md` changelog and
+> `TASKS-v2.md` Phase 8 for the full breakdown. Items below marked `v3` reflect this revision.
 
 ## Stack
 - PHP 8.3+, Laravel 11/12, Filament v3, Livewire v3, Alpine.js, Tailwind (Filament-bundled)
