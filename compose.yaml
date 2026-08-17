@@ -1,20 +1,9 @@
 name: construction-ops
 
 services:
-    # PHP runtime base image (Sail's PHP 8.5 runtime, trackable via docker/8.5).
-    php-base:
-        build:
-            context: './docker/8.5'
-            args:
-                WWWGROUP: '${WWWGROUP:-1000}'
-                WWWUSER: '${WWWUSER:-1000}'
-        image: 'sail-8.5/app:latest'
-        restart: 'no'
-        command: 'true'
-        networks:
-            - sail
-
-    # Self-bootstrap web: build base + app layer, provision, serve on :80.
+    # Self-bootstrap web: base (inlined in Dockerfile stage `base`) + app layer,
+    # provision, serve on :80. Fully self-contained — no separate php-base
+    # service, no external image lookup.
     laravel.test:
         build:
             context: '.'
@@ -40,7 +29,6 @@ services:
         networks:
             - sail
         depends_on:
-            - php-base
             - pgsql
             - redis
             - mailpit
