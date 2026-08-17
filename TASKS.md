@@ -285,6 +285,10 @@
   > *Dev MinIO host unified on `host.docker.internal:9000` — reachable by the container SDK AND the browser on Docker Desktop, no LAN IP or `/etc/hosts` needed (native Linux: set `AWS_ENDPOINT`/`AWS_URL` to your LAN IP). Docker's embedded DNS special-cases `localhost`→loopback, so a `/etc/hosts` rewrite can't work; `host.docker.internal` is the reliable same-host name. `StorageDiskConfigTest` fixture updated to `host.docker.internal`.*
   > *`fakerphp/faker` moved from `require-dev` to `require` because `db:seed` uses factories (`fake()`) and the prod image builds `--no-dev`; lock regenerated (`--ignore-platform-reqs` — host PHP lacks `ext-iconv`). Verified end-to-end: `docker compose up -d --build` → migrate + Shield seed + Super Admin (`admin@example.com` / `password`), bucket `construction-ops` created, S3 write/read via `host.docker.internal` OK, worker boots clean, `/admin` logs in (`Auth::attempt` true), full Pest suite 135 passed in-container.*
 
+### 7.5 Compose Hardening
+- [x] Give `worker` service its own `build:` block so `--build` constructs the image locally
+  > *(root cause of clone-and-run failures on other devices with misleading `pull access denied repo does not exist` error: `worker` had only `image: 'construction-ops/app:latest'` and no `build:` block. When the upstream `laravel.test` build failed for any reason, the `construction-ops/app:latest` image never existed locally, so `worker` fell back to a Docker Hub pull that always 404s — masking the real build error. Fix: add the same `build:` block (context `.`, `Dockerfile`, `WWWGROUP`/`WWWUSER` args) to `worker` so `--build` builds it locally too. Layer cache makes the second build near-instant since the context is identical. `worker` never attempts a remote pull again, and any real Dockerfile failure now surfaces clearly. Verified: `docker compose config` valid, `build laravel.test` + `build worker` both succeed, `up -d --build` starts all 6 containers, web migrates + serves on :80, worker boots queue supervisor.)*
+
 ---
 
 ## Appendix: Quick Commands
