@@ -11,6 +11,10 @@ services:
             args:
                 WWWGROUP: '${WWWGROUP:-1000}'
                 WWWUSER: '${WWWUSER:-1000}'
+                # Optional: pass a GitHub token to bypass the 60/hr unauthenticated
+                # API rate limit on fresh devices downloading composer deps.
+                #   GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+                GITHUB_TOKEN: '${GITHUB_TOKEN:-}'
         image: 'construction-ops/app:latest'
         extra_hosts:
             - 'host.docker.internal:host-gateway'
@@ -43,6 +47,7 @@ services:
             args:
                 WWWGROUP: '${WWWGROUP:-1000}'
                 WWWUSER: '${WWWUSER:-1000}'
+                GITHUB_TOKEN: '${GITHUB_TOKEN:-}'
         image: 'construction-ops/app:latest'
         extra_hosts:
             - 'host.docker.internal:host-gateway'

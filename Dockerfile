@@ -122,9 +122,24 @@ RUN curl -sSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/b
     && chmod +x /usr/local/bin/mc
 
 # Install Composer + Node deps from the lockfiles first (best cache hit on rebuilds).
+# On a fresh device with no layer cache, composer downloads ~9000 classes; on
+# slow/unstable links the default 300s process-timeout fires mid-download, and
+# unauthenticated GitHub API calls hit the 60/hr rate limit → exit 100.
+# Mitigations: 900s timeout, 3-attempt retry loop, optional GITHUB_TOKEN ARG.
 COPY composer.json composer.lock package.json package-lock.json ./
-RUN composer install --no-dev --optimize-autoloader --no-interaction --no-scripts \
-    && npm ci --no-audit --no-fund
+
+ARG GITHUB_TOKEN=""
+ENV COMPOSER_PROCESS_TIMEOUT=900 \
+    COMPOSER_NO_INTERACTION=1
+RUN if [ -n "$GITHUB_TOKEN" ]; then \
+        composer config --global github-oauth.github.com "$GITHUB_TOKEN"; \
+    fi \
+    && for i in 1 2 3; do \
+        composer install --no-dev --prefer-dist --optimize-autoloader --no-scripts \
+            && break \
+            || { echo "composer install attempt $i failed, retrying in 5s..."; sleep 5; }; \
+    done \
+    && npm ci --no-audit --no-fund --fetch-retries=5 --fetch-timeout=300000
 
 # Copy the full application and finish the assembly.
 COPY . .
