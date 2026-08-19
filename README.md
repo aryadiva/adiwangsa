@@ -31,7 +31,7 @@ multi-tenant SaaS.
 > milestone/sub-job tracking, shift-based daily reports with automatic target/deficit tracking, an
 > automated delay-cascade + mitigation workflow, a new HRD role for live-camera attendance capture,
 > bi-weekly payroll, and **replaces the client web portal with emailed PDF reports**. See `prd-v2.md`
-> (v3) and `TASKS-v2.md` Phase 8 for full detail.
+> (v3) and `TASKS.md` Phase 8 for full detail.
 
 ## Tech Stack
 

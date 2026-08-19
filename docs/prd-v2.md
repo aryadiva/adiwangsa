@@ -538,13 +538,13 @@ To ensure adaptability for confidential or customized client templates, implemen
 4. Verify Client User read-only dashboard and signed-URL PDF downloads.
 5. Run full test suite from Section 8.4 before launch.
 
-> **Note:** Phases 1–5 above reflect the original v1/v2 build. Phases 6–7 (polish/audit/security, then bug fixes, localization, and deployment hardening) were executed and are documented in full in `TASKS-v2.md` — this PRD's roadmap section was not historically kept in lockstep with every phase. Phase 8 below is the current, active roadmap for the v0.2.0 client-feedback build described throughout this v3 revision.
+> **Note:** Phases 1–5 above reflect the original v1/v2 build. Phases 6–7 (polish/audit/security, then bug fixes, localization, and deployment hardening) were executed and are documented in full in `TASKS.md` — this PRD's roadmap section was not historically kept in lockstep with every phase. Phase 8 below is the current, active roadmap for the v0.2.0 client-feedback build described throughout this v3 revision.
 
 ### Phase 8: v0.2.0 Client Feedback Build `v3 NEW PHASE`
 1. **Milestones & sub-jobs:** `milestone_sub_jobs` + `sub_job_delay_events` migrations; `weight_percentage` added to `project_milestones`; nested `MilestoneSubJobsRelationManager`; weight-sum validation (§4, §6.2).
 2. **Shift-based daily reports & target engine:** `daily_reports` schema changes (`shift`, `milestone_sub_job_id`, `daily_achievement`, `daily_target`, `delay_reason`); uniqueness constraint change to `(site_id, report_date, shift)`; scheduled job for deficit carry-forward and first-occurrence warnings (§5.1–5.2).
 3. **Delay cascade & mitigation:** threshold-breach detection job, sequential milestone/project date shifting, 🔴/🟡/🟢 workflow and Filament actions (§5.3).
-4. **Client portal removal:** delete `app/Filament/Client/*`, `ClientPanelProvider`, associated tests (`ClientVisibilityTest`, `ClientPortalTest`); retain `clients` table/role as record-only; document the removal explicitly in `TASKS-v2.md`, matching the project's existing pattern for documenting reversals.
+4. **Client portal removal:** delete `app/Filament/Client/*`, `ClientPanelProvider`, associated tests (`ClientVisibilityTest`, `ClientPortalTest`); retain `clients` table/role as record-only; document the removal explicitly in `TASKS.md`, matching the project's existing pattern for documenting reversals.
 5. **Email PDF delivery:** `SendClientReportEmailJob`, Sender/Receiver/CC configuration UI, Mailpit-backed dummy transport, configurable DTO `sections` array, worker-allocation PDF split into its own payroll/HRD document (§7.3–7.4).
 6. **Worker, attendance & payroll:** `workers` table additions; `worker_attendance` table; `payroll_runs`/`payroll_items`; bi-weekly scheduled job; overtime calculation (§5.4).
 7. **HRD role & camera enforcement:** `UserRole::HRD`, `HrdPanelProvider` (or equivalent scoped panel/resource), live-capture-only component shared between HRD and Site Engineer, before/after/description 3-column photo UI for SE (§6.2, §6.4).
