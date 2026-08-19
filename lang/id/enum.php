@@ -19,6 +19,12 @@ return [
         'completed' => 'Selesai',
         'delayed' => 'Terlambat',
     ],
+    'sub_job_status' => [
+        'pending' => 'Menunggu',
+        'in_progress' => 'Berjalan',
+        'completed' => 'Selesai',
+        'delayed' => 'Terlambat',
+    ],
     'document_type' => [
         'daily_progress' => 'Laporan Kemajuan Harian Lokasi',
         'weekly_digest' => 'Ringkasan Eksekutif Mingguan Lokasi',

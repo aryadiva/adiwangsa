@@ -309,14 +309,18 @@
 > but can be parallelized across contributors once 8.1 is merged since most subsequent work reads from its tables.
 
 ### 8.1 Milestones & Sub-Jobs (Weighted)
-- [ ] Migration: add `weight_percentage` (decimal 5,2) to `project_milestones`
-- [ ] Migration: `milestone_sub_jobs` — UUID PK, `project_milestone_id` FK (cascade), `title`, `description` (text), `start_date`, `working_days` (int), `quantity` (decimal 12,2), `weight_percentage` (decimal 5,2), `status` enum, `sort_order`, soft deletes, index `(project_milestone_id, status)`
-- [ ] `app/Enums/MilestoneSubJobStatus.php` (`pending`, `in_progress`, `completed`, `delayed`)
-- [ ] `MilestoneSubJob` model — `HasUuids`, `SoftDeletes`, `belongsTo(ProjectMilestone)`
-- [ ] **Weight validation (app-layer, both levels):** sub-jobs under one milestone must sum to 100%; milestones under one project must sum to 100%. Reject save with a friendly Filament error otherwise — same pattern as the existing `(site_id, report_date)` duplicate check.
-- [ ] Nested `MilestoneSubJobsRelationManager` under `ProjectMilestonesRelationManager` (two levels of nesting on `ProjectResource`)
-- [ ] **Test:** weight-sum validation rejects mismatched totals at both levels; accepts exactly 100%
-- [ ] **Test:** sub-job CRUD scoped correctly through the existing milestone/project policies
+- [x] Migration: add `weight_percentage` (decimal 5,2) to `project_milestones`
+- [x] Migration: add `start_date` to `project_milestones` (field not in original PRD; requested in review — milestone form now has Start | Target | Completed; start date guarded ≥ project's `start_date` via `App\Support\ScheduleValidator`, friendly Filament error otherwise, `ProjectMilestoneStartDateTest`)
+- [x] Migration: `milestone_sub_jobs` — UUID PK, `project_milestone_id` FK (cascade), `title`, `description` (text), `start_date`, `working_days` (int), `quantity` (decimal 12,2), `weight_percentage` (decimal 5,2), `status` enum, `sort_order`, soft deletes, index `(project_milestone_id, status)`
+- [x] `app/Enums/MilestoneSubJobStatus.php` (`pending`, `in_progress`, `completed`, `delayed`)
+- [x] `MilestoneSubJob` model — `HasUuids`, `SoftDeletes`, `belongsTo(ProjectMilestone)`
+- [x] **Weight validation (app-layer, both levels):** updated to an **incremental model** (from review feedback): individual weights may be any value and need not sum to 100 on each save, but `MilestoneWeightsTotalRule`/`SubJobsWeightsTotalRule` (via `App\Support\WeightValidation` `canAdd()`/`isFull()`) reject any save that pushes the set past 100% and block adding a new row once the siblings already total 100%. Sets build up to exactly 100% and stop there.
+  > *(implemented via `app/Support/WeightValidation.php` (`canAdd()`/`isFull()`) wired into the milestone `weight_percentage` field and the `subJobs` Repeater — `MilestoneStartDateRule` guards start ≥ project start, `ScheduleValidator`.)*
+- [x] Nested `MilestoneSubJobsRelationManager` (deviation) → relationship-bound `subJobs` **Repeater** inside each milestone's create/edit modal (see note below)
+- [x] **Hard 100% completion enforcement → bell notification:** when any sibling set (project milestones, or a milestone's sub-jobs) is non-empty and totals ≠100, a `WeightIncompleteNotification` (`App\Notifications`) appears in the admin bell (warning style) — created once per project, no duplicate. `App\Services\MilestoneWeightNotificationService::reconcile()` creates it via `ProjectMilestone`/`MilestoneSubJob` model `saved`/`deleted` events and **deletes it the moment every set reaches exactly 100%**. It is a **normal, dismissible** notification (view and close via the Filament X) — no persistence, no re-hydration. `MilestoneWeightNotificationTest`.
+  > *(out-of-PRD addition from review — "100% at the end" guided by this reminder; interim saves at partial weights are allowed.)*
+- [x] **Test:** weight validation rejects a set that exceeds 100% and blocks adding past a full set; supports partial/incremental weights at both levels (`WeightValidationTest`, `WeightRulesTest`)
+- [x] **Test:** sub-job CRUD scoped correctly through the existing milestone/project policies (`MilestoneSubJobPolicy` mirrors `ProjectMilestonePolicy` + `MilestoneSubJobPolicyTest` per role)
 
 ### 8.2 Shift-Based Daily Reports & Target Engine
 - [ ] Migration: add `milestone_sub_job_id` (FK, restrict), `shift` enum (`shift_1`/`shift_2`/`shift_3`), `daily_achievement` (decimal 12,2), `daily_target` (decimal 12,2, system-computed), `delay_reason` (text, nullable) to `daily_reports`

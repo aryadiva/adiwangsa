@@ -19,6 +19,12 @@ return [
         'completed' => 'Completed',
         'delayed' => 'Delayed',
     ],
+    'sub_job_status' => [
+        'pending' => 'Pending',
+        'in_progress' => 'In Progress',
+        'completed' => 'Completed',
+        'delayed' => 'Delayed',
+    ],
     'document_type' => [
         'daily_progress' => 'Daily Site Progress Report',
         'weekly_digest' => 'Weekly Site Executive Digest',
