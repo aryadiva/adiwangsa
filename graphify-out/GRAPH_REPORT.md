@@ -1,134 +1,149 @@
-# Graph Report - adiwangsa  (2026-08-19)
+# Graph Report - adiwangsa  (2026-08-26)
 
 ## Corpus Check
-- 5 files · ~99,800 words
+- 25 files · ~103,021 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 4244 nodes · 12308 edges · 234 communities (212 shown, 22 thin omitted)
-- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 1473 edges (avg confidence: 0.58)
+- 4350 nodes · 12531 edges · 252 communities (225 shown, 27 thin omitted)
+- Extraction: 88% EXTRACTED · 12% INFERRED · 0% AMBIGUOUS · INFERRED: 1492 edges (avg confidence: 0.58)
 - Token cost: 0 input · 0 output
 
 ## Community Hubs (Navigation)
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Policies & RBAC authorization
-- Vendor JS bundle
-- Vendor JS bundle
-- Filament Resources (forms/tables)
-- Vendor JS bundle
-- Vendor JS bundle
-- Eloquent Models & casts
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Tests & DB fixtures
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Services & DTOs layer
-- Vendor JS bundle
-- Notifications & related models
-- Vendor JS bundle
-- Providers & HTTP bootstrap
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Filament — Project resource
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Service — DailyReport photos
-- Vendor JS bundle
-- Vendor JS bundle
-- Agent docs (AGENTS files)
-- Vendor JS bundle
-- Livewire locale & support
-- Node deps (axios/concurrently)
-- Vendor JS bundle
-- Enums & database definitions
-- Filament — Client resource
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Filament — DailyReport resource
-- Build scripts (node/composer)
-- Vendor JS bundle
-- Composer — laravel deps
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Composer — dompdf dep
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Composer — larastan dev deps
-- Vendor JS bundle
-- Vendor JS bundle
-- Composer — setup scripts
-- Vendor JS bundle
-- Vendor JS bundle
-- FilamentShield seeder
-- Composer — pest dev deps
-- DB — schema migrations (early)
-- DB — schema migrations (report)
-- Docker — entrypoint
-- Vendor JS bundle
-- Vendor JS bundle
-- DB — activity log table
-- Tests — Laravel base TestCase
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Composer — autoload psr-4
-- Composer — autoload-dev
-- Config — logging
-- Vendor JS bundle
-- Vendor JS bundle
-- Vendor JS bundle
-- Composer — post-autoload-dump
-- Config — activitylog
-- DB — must_change_password column
-- DB — locale column
-- Routes — console (artisan)
-- Docker — start-container
-- Docker — start-container
-- Docker — start-container
-- Docker — start-container
-- Docker — start-container
-- Docker — start-container
-- Docker — test db script
-- Resources — frontend JS
-- View — change password
-- Artisan CLI entrypoint
+- Chart.js Library
+- Rich Text Editor
+- Chart.js Library
+- Rich Text Editor
+- Chart.js Library
+- Chart.js Library
+- Chart.js Library
+- Rich Text Editor
+- DailyReport Model & State
+- DailyReport Model & State
+- DailyReport Model & State
+- Chart.js Library
+- Rich Text Editor
+- Markdown Editor
+- Chart.js Library
+- Chart.js Library
+- Filament Support JS
+- Chart.js Library
+- Filament Support JS
+- Chart.js Library
+- DailyReport Model & State
+- Chart.js Library
+- Rich Text Editor
+- Markdown Editor
+- Rich Text Editor
+- Rich Text Editor
+- DailyReport Model & State
+- Notifications UI
+- Chart.js Library
+- Rich Text Editor
+- Filament Resource Pages
+- Rich Text Editor
+- PRD Specification
+- Chart.js Library
+- Filament Resource Pages
+- DailyReport Model & State
+- Filament Support JS
+- Rich Text Editor
+- Rich Text Editor
+- Chart.js Library
+- Chart.js Library
+- DailyReport Model & State
+- Filament Panel Config
+- Chart.js Library
+- Laravel Echo JS
+- Chart.js Library
+- PRD Specification
+- Chart.js Library
+- Rich Text Editor
+- Chart.js Library
+- Rich Text Editor
+- Laravel Echo JS
+- Chart.js Library
+- Chart.js Library
+- NPM Package Config
+- Filament Support JS
+- Chart.js Library
+- Chart.js Library
+- Filament Support JS
+- Chart.js Library
+- Application Services
+- Chart.js Library
+- Service Providers
+- Markdown Editor
+- appendAttachmentWithAttributes()
+- ArrowLeft()
+- Select Component
+- Chart.js Library
+- Weight Validation Rules
+- Chart.js Library
+- Chart.js Library
+- Select Component
+- Composer Config
+- Color Picker Component
+- findIndexAndOffsetAtPosition()
+- Eloquent Models
+- Composer Config
+- Composer Config
+- Laravel Echo JS
+- Laravel Echo JS
+- Chart.js Library
+- Select Component
+- DateTime Picker Component
+- Chart.js Library
+- Composer Config
+- Laravel Echo JS
+- File Upload Component
+- Chart.js Library
+- Weight Validation Rules
+- HTTP Controllers
+- Client & Project Models
+- Composer Config
+- File Upload Component
+- Service Providers
+- Composer Config
+- Daily Report Migrations
+- Daily Report Migrations
+- Docker Config
+- File Upload Component
+- Daily Report Migrations
+- Test Suite
+- File Upload Component
+- Select Component
+- Select Component
+- Select Component
+- Select Component
+- Select Component
+- Select Component
+- Laravel Bootstrap
+- Composer Config
+- Composer Config
+- Laravel Config
+- File Upload Component
+- Select Component
+- Select Component
+- Chart.js Library
+- Composer Config
+- Laravel Config
+- Daily Report Migrations
+- Test Suite
+- Route Definitions
+- Docker Config
+- Docker Config
+- Docker Config
+- Docker Config
+- Docker Config
+- Docker Config
+- Docker Config
+- Docker Config
+- PRD Specification
+- Blade Views
+- Blade Views
+- LogOptions
+- Docker Compose
 
 ## God Nodes (most connected - your core abstractions)
 1. `User` - 117 edges
@@ -137,7 +152,7 @@
 4. `_update()` - 85 edges
 5. `DailyReport` - 80 edges
 6. `te()` - 74 edges
-7. `Project` - 67 edges
+7. `Project` - 66 edges
 8. `V()` - 66 edges
 9. `r()` - 64 edges
 10. `o()` - 61 edges
@@ -158,419 +173,462 @@
 - None detected.
 
 ## Hyperedges (group relationships)
-- **Bi-weekly payroll pipeline (attendance → pay)** — docs_prd_v2_worker_attendance, docs_prd_v2_payroll_runs, docs_prd_v2_payroll_items, docs_prd_v2_biweekly_payroll [EXTRACTED 0.95]
+- **v0.2.0 Client Feedback Build Pipeline** — tasks_weighted_milestones_subjobs, tasks_shift_based_daily_reports, tasks_deficit_carry_forward_engine, tasks_delay_cascade_mitigation, tasks_sub_job_delay_event_state_machine, tasks_client_portal_removal, tasks_send_client_report_email_job, tasks_payroll, tasks_worker_attendance, tasks_hrd_role, tasks_camera_only_capture [EXTRACTED 1.00]
+- **Daily Report Lifecycle (state machine + notifications + PDF)** — tasks_daily_report_state_machine, tasks_report_data_dto, tasks_generate_pdf_job, tasks_pdf_report_service, tasks_send_client_report_email_job, tasks_rbac_scopes [INFERRED 0.85]
+- **Weight Enforcement & Notification System** — tasks_weight_validation, tasks_milestone_weight_notification_service, tasks_weighted_milestones_subjobs, tasks_schedule_validator [INFERRED 0.85]
 - **Delay detection → cascade → mitigation workflow** — docs_prd_v2_sub_job_delay_events, docs_prd_v2_delay_state_machine, docs_prd_v2_delay_cascade, docs_prd_v2_milestone_sub_jobs [EXTRACTED 0.90]
+- **Bi-weekly payroll pipeline (attendance → pay)** — docs_prd_v2_worker_attendance, docs_prd_v2_payroll_runs, docs_prd_v2_payroll_items, docs_prd_v2_biweekly_payroll [EXTRACTED 0.95]
 - **Shift-based reporting with target/deficit engine** — docs_prd_v2_daily_reports, docs_prd_v2_milestone_sub_jobs, docs_prd_v2_deficit_carry_forward, docs_prd_v2_daily_report_photos, docs_prd_v2_camera_only_capture [INFERRED 0.85]
 
-## Communities (234 total, 22 thin omitted)
+## Communities (252 total, 27 thin omitted)
 
-### Community 0 - "Vendor JS bundle"
+### Community 0 - "Chart.js Library"
 Cohesion: 0.01
-Nodes (107): acquireContext(), addControllers(), addPlugins(), addScales(), Ag(), alpha(), Au(), beforeDatasetDraw() (+99 more)
+Nodes (132): acquireContext(), active(), addControllers(), addPlugins(), addScales(), Ag(), alpha(), an() (+124 more)
 
-### Community 1 - "Vendor JS bundle"
+### Community 1 - "Rich Text Editor"
 Cohesion: 0.02
-Nodes (133): A(), activateAttributeIfSupported(), appendStringToTextAtIndex(), applyBlockAttribute(), attachmentDidChangeUploadProgress(), attachmentIsManaged(), attributeChangedCallback(), Ca() (+125 more)
+Nodes (128): activateAttributeIfSupported(), appendStringToTextAtIndex(), applyBlockAttribute(), attachmentDidChangeAttributes(), attachmentDidChangeUploadProgress(), attachmentIsManaged(), attributeChangedCallback(), canRedo() (+120 more)
 
-### Community 2 - "Vendor JS bundle"
+### Community 2 - "Chart.js Library"
 Cohesion: 0.02
-Nodes (116): aa(), active(), addControllers(), addElements(), addPlugins(), addScales(), an(), _animateOptions() (+108 more)
+Nodes (114): aa(), active(), addControllers(), addElements(), addPlugins(), addScales(), an(), _animateOptions() (+106 more)
 
-### Community 3 - "Vendor JS bundle"
+### Community 3 - "Rich Text Editor"
 Cohesion: 0.04
-Nodes (122): Ac(), ad(), af(), ai(), al(), An(), ao(), bf() (+114 more)
+Nodes (127): Ac(), ad(), af(), ai(), al(), An(), ao(), Ba() (+119 more)
 
-### Community 4 - "Vendor JS bundle"
-Cohesion: 0.05
-Nodes (65): $c(), me(), D(), E(), g(), H(), Id(), J() (+57 more)
-
-### Community 5 - "Vendor JS bundle"
+### Community 4 - "Chart.js Library"
 Cohesion: 0.04
-Nodes (112): addAttribute(), addAttributeAtRange(), addAttributesAtRange(), addHTMLAttribute(), appendText(), applyBlockAttributeAtRange(), canBeGroupedWith(), canDecreaseBlockAttributeLevel() (+104 more)
+Nodes (131): adjustHitBoxes(), ae(), af(), afterDraw(), Ah(), bf(), buildTicks(), calculateLabelRotation() (+123 more)
 
-### Community 6 - "Vendor JS bundle"
-Cohesion: 0.07
-Nodes (101): be(), _a(), Ae(), ar(), as(), Ba(), Bc(), Be() (+93 more)
-
-### Community 7 - "Vendor JS bundle"
+### Community 5 - "Chart.js Library"
 Cohesion: 0.03
-Nodes (102): Sg(), _a(), abutsStart(), after(), afterAutoSkip(), Ai(), before(), Bi() (+94 more)
+Nodes (125): _a(), abutsStart(), after(), afterAutoSkip(), Ai(), Al(), ar(), as() (+117 more)
 
-### Community 8 - "Vendor JS bundle"
+### Community 6 - "Chart.js Library"
 Cohesion: 0.04
-Nodes (101): af(), average(), Bt(), Ca(), cd(), ch(), cn(), co() (+93 more)
+Nodes (101): adjustHitBoxes(), afterBuildTicks(), afterCalculateLabelRotation(), afterDataLimits(), afterDraw(), afterFit(), afterSetDimensions(), afterTickToLabelConversion() (+93 more)
 
-### Community 9 - "Vendor JS bundle"
+### Community 7 - "Rich Text Editor"
 Cohesion: 0.04
-Nodes (100): addBox(), addEventListener(), afterBuildTicks(), afterCalculateLabelRotation(), afterDataLimits(), afterDraw(), afterFit(), afterSetDimensions() (+92 more)
+Nodes (100): addAttribute(), addAttributeAtRange(), addAttributesAtRange(), addHTMLAttribute(), appendText(), applyBlockAttributeAtRange(), breakFormattedBlock(), breaksOnReturn() (+92 more)
 
-### Community 10 - "Policies & RBAC authorization"
+### Community 8 - "DailyReport Model & State"
 Cohesion: 0.04
-Nodes (27): ProjectMilestone, User, Worker, ClientPolicy, ProjectMilestonePolicy, ProjectPolicy, RolePolicy, SitePolicy (+19 more)
+Nodes (38): DocumentType, ReportDataDTO, ClientResource, App\Filament\Resources\ClientResource\Pages, DailyReportResource, App\Filament\Resources\DailyReportResource\Pages, GeneratedDocumentResource, App\Filament\Resources\GeneratedDocumentResource\Pages (+30 more)
 
-### Community 11 - "Vendor JS bundle"
-Cohesion: 0.04
-Nodes (94): adjustHitBoxes(), afterBuildTicks(), afterCalculateLabelRotation(), afterDataLimits(), afterDraw(), afterFit(), afterSetDimensions(), afterTickToLabelConversion() (+86 more)
-
-### Community 12 - "Vendor JS bundle"
-Cohesion: 0.04
-Nodes (88): ad(), Ah(), applyStack(), aspectRatio(), bf(), buildTicks(), C(), _calculateBarIndexPixels() (+80 more)
-
-### Community 13 - "Filament Resources (forms/tables)"
-Cohesion: 0.04
-Nodes (31): ChangePassword, Dashboard, ClientResource, App\Filament\Resources\ClientResource\Pages, DailyReportResource, App\Filament\Resources\DailyReportResource\Pages, GeneratedDocumentResource, App\Filament\Resources\ProjectResource\Pages (+23 more)
-
-### Community 14 - "Vendor JS bundle"
-Cohesion: 0.12
-Nodes (78): at(), B(), he(), br(), Bt(), X(), ca(), cf() (+70 more)
-
-### Community 15 - "Vendor JS bundle"
+### Community 9 - "DailyReport Model & State"
 Cohesion: 0.05
-Nodes (58): ba(), bi(), c(), ca(), clickPercent(), constructor(), de(), define() (+50 more)
+Nodes (27): DailyReportRevision, DailyReportWorker, MilestoneSubJob, LogOptions, ProjectMilestone, WeightIncompleteNotification, MilestoneSubJobPolicy, ProjectMilestonePolicy (+19 more)
 
-### Community 16 - "Eloquent Models & casts"
-Cohesion: 0.07
-Nodes (63): _a(), aa(), ai(), ba(), Be(), br(), T(), Ca() (+55 more)
-
-### Community 17 - "Vendor JS bundle"
-Cohesion: 0.06
-Nodes (69): chartOptionScopes(), average(), ba(), br(), c(), cr(), Ct(), l() (+61 more)
-
-### Community 18 - "Vendor JS bundle"
-Cohesion: 0.06
-Nodes (19): PruneMissingPhotos, DailyReportPhoto, DailyReportRevision, DailyReportWorker, LogOptions, LogOptions, DomainException, Illuminate\Console\Command (+11 more)
-
-### Community 19 - "Vendor JS bundle"
-Cohesion: 0.07
-Nodes (64): adjustHitBoxes(), ae(), beforeDraw(), _computeGridLineItems(), _computeLabelArea(), _computeTitleHeight(), cs(), df() (+56 more)
-
-### Community 20 - "Vendor JS bundle"
-Cohesion: 0.08
-Nodes (22): DocumentType, ReportDataDTO, App\Filament\Resources\GeneratedDocumentResource\Pages, Controller, GeneratedDocumentDownloadController, GeneratePdfJob, GeneratedDocument, PdfDocumentService (+14 more)
-
-### Community 21 - "Vendor JS bundle"
-Cohesion: 0.07
-Nodes (25): Client, Project, Site, ClientFactory, DailyReportFactory, static, ProjectFactory, SiteFactory (+17 more)
-
-### Community 22 - "Tests & DB fixtures"
-Cohesion: 0.11
-Nodes (59): Cn(), b(), Bt(), Ct(), dn(), Dt(), Ft(), G() (+51 more)
-
-### Community 23 - "Vendor JS bundle"
-Cohesion: 0.07
-Nodes (58): breakFormattedBlock(), breaksOnReturn(), canSetCurrentAttribute(), canSetCurrentBlockAttribute(), createCaptionElement(), decreaseBlockAttributeLevel(), decreaseListLevel(), didFocus() (+50 more)
-
-### Community 24 - "Vendor JS bundle"
+### Community 10 - "DailyReport Model & State"
 Cohesion: 0.04
-Nodes (12): Aa(), Bi(), bn(), ji(), kd(), qd(), Ri(), te() (+4 more)
+Nodes (24): User, Worker, DailyReportPolicy, ProjectPolicy, RolePolicy, SitePolicy, WorkerPolicy, BezhanSalleh\FilamentShield\Support\Utils (+16 more)
 
-### Community 25 - "Vendor JS bundle"
-Cohesion: 0.12
-Nodes (51): Qt(), Ae(), ar(), at(), Bi(), I(), c(), H() (+43 more)
+### Community 11 - "Chart.js Library"
+Cohesion: 0.04
+Nodes (89): addEventListener(), average(), bindResponsiveEvents(), Bt(), Ca(), ch(), contains(), cu() (+81 more)
 
-### Community 26 - "Services & DTOs layer"
-Cohesion: 0.05
-Nodes (54): backspace(), createLinkHTML(), cut(), d(), delete(), deleteByComposition(), deleteByCut(), deleteByDrag() (+46 more)
+### Community 12 - "Rich Text Editor"
+Cohesion: 0.03
+Nodes (88): attachFiles(), backspace(), canApplyToDocument(), compositionend(), compositionstart(), compositionupdate(), createLinkHTML(), cut() (+80 more)
 
-### Community 27 - "Vendor JS bundle"
-Cohesion: 0.06
-Nodes (53): add(), applyKeyboardCommand(), attachmentDidChangeAttributes(), attachmentEditorDidRequestRemovalOfAttachment(), canBeGrouped(), canSyncDocumentView(), checkValidity(), compositionDidChangeDocument() (+45 more)
-
-### Community 28 - "Notifications & related models"
-Cohesion: 0.06
-Nodes (52): add(), Al(), ar(), cf(), count(), diff(), Dl(), endOf() (+44 more)
-
-### Community 29 - "Vendor JS bundle"
-Cohesion: 0.06
-Nodes (49): attachFiles(), beforeinput(), canApplyToDocument(), compositionend(), compositionstart(), compositionupdate(), constructor(), dragend() (+41 more)
-
-### Community 30 - "Providers & HTTP bootstrap"
-Cohesion: 0.06
-Nodes (48): afterAutoSkip(), Ao(), Bi(), buildLookupTable(), buildTicks(), _computeAngle(), computeTickLimit(), determineDataLimits() (+40 more)
-
-### Community 31 - "Vendor JS bundle"
-Cohesion: 0.07
-Nodes (32): EnsurePasswordChanged, SetLocale, AppServiceProvider, AdminPanelProvider, ClientPanelProvider, BezhanSalleh\FilamentShield\FilamentShieldPlugin, Closure, Filament\Http\Middleware\Authenticate (+24 more)
-
-### Community 32 - "Vendor JS bundle"
-Cohesion: 0.06
-Nodes (42): as(), At(), ba(), Bs(), bu(), cc(), constructor(), De() (+34 more)
-
-### Community 33 - "Vendor JS bundle"
+### Community 13 - "Markdown Editor"
 Cohesion: 0.08
-Nodes (17): EditClient, ListClients, ListDailyReports, ListGeneratedDocuments, EditProject, ListProjects, EditSite, ListSites (+9 more)
+Nodes (83): be(), _a(), Ae(), ar(), as(), Bc(), Be(), bl() (+75 more)
 
-### Community 34 - "Filament — Project resource"
+### Community 14 - "Chart.js Library"
+Cohesion: 0.04
+Nodes (78): ht(), Ac(), Bl(), cf(), clone(), constructor(), create(), Dl() (+70 more)
+
+### Community 15 - "Chart.js Library"
+Cohesion: 0.05
+Nodes (70): addBox(), afterBuildTicks(), afterCalculateLabelRotation(), afterDataLimits(), afterFit(), afterSetDimensions(), afterTickToLabelConversion(), afterUpdate() (+62 more)
+
+### Community 16 - "Filament Support JS"
+Cohesion: 0.10
+Nodes (66): at(), Cn(), b(), Bt(), Ct(), dn(), Dt(), Ft() (+58 more)
+
+### Community 17 - "Chart.js Library"
 Cohesion: 0.06
-Nodes (39): Ac(), Bl(), clone(), dtFormatter(), eg(), el(), eras(), extract() (+31 more)
+Nodes (65): chartOptionScopes(), average(), ba(), br(), c(), cr(), Ct(), l() (+57 more)
 
-### Community 35 - "Vendor JS bundle"
+### Community 18 - "Filament Support JS"
+Cohesion: 0.06
+Nodes (52): ai(), apply(), B(), co(), Cr(), es(), Et(), fo() (+44 more)
+
+### Community 19 - "Chart.js Library"
+Cohesion: 0.05
+Nodes (62): applyStack(), aspectRatio(), _calculateBarIndexPixels(), _calculateBarValuePixels(), calculateCircumference(), cd(), _circumference(), clear() (+54 more)
+
+### Community 20 - "DailyReport Model & State"
+Cohesion: 0.08
+Nodes (22): Project, Site, SiteFactory, SiteSeeder, DateTimeZone, Filament\Livewire\DatabaseNotifications, Illuminate\Foundation\Testing\RefreshDatabase, Illuminate\Support\Facades\Bus (+14 more)
+
+### Community 21 - "Chart.js Library"
+Cohesion: 0.14
+Nodes (61): at(), B(), he(), br(), Bt(), cd(), Cr(), Ct() (+53 more)
+
+### Community 22 - "Rich Text Editor"
+Cohesion: 0.07
+Nodes (61): canSetCurrentAttribute(), canSetCurrentTextAttribute(), createCaptionElement(), didFocus(), dragstart(), drop(), findPositionAtIndexAndOffset(), findRangesOfBlocks() (+53 more)
+
+### Community 23 - "Markdown Editor"
+Cohesion: 0.05
+Nodes (10): Pr(), Bi(), bn(), ji(), kd(), qd(), Ri(), te() (+2 more)
+
+### Community 24 - "Rich Text Editor"
+Cohesion: 0.12
+Nodes (49): Qt(), Ae(), ar(), q(), Bi(), I(), c(), H() (+41 more)
+
+### Community 25 - "Rich Text Editor"
+Cohesion: 0.19
+Nodes (46): $c(), X(), ca(), me(), D(), E(), g(), H() (+38 more)
+
+### Community 26 - "DailyReport Model & State"
+Cohesion: 0.09
+Nodes (13): DailyReport, DailyReportStatus, LogOptions, PdfReadyNotification, ReportApprovedNotification, ReportPublishedNotification, ReportSubmittedNotification, RevisionRequestedNotification (+5 more)
+
+### Community 27 - "Notifications UI"
+Cohesion: 0.06
+Nodes (23): actions(), button(), constructor(), danger(), dispatch(), dispatchSelf(), dispatchTo(), duration() (+15 more)
+
+### Community 28 - "Chart.js Library"
+Cohesion: 0.07
+Nodes (46): addElements(), buildOrUpdateControllers(), buildOrUpdateElements(), C(), Ce(), co(), _dataCheck(), _destroy() (+38 more)
+
+### Community 29 - "Rich Text Editor"
+Cohesion: 0.08
+Nodes (45): add(), applyKeyboardCommand(), attachmentEditorDidRequestRemovalOfAttachment(), canBeGrouped(), checkValidity(), copyUsingObjectMap(), copyUsingObjectsFromDocument(), dialogIsVisible() (+37 more)
+
+### Community 30 - "Filament Resource Pages"
+Cohesion: 0.07
+Nodes (13): CreateClient, CreateDailyReport, EditDailyReport, DailyReportStatus, CreateProject, CreateSite, CreateUser, UserResource (+5 more)
+
+### Community 31 - "Rich Text Editor"
+Cohesion: 0.07
+Nodes (41): canAcceptDataTransfer(), canDecreaseBlockAttributeLevel(), canDecreaseNestingLevel(), canIncreaseNestingLevel(), canSetCurrentBlockAttribute(), compositionControllerDidFocus(), compositionDidRequestChangingSelectionToLocationRange(), createDOMRangeFromPoint() (+33 more)
+
+### Community 32 - "PRD Specification"
+Cohesion: 0.08
+Nodes (39): AGENTS.md — Build Rules & Fast-Reference, PRD v2/v3 — Architecture Blueprint & Source of Truth, README.md — Project Overview & Tech Stack, SCAFFOLDING.md — Setup / Install Guide, TASKS.md — Development Tasks, AGENTS.md (fast-reference), Camera-Only Live Capture Component, Client Portal Removal & Emailed PDF Reports (+31 more)
+
+### Community 33 - "Chart.js Library"
 Cohesion: 0.09
 Nodes (39): applyStack(), ar(), as(), aspectRatio(), _calculateBarIndexPixels(), _calculateBarValuePixels(), _computeGridLineItems(), countVisibleElements() (+31 more)
 
-### Community 36 - "Vendor JS bundle"
+### Community 34 - "Filament Resource Pages"
 Cohesion: 0.08
-Nodes (38): canAcceptDataTransfer(), canDecreaseNestingLevel(), canIncreaseNestingLevel(), compositionControllerDidFocus(), compositionDidRequestChangingSelectionToLocationRange(), createDOMRangeFromPoint(), createLocationRangeFromDOMRange(), decreaseNestingLevel() (+30 more)
+Nodes (15): EditClient, ListClients, ListDailyReports, ListGeneratedDocuments, EditProject, ListProjects, EditSite, ListSites (+7 more)
 
-### Community 37 - "Vendor JS bundle"
-Cohesion: 0.11
-Nodes (7): DailyReport, DailyReportStatus, LogOptions, DailyReportPolicy, clientReport(), reportFor(), draftReport()
-
-### Community 38 - "Vendor JS bundle"
-Cohesion: 0.12
-Nodes (9): PdfReadyNotification, ReportApprovedNotification, ReportPublishedNotification, ReportSubmittedNotification, RevisionRequestedNotification, Illuminate\Bus\Queueable, Illuminate\Contracts\Queue\ShouldQueue, Illuminate\Notifications\Messages\MailMessage (+1 more)
-
-### Community 39 - "Vendor JS bundle"
-Cohesion: 0.09
-Nodes (10): CreateClient, CreateDailyReport, EditDailyReport, DailyReportStatus, CreateProject, CreateSite, CreateUser, CreateWorker (+2 more)
-
-### Community 40 - "Vendor JS bundle"
+### Community 35 - "DailyReport Model & State"
 Cohesion: 0.07
-Nodes (30): contains(), ei(), en(), e(), eu(), formats(), gu(), hi() (+22 more)
+Nodes (12): Client, ClientPolicy, ClientFactory, DailyReportFactory, static, MilestoneSubJobFactory, ProjectFactory, ProjectMilestoneFactory (+4 more)
 
-### Community 41 - "Vendor JS bundle"
+### Community 36 - "Filament Support JS"
+Cohesion: 0.16
+Nodes (35): _a(), aa(), ba(), Be(), br(), T(), Ca(), ce() (+27 more)
+
+### Community 37 - "Rich Text Editor"
+Cohesion: 0.08
+Nodes (34): beforeinput(), cacheViewForObject(), canSyncDocumentView(), compositionDidChangeDocument(), compositionDidLoadSnapshot(), createAttachmentNodes(), createChildView(), createContainerElement() (+26 more)
+
+### Community 38 - "Rich Text Editor"
+Cohesion: 0.07
+Nodes (33): A(), box(), Ca(), constructor(), disabled(), form(), formDisabledCallback(), fromUCS2String() (+25 more)
+
+### Community 39 - "Chart.js Library"
+Cohesion: 0.08
+Nodes (33): afterAutoSkip(), Ao(), Bi(), buildLookupTable(), determineDataLimits(), Fi(), getAllParsedValues(), getDataTimestamps() (+25 more)
+
+### Community 40 - "Chart.js Library"
 Cohesion: 0.12
 Nodes (31): buildOrUpdateElements(), C(), Co(), _dataCheck(), datasetElementScopeKeys(), endOf(), Et(), format() (+23 more)
 
-### Community 42 - "Vendor JS bundle"
-Cohesion: 0.09
-Nodes (15): a(), ar(), b(), cr(), H(), ji(), L(), Me() (+7 more)
+### Community 41 - "DailyReport Model & State"
+Cohesion: 0.10
+Nodes (11): PruneMissingPhotos, LanguageSwitcher, Locale, DailyReportPhoto, Carbon, LocaleContext, Locale, Illuminate\Console\Command (+3 more)
 
-### Community 43 - "Vendor JS bundle"
+### Community 42 - "Filament Panel Config"
+Cohesion: 0.09
+Nodes (13): ChangePassword, Dashboard, static, UserFactory, Filament\Forms\Components\TextInput, Filament\Forms\Concerns\InteractsWithForms, Filament\Forms\Contracts\HasForms, Filament\Pages\Page (+5 more)
+
+### Community 43 - "Chart.js Library"
 Cohesion: 0.10
 Nodes (30): afterDatasetsUpdate(), buildOrUpdateControllers(), _destroyDatasetMeta(), generateLabels(), getController(), getDatasetMeta(), getDataVisibility(), _getLegendItemAt() (+22 more)
 
-### Community 44 - "Vendor JS bundle"
-Cohesion: 0.10
-Nodes (29): xt(), cacheViewForObject(), copyUsingObjectMap(), copyUsingObjectsFromDocument(), createAttachmentNodes(), createChildView(), createContainerElement(), createDocumentFragmentForSync() (+21 more)
+### Community 44 - "Laravel Echo JS"
+Cohesion: 0.09
+Nodes (14): a(), ar(), b(), cr(), H(), ji(), L(), Me() (+6 more)
 
-### Community 45 - "Vendor JS bundle"
-Cohesion: 0.10
-Nodes (29): afterDatasetsUpdate(), _d(), fa(), generateLabels(), getDatasetMeta(), getDataVisibility(), _getLegendItemAt(), getMaxBorderWidth() (+21 more)
+### Community 45 - "Chart.js Library"
+Cohesion: 0.08
+Nodes (11): constructor(), define(), getExtension(), _getTestState(), getType(), registerListeners(), yt(), jn() (+3 more)
 
-### Community 46 - "Service — DailyReport photos"
+### Community 46 - "PRD Specification"
 Cohesion: 0.09
 Nodes (28): Bi-Weekly Payroll Cycle (14-day), Camera-Only Capture Rule (SE + HRD), Client Filament Portal Removal, daily_report_photos (before/after pair), daily_report_revisions (snapshot history), Daily Report State Machine (draft→need_approval→published + revision_requested), daily_report_workers (allocation, NOT payroll source), daily_reports table (shift-based) (+20 more)
 
-### Community 47 - "Vendor JS bundle"
-Cohesion: 0.08
-Nodes (28): attachmentForFile(), attributesForFile(), canSetCurrentTextAttribute(), compositionShouldAcceptFile(), didChangeAttributes(), getContentType(), getCurrentTextAttributes(), getHeight() (+20 more)
-
-### Community 48 - "Vendor JS bundle"
-Cohesion: 0.09
-Nodes (27): At(), be(), beforeDraw(), dataset(), ea(), Fa(), fe(), getMaximumSize() (+19 more)
-
-### Community 49 - "Agent docs (AGENTS files)"
+### Community 47 - "Chart.js Library"
 Cohesion: 0.11
 Nodes (27): buildOrUpdateScales(), cl(), _computeLabelSizes(), D(), E(), ensureScalesHaveIDs(), Eo(), Fo() (+19 more)
 
-### Community 50 - "Vendor JS bundle"
-Cohesion: 0.08
-Nodes (3): duration(), persistent(), seconds()
+### Community 48 - "Rich Text Editor"
+Cohesion: 0.09
+Nodes (26): actionIsExternal(), canBeConsolidatedWith(), canInvokeAction(), compositionControllerDidBlur(), compositionControllerDidRender(), compositionControllerDidSyncDocumentView(), compositionDidAddAttachment(), compositionDidChangeAttachmentPreviewURL() (+18 more)
 
-### Community 51 - "Livewire locale & support"
+### Community 49 - "Chart.js Library"
+Cohesion: 0.12
+Nodes (25): afterDatasetsUpdate(), _d(), generateLabels(), getDatasetMeta(), getDataVisibility(), getMaxBorderWidth(), getStyle(), _handleEvent() (+17 more)
+
+### Community 50 - "Rich Text Editor"
+Cohesion: 0.10
+Nodes (24): attachmentForFile(), attributesForFile(), compositionShouldAcceptFile(), didChangeAttributes(), getContentType(), getCurrentTextAttributes(), getHeight(), getHref() (+16 more)
+
+### Community 51 - "Laravel Echo JS"
 Cohesion: 0.17
 Nodes (22): B(), C(), D(), H(), I(), J(), O(), U() (+14 more)
 
-### Community 52 - "Node deps (axios/concurrently)"
+### Community 52 - "Chart.js Library"
+Cohesion: 0.11
+Nodes (23): add(), createResolver(), datasetAnimationScopeKeys(), datasetElementScopeKeys(), datasetScopeKeys(), fu(), _getAnims(), gn() (+15 more)
+
+### Community 53 - "Chart.js Library"
 Cohesion: 0.12
 Nodes (23): _a(), add(), al(), beforeUpdate(), _cachedScopes(), cancel(), _createDescriptors(), _descriptors() (+15 more)
 
-### Community 53 - "Vendor JS bundle"
+### Community 54 - "NPM Package Config"
 Cohesion: 0.09
 Nodes (21): axios, concurrently, laravel-vite-plugin, allowScripts, esbuild@0.28.2, devDependencies, axios, concurrently (+13 more)
 
-### Community 54 - "Enums & database definitions"
-Cohesion: 0.19
-Nodes (22): da(), fa(), Fi(), fn(), S(), Ii(), je(), Jr() (+14 more)
+### Community 55 - "Filament Support JS"
+Cohesion: 0.12
+Nodes (16): [g](), d(), ee(), et(), g(), h(), J(), M() (+8 more)
 
-### Community 55 - "Filament — Client resource"
+### Community 56 - "Chart.js Library"
 Cohesion: 0.12
 Nodes (22): alpha(), en(), _getUniformDataChanges(), Hi(), interpolate(), Io(), Jo(), Ko() (+14 more)
 
-### Community 56 - "Vendor JS bundle"
-Cohesion: 0.13
-Nodes (10): LanguageSwitcher, Locale, Carbon, LocaleContext, Locale, Carbon\Carbon, DateTimeInterface, DateTimeZone (+2 more)
+### Community 57 - "Chart.js Library"
+Cohesion: 0.11
+Nodes (22): be(), beforeDraw(), dataset(), ea(), fe(), _getSortedDatasetMetas(), getSortedVisibleDatasetMetas(), getVisibleDatasetCount() (+14 more)
 
-### Community 57 - "Vendor JS bundle"
-Cohesion: 0.12
-Nodes (21): an(), color(), darken(), Dc(), desaturate(), eo(), hexString(), lighten() (+13 more)
+### Community 58 - "Filament Support JS"
+Cohesion: 0.16
+Nodes (21): da(), fa(), Fi(), fn(), S(), Ii(), je(), Li() (+13 more)
 
-### Community 58 - "Vendor JS bundle"
+### Community 59 - "Chart.js Library"
 Cohesion: 0.13
 Nodes (21): xg(), ac(), Ai(), ca(), ec(), Fc(), G(), getIndexAngle() (+13 more)
 
-### Community 59 - "Vendor JS bundle"
-Cohesion: 0.18
-Nodes (20): It(), appendAttachmentWithAttributes(), appendBlockForAttributesWithElement(), appendBlockForElement(), appendBlockForTextNode(), appendEmptyBlock(), appendPiece(), appendStringWithAttributes() (+12 more)
-
-### Community 60 - "Vendor JS bundle"
-Cohesion: 0.12
-Nodes (20): actionIsExternal(), canInvokeAction(), compositionControllerDidBlur(), compositionControllerDidSyncDocumentView(), compositionDidAddAttachment(), compositionDidChangeAttachmentPreviewURL(), compositionDidChangeCurrentAttributes(), compositionDidEditAttachment() (+12 more)
-
-### Community 61 - "Vendor JS bundle"
-Cohesion: 0.11
-Nodes (20): box(), canBeConsolidatedWith(), canRedo(), canUndo(), compositionControllerDidRender(), createEntry(), fromUCS2String(), getTargetDOMRange() (+12 more)
-
-### Community 62 - "Vendor JS bundle"
+### Community 60 - "Application Services"
 Cohesion: 0.20
 Nodes (7): DailyReportPhotoService, Illuminate\Contracts\Filesystem\Filesystem, Illuminate\Http\UploadedFile, Intervention\Image\ImageManager, RuntimeException, notAnImage(), photoImage()
 
-### Community 63 - "Filament — DailyReport resource"
+### Community 61 - "Chart.js Library"
+Cohesion: 0.14
+Nodes (19): buildTicks(), _computeAngle(), computeTickLimit(), diff(), _generate(), _getLabelCapacity(), _getLabelSize(), getTickLimit() (+11 more)
+
+### Community 62 - "Service Providers"
+Cohesion: 0.20
+Nodes (16): BezhanSalleh\FilamentShield\FilamentShieldPlugin, Filament\Http\Middleware\Authenticate, Filament\Http\Middleware\AuthenticateSession, Filament\Http\Middleware\DisableBladeIconComponents, Filament\Http\Middleware\DispatchServingFilamentEvent, Filament\Pages, Filament\Support\Colors\Color, Filament\View\PanelsRenderHook (+8 more)
+
+### Community 63 - "Markdown Editor"
+Cohesion: 0.14
+Nodes (18): Aa(), cf(), ed(), Jc(), kn(), Ln(), ma(), nd() (+10 more)
+
+### Community 64 - "appendAttachmentWithAttributes()"
+Cohesion: 0.22
+Nodes (18): appendAttachmentWithAttributes(), appendBlockForAttributesWithElement(), appendBlockForElement(), appendBlockForTextNode(), appendEmptyBlock(), appendPiece(), appendStringWithAttributes(), findBlockElementAncestors() (+10 more)
+
+### Community 65 - "ArrowLeft()"
 Cohesion: 0.15
 Nodes (18): ArrowLeft(), ArrowRight(), attachmentManagerDidRequestRemovalOfAttachment(), compositionControllerDidRequestRemovalOfAttachment(), editAttachment(), expandSelectionInDirection(), getAttachmentAtRange(), getExpandedRangeInDirection() (+10 more)
 
-### Community 64 - "Build scripts (node/composer)"
+### Community 66 - "Select Component"
+Cohesion: 0.18
+Nodes (5): Ne(), nt(), Qe(), Se, xe()
+
+### Community 67 - "Chart.js Library"
 Cohesion: 0.16
-Nodes (18): addElements(), buildOrUpdateControllers(), buildOrUpdateElements(), _dataCheck(), _destroy(), _destroyDatasetMeta(), getDataset(), hs() (+10 more)
+Nodes (18): At(), ba(), Bi(), Bs(), bu(), cc(), describe(), getPadding() (+10 more)
 
-### Community 65 - "Vendor JS bundle"
-Cohesion: 0.12
-Nodes (5): [g](), style(), update(), [x](), tt()
+### Community 68 - "Weight Validation Rules"
+Cohesion: 0.18
+Nodes (5): MilestoneWeightsTotalRule, SubJobsWeightsTotalRule, WeightValidation, Closure, Illuminate\Contracts\Validation\ValidationRule
 
-### Community 66 - "Composer — laravel deps"
+### Community 69 - "Chart.js Library"
 Cohesion: 0.15
 Nodes (17): acquireContext(), datasetAnimationScopeKeys(), getContext(), getLineWidthForValue(), ha(), ir(), ja(), Mc() (+9 more)
 
-### Community 67 - "Vendor JS bundle"
+### Community 70 - "Chart.js Library"
 Cohesion: 0.15
 Nodes (17): addEventListener(), bindEvents(), bindResponsiveEvents(), bindUserEvents(), _checkEventBindings(), cs(), _destroy(), Ei() (+9 more)
 
-### Community 68 - "Vendor JS bundle"
+### Community 71 - "Select Component"
+Cohesion: 0.23
+Nodes (4): a(), c(), r(), v()
+
+### Community 72 - "Composer Config"
 Cohesion: 0.13
 Nodes (15): scripts, dev, post-autoload-dump, post-update-cmd, pre-package-uninstall, test, Composer\\Config::disableProcessTimeout, Illuminate\\Foundation\\ComposerScripts::postAutoloadDump (+7 more)
 
-### Community 69 - "Vendor JS bundle"
-Cohesion: 0.15
-Nodes (15): apply(), q(), B(), kn(), lt(), Me(), mo(), ms() (+7 more)
+### Community 73 - "Color Picker Component"
+Cohesion: 0.14
+Nodes (3): style(), update(), [x]()
 
-### Community 70 - "Composer — dompdf dep"
+### Community 74 - "findIndexAndOffsetAtPosition()"
+Cohesion: 0.15
+Nodes (15): findIndexAndOffsetAtPosition(), getObjectAtIndex(), getObjectAtPosition(), getSplittableListInRange(), insertObjectAtIndex(), insertSplittableListAtIndex(), insertSplittableListAtPosition(), removeObjectAtIndex() (+7 more)
+
+### Community 75 - "Eloquent Models"
+Cohesion: 0.19
+Nodes (4): Controller, GeneratedDocumentDownloadController, GeneratedDocument, Symfony\Component\HttpFoundation\StreamedResponse
+
+### Community 76 - "Composer Config"
 Cohesion: 0.14
 Nodes (13): description, extra, laravel, keywords, dont-discover, license, minimum-stability, name (+5 more)
 
-### Community 71 - "Vendor JS bundle"
-Cohesion: 0.19
-Nodes (5): static, UserFactory, Illuminate\Support\Facades\Hash, Illuminate\Support\Str, Pdo\Mysql
-
-### Community 72 - "Vendor JS bundle"
-Cohesion: 0.20
-Nodes (14): active(), _animateOptions(), cancel(), _createAnimations(), _createDescriptors(), _descriptors(), kh(), _notify() (+6 more)
-
-### Community 73 - "Vendor JS bundle"
+### Community 77 - "Composer Config"
 Cohesion: 0.17
 Nodes (12): require, barryvdh/laravel-dompdf, bezhansalleh/filament-shield, fakerphp/faker, filament/filament, intervention/image-laravel, laravel/framework, laravel/tinker (+4 more)
 
-### Community 74 - "Vendor JS bundle"
+### Community 78 - "Laravel Echo JS"
 Cohesion: 0.17
 Nodes (12): Be(), ei(), ii(), le(), ni(), oi(), r(), ri() (+4 more)
 
-### Community 75 - "Vendor JS bundle"
+### Community 79 - "Laravel Echo JS"
 Cohesion: 0.20
 Nodes (11): di(), e(), g(), Ht(), i(), Ie(), Re(), t() (+3 more)
 
-### Community 77 - "Composer — larastan dev deps"
+### Community 80 - "Chart.js Library"
+Cohesion: 0.20
+Nodes (12): c(), o(), _p(), qp(), s(), Sg(), xt(), Ye() (+4 more)
+
+### Community 81 - "Select Component"
+Cohesion: 0.26
+Nodes (11): p(), ce, l(), n(), s(), t(), U(), ce() (+3 more)
+
+### Community 82 - "DateTime Picker Component"
 Cohesion: 0.27
 Nodes (7): e(), i(), l(), Ni(), o(), t(), u()
 
-### Community 78 - "Vendor JS bundle"
+### Community 83 - "Chart.js Library"
 Cohesion: 0.25
 Nodes (11): aa(), determineDataLimits(), Dh(), _getLabelBounds(), getMinMax(), _getOtherScale(), getUserBounds(), handleTickRangeOptions() (+3 more)
 
-### Community 79 - "Vendor JS bundle"
+### Community 84 - "Composer Config"
 Cohesion: 0.20
 Nodes (10): require-dev, larastan/larastan, laravel/pail, laravel/pint, laravel/sail, mockery/mockery, nunomaduro/collision, pestphp/pest (+2 more)
 
-### Community 80 - "Composer — setup scripts"
+### Community 85 - "Laravel Echo JS"
 Cohesion: 0.20
 Nodes (10): Ce(), De(), Dt(), Fe(), He(), ir(), Mt(), nr() (+2 more)
 
-### Community 81 - "Vendor JS bundle"
-Cohesion: 0.36
-Nodes (9): dd(), Jl(), lr(), md(), ot(), rd(), uf(), xl() (+1 more)
+### Community 86 - "File Upload Component"
+Cohesion: 0.24
+Nodes (10): ba(), e(), Ip(), It(), lt(), sa(), Wp(), Wt() (+2 more)
 
-### Community 82 - "Vendor JS bundle"
+### Community 87 - "Chart.js Library"
+Cohesion: 0.31
+Nodes (10): dd(), Jl(), lr(), md(), ot(), rd(), uf(), xl() (+2 more)
+
+### Community 88 - "Weight Validation Rules"
+Cohesion: 0.28
+Nodes (4): MilestoneStartDateRule, ScheduleValidator, Carbon\Carbon, DateTimeInterface
+
+### Community 89 - "HTTP Controllers"
+Cohesion: 0.43
+Nodes (4): EnsurePasswordChanged, SetLocale, Illuminate\Http\Request, Symfony\Component\HttpFoundation\Response
+
+### Community 90 - "Client & Project Models"
+Cohesion: 0.32
+Nodes (4): AdminPanelProvider, ClientPanelProvider, Filament\Panel, Filament\PanelProvider
+
+### Community 91 - "Composer Config"
 Cohesion: 0.25
 Nodes (8): post-root-package-install, setup, composer install, npm install, npm run build, @php artisan key:generate, @php artisan migrate --force, @php -r \"file_exists('.env') || copy('.env.example', '.env');\
 
-### Community 83 - "FilamentShield seeder"
-Cohesion: 0.25
-Nodes (8): dispatch(), dispatchSelf(), dispatchTo(), emit(), emitSelf(), emitTo(), event(), eventData()
+### Community 92 - "File Upload Component"
+Cohesion: 0.46
+Nodes (8): de(), Fe(), Gt(), j(), je(), le(), vt(), Zp()
 
-### Community 84 - "Composer — pest dev deps"
-Cohesion: 0.25
-Nodes (8): h(), l(), Q(), Re(), ur(), v(), Z(), ze()
+### Community 93 - "Service Providers"
+Cohesion: 0.33
+Nodes (4): AppServiceProvider, Illuminate\Cache\RateLimiting\Limit, Illuminate\Support\Facades\RateLimiter, Illuminate\Support\ServiceProvider
 
-### Community 85 - "DB — schema migrations (early)"
-Cohesion: 0.29
-Nodes (3): BezhanSalleh\FilamentShield\Support\Utils, ShieldSeeder, Spatie\Permission\PermissionRegistrar
-
-### Community 86 - "DB — schema migrations (report)"
+### Community 94 - "Composer Config"
 Cohesion: 0.29
 Nodes (7): pestphp/pest-plugin, php-http/discovery, config, allow-plugins, optimize-autoloader, preferred-install, sort-packages
 
-### Community 89 - "Vendor JS bundle"
+### Community 97 - "Docker Config"
 Cohesion: 0.71
 Nodes (6): ensure_env(), log(), provision(), entrypoint.sh script, wait_for_minio(), wait_for_pgsql()
 
-### Community 90 - "DB — activity log table"
+### Community 98 - "File Upload Component"
 Cohesion: 0.29
-Nodes (7): actions(), button(), constructor(), grouped(), link(), name(), view()
+Nodes (7): bi(), jp(), ol(), Tp(), xl(), xp(), yl()
 
-### Community 92 - "Vendor JS bundle"
+### Community 100 - "Test Suite"
 Cohesion: 0.40
 Nodes (3): Illuminate\Foundation\Testing\TestCase, ExampleTest, TestCase
 
-### Community 96 - "Vendor JS bundle"
-Cohesion: 0.47
-Nodes (6): St(), En(), Mt(), On(), vr(), Wr()
+### Community 101 - "File Upload Component"
+Cohesion: 0.40
+Nodes (6): ca(), rl(), Rp(), Sp(), vp(), yp()
 
-### Community 97 - "Vendor JS bundle"
-Cohesion: 0.70
-Nodes (5): AGENTS.md — Build Rules & Fast-Reference, PRD v2/v3 — Architecture Blueprint & Source of Truth, README.md — Project Overview & Tech Stack, SCAFFOLDING.md — Setup / Install Guide, TASKS.md — Development Tasks & Phases
+### Community 108 - "Laravel Bootstrap"
+Cohesion: 0.40
+Nodes (3): Illuminate\Foundation\Application, Illuminate\Foundation\Configuration\Exceptions, Illuminate\Foundation\Configuration\Middleware
 
-### Community 98 - "Composer — autoload psr-4"
+### Community 109 - "Composer Config"
 Cohesion: 0.40
 Nodes (5): autoload, psr-4, App\\, Database\\Factories\\, Database\\Seeders\\
 
-### Community 99 - "Composer — autoload-dev"
+### Community 110 - "Composer Config"
 Cohesion: 0.40
 Nodes (5): autoload-dev, files, psr-4, Tests\\, tests/Support/helpers.php
 
-### Community 100 - "Config — logging"
+### Community 111 - "Laravel Config"
 Cohesion: 0.40
 Nodes (4): Monolog\Handler\NullHandler, Monolog\Handler\StreamHandler, Monolog\Handler\SyslogUdpHandler, Monolog\Processor\PsrLogMessageProcessor
 
-### Community 101 - "Vendor JS bundle"
-Cohesion: 0.40
-Nodes (5): danger(), info(), status(), success(), warning()
+### Community 112 - "File Upload Component"
+Cohesion: 0.60
+Nodes (5): clickPercent(), getPosition(), mouseUp(), moveplayhead(), timelineClicked()
 
-### Community 102 - "Vendor JS bundle"
+### Community 115 - "Chart.js Library"
+Cohesion: 0.50
+Nodes (5): ad(), nd(), Oa(), path(), rd()
+
+### Community 116 - "Composer Config"
 Cohesion: 0.50
 Nodes (4): post-create-project-cmd, @php artisan key:generate --ansi, @php artisan migrate --graceful --ansi, @php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\
 
-### Community 103 - "Vendor JS bundle"
+### Community 117 - "Laravel Config"
 Cohesion: 0.50
 Nodes (3): Spatie\Activitylog\Actions\CleanActivityLogAction, Spatie\Activitylog\Actions\LogActivityAction, Spatie\Activitylog\Models\Activity
 
 ## Knowledge Gaps
-- **84 isolated node(s):** `Illuminate\\Foundation\\ComposerScripts::postAutoloadDump`, `@php artisan filament:upgrade`, `@php artisan package:discover --ansi`, `create-testing-database.sh script`, `create-testing-database.sh script` (+79 more)
+- **91 isolated node(s):** `@php artisan key:generate --ansi`, `@php artisan migrate --graceful --ansi`, `@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\`, `create-testing-database.sh script`, `create-testing-database.sh script` (+86 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **27 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `Br()` connect `Vendor JS bundle` to `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`?**
-  _High betweenness centrality (0.102) - this node is a cross-community bridge._
-- **Why does `Ls()` connect `Vendor JS bundle` to `Vendor JS bundle`, `Vendor JS bundle`?**
-  _High betweenness centrality (0.053) - this node is a cross-community bridge._
-- **Why does `constructor()` connect `Vendor JS bundle` to `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`, `Vendor JS bundle`?**
-  _High betweenness centrality (0.051) - this node is a cross-community bridge._
+- **Why does `Br()` connect `Chart.js Library` to `Chart.js Library`, `Rich Text Editor`, `Laravel Echo JS`, `Chart.js Library`, `Rich Text Editor`?**
+  _High betweenness centrality (0.087) - this node is a cross-community bridge._
+- **Why does `Ls()` connect `Chart.js Library` to `Chart.js Library`, `Chart.js Library`?**
+  _High betweenness centrality (0.046) - this node is a cross-community bridge._
+- **Why does `constructor()` connect `Rich Text Editor` to `Chart.js Library`, `Rich Text Editor`, `Rich Text Editor`, `Rich Text Editor`, `Rich Text Editor`, `Markdown Editor`, `Rich Text Editor`, `Rich Text Editor`, `File Upload Component`, `Rich Text Editor`, `Rich Text Editor`, `Rich Text Editor`?**
+  _High betweenness centrality (0.044) - this node is a cross-community bridge._
 - **Are the 3 inferred relationships involving `_update()` (e.g. with `g()` and `f()`) actually correct?**
   _`_update()` has 3 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 13 inferred relationships involving `x()` (e.g. with `D()` and `g()`) actually correct?**
   _`x()` has 13 INFERRED edges - model-reasoned connections that need verification._
 - **Are the 2 inferred relationships involving `_update()` (e.g. with `g()` and `f()`) actually correct?**
   _`_update()` has 2 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `Illuminate\\Foundation\\ComposerScripts::postAutoloadDump`, `@php artisan filament:upgrade`, `@php artisan package:discover --ansi` to the rest of the system?**
-  _84 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `@php artisan key:generate --ansi`, `@php artisan migrate --graceful --ansi`, `@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\` to the rest of the system?**
+  _91 weakly-connected nodes found - possible documentation gaps or missing edges._
