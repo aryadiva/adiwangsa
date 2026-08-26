@@ -3,12 +3,15 @@
 namespace App\Models;
 
 use App\Enums\DailyReportStatus;
+use App\Enums\ReportShift;
 use App\Enums\UserRole;
 use App\Enums\WeatherCondition;
 use App\Notifications\ReportApprovedNotification;
 use App\Notifications\ReportPublishedNotification;
 use App\Notifications\ReportSubmittedNotification;
 use App\Notifications\RevisionRequestedNotification;
+use App\Services\DeficitCarryForwardService;
+use Carbon\CarbonInterface;
 use DomainException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -26,16 +29,22 @@ use Spatie\Activitylog\Support\LogOptions;
 /**
  * @property string $id
  * @property string $site_id
+ * @property string|null $milestone_sub_job_id
  * @property string|null $created_by_user_id
  * @property string|null $reviewed_by_user_id
  * @property Carbon $report_date
+ * @property ReportShift $shift
  * @property WeatherCondition $weather_condition
  * @property string $work_summary
  * @property string|null $delays_or_issues
+ * @property string|null $daily_achievement
+ * @property string|null $daily_target
+ * @property string|null $delay_reason
  * @property DailyReportStatus $status
  * @property string|null $admin_notes
  * @property array $meta_data
  * @property-read Site $site
+ * @property-read MilestoneSubJob|null $milestoneSubJob
  * @property-read User|null $createdBy
  * @property-read User|null $reviewedBy
  * @property-read Collection<int, DailyReportRevision> $revisions
@@ -57,12 +66,17 @@ class DailyReport extends Model
      */
     protected $fillable = [
         'site_id',
+        'milestone_sub_job_id',
         'created_by_user_id',
         'reviewed_by_user_id',
         'report_date',
+        'shift',
         'weather_condition',
         'work_summary',
         'delays_or_issues',
+        'daily_achievement',
+        'daily_target',
+        'delay_reason',
         'status',
         'admin_notes',
         'meta_data',
@@ -77,8 +91,11 @@ class DailyReport extends Model
     {
         return [
             'report_date' => 'date',
-            'status' => DailyReportStatus::class,
+            'shift' => ReportShift::class,
             'weather_condition' => WeatherCondition::class,
+            'status' => DailyReportStatus::class,
+            'daily_achievement' => 'decimal:2',
+            'daily_target' => 'decimal:2',
             'meta_data' => 'array',
         ];
     }
@@ -93,6 +110,14 @@ class DailyReport extends Model
     public function site(): BelongsTo
     {
         return $this->belongsTo(Site::class);
+    }
+
+    /**
+     * @return BelongsTo<MilestoneSubJob, $this>
+     */
+    public function milestoneSubJob(): BelongsTo
+    {
+        return $this->belongsTo(MilestoneSubJob::class, 'milestone_sub_job_id');
     }
 
     public function createdBy(): BelongsTo
@@ -238,5 +263,15 @@ class DailyReport extends Model
                 ->all(),
             'photo_paths' => $this->photos()->pluck('file_path')->all(),
         ]);
+    }
+
+    public function computeAndAssignDailyTarget(CarbonInterface $date): void
+    {
+        DeficitCarryForwardService::computeAndAssignDailyTarget($this, $date);
+    }
+
+    public function evaluateTargetDeficit(?CarbonInterface $asOf = null): void
+    {
+        DeficitCarryForwardService::evaluateTargetDeficit($this, $asOf);
     }
 }

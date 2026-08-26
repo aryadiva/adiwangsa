@@ -28,6 +28,7 @@ it('does not create duplicate photo rows when a report is saved repeatedly', fun
     $formData = [
         'file_path' => [$path],
         'site_id' => $report->site_id,
+        'milestone_sub_job_id' => $report->milestone_sub_job_id,
         'report_date' => '2026-08-12',
         'weather_condition' => 'sunny',
         'work_summary' => 'Reconciliation',
@@ -64,6 +65,7 @@ it('removes a photo row when its path is removed from the form', function () {
         ->fillForm([
             'file_path' => [],
             'site_id' => $report->site_id,
+            'milestone_sub_job_id' => $report->milestone_sub_job_id,
             'report_date' => '2026-08-12',
             'weather_condition' => 'sunny',
             'work_summary' => 'Removed photo',
@@ -85,6 +87,7 @@ it('dedupes pre-existing duplicate photo rows on save', function () {
         ->fillForm([
             'file_path' => ['daily-report-photos/dup.jpg'],
             'site_id' => $report->site_id,
+            'milestone_sub_job_id' => $report->milestone_sub_job_id,
             'report_date' => '2026-08-12',
             'weather_condition' => 'sunny',
             'work_summary' => 'Dedupe',

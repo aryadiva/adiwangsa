@@ -3,12 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Enums\DailyReportStatus;
+use App\Enums\ReportShift;
 use App\Enums\UserRole;
 use App\Enums\WeatherCondition;
 use App\Filament\Resources\DailyReportResource\Pages;
 use App\Models\DailyReport;
+use App\Models\Site;
 use App\Services\DailyReportPhotoService;
+use App\Services\DeficitCarryForwardService;
 use App\Services\PdfDocumentService;
+use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Form;
@@ -81,11 +85,71 @@ class DailyReportResource extends Resource
                     ->searchable()
                     ->preload()
                     ->required()
-                    ->columnSpanFull(),
+                    ->columnSpanFull()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function ($state, Forms\Set $set): void {
+                        $set('milestone_sub_job_id', null);
+                    }),
                 Forms\Components\DatePicker::make('report_date')
                     ->required()
                     ->native(false)
                     ->displayFormat('Y-m-d'),
+                Forms\Components\Select::make('shift')
+                    ->options(ReportShift::class)
+                    ->default(ReportShift::Shift1)
+                    ->required(),
+                Forms\Components\Select::make('milestone_sub_job_id')
+                    ->label('Sub-Job')
+                    ->options(function (callable $get) {
+                        $siteId = $get('site_id');
+
+                        if ($siteId === null) {
+                            return [];
+                        }
+
+                        $site = Site::query()->with('project.milestones.subJobs')->find($siteId);
+
+                        if ($site === null) {
+                            return [];
+                        }
+
+                        return $site->project->milestones
+                            ->flatMap(fn ($m) => $m->subJobs->mapWithKeys(fn ($sj) => [$sj->id => "{$m->title}: {$sj->title}"]))
+                            ->all();
+                    })
+                    ->searchable()
+                    ->preload()
+                    ->required()
+                    ->live(onBlur: true)
+                    ->afterStateUpdated(function (Forms\Get $get, Forms\Set $set): void {
+                        $siteId = $get('site_id');
+                        $subJobId = $get('milestone_sub_job_id');
+
+                        if ($siteId !== null && $subJobId !== null) {
+                            $site = Site::query()->with('project.milestones.subJobs')->find($siteId);
+
+                            if ($site !== null) {
+                                $subJob = $site->project->milestones
+                                    ->flatMap(fn ($m) => $m->subJobs)
+                                    ->firstWhere('id', $subJobId);
+
+                                if ($subJob !== null) {
+                                    $baseline = DeficitCarryForwardService::computeDailyTarget(
+                                        $subJob,
+                                        $get('report_date') ? Carbon::parse($get('report_date')) : now(),
+                                    );
+                                    $set('daily_target', $baseline);
+                                }
+                            }
+                        }
+                    })
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('daily_target')
+                    ->label('Daily Target (system-computed)')
+                    ->disabled()
+                    ->dehydrated(false)
+                    ->suffix('units')
+                    ->columnSpanFull(),
                 Forms\Components\Select::make('weather_condition')
                     ->options(WeatherCondition::class)
                     ->required(),
@@ -95,6 +159,18 @@ class DailyReportResource extends Resource
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('delays_or_issues')
                     ->rows(3)
+                    ->columnSpanFull(),
+                Forms\Components\TextInput::make('daily_achievement')
+                    ->label('Daily Achievement')
+                    ->numeric()
+                    ->step(0.01)
+                    ->minValue(0)
+                    ->suffix('units')
+                    ->helperText('Quantity progressed against the linked sub-job target this shift.'),
+                Forms\Components\Textarea::make('delay_reason')
+                    ->label('Delay Reason')
+                    ->rows(2)
+                    ->helperText('Required when daily achievement is below the daily target.')
                     ->columnSpanFull(),
                 Forms\Components\Repeater::make('workerAllocations')
                     ->relationship()
@@ -184,6 +260,9 @@ class DailyReportResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('report_date')
                     ->date('Y-m-d')
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('shift')
+                    ->badge()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('weather_condition')
                     ->badge(),

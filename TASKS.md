@@ -323,15 +323,18 @@
 - [x] **Test:** sub-job CRUD scoped correctly through the existing milestone/project policies (`MilestoneSubJobPolicy` mirrors `ProjectMilestonePolicy` + `MilestoneSubJobPolicyTest` per role)
 
 ### 8.2 Shift-Based Daily Reports & Target Engine
-- [ ] Migration: add `milestone_sub_job_id` (FK, restrict), `shift` enum (`shift_1`/`shift_2`/`shift_3`), `daily_achievement` (decimal 12,2), `daily_target` (decimal 12,2, system-computed), `delay_reason` (text, nullable) to `daily_reports`
-- [ ] Migration: change unique index from `(site_id, report_date)` to `(site_id, report_date, shift)`
-- [ ] App-layer duplicate check updated to the new 3-column key, friendly Filament error retained
-- [ ] `app/Enums/ReportShift.php`
-- [ ] Scheduled job: nightly recompute of `daily_target` per open sub-job (`baseline + carried deficit`)
-- [ ] Target-delay-warning model/table + `first_triggered_at`/`resolved_at`, notification fired only on creation, not on repeat evaluation
-- [ ] **Test:** deficit carry-forward math across consecutive missed days
-- [ ] **Test:** warning notification fires once on first breach, not again on subsequent still-unresolved evaluations
-- [ ] **Test:** illegal duplicate `(site_id, report_date, shift)` rejected with friendly error
+- [x] Migration: add `milestone_sub_job_id` (FK, restrict), `shift` enum (`shift_1`/`shift_2`/`shift_3`), `daily_achievement` (decimal 12,2), `daily_target` (decimal 12,2, system-computed), `delay_reason` (text, nullable) to `daily_reports`
+- [x] Migration: change unique index from `(site_id, report_date)` to `(site_id, report_date, shift)`
+- [x] App-layer duplicate check updated to the new 3-column key, friendly Filament error retained
+- [x] `app/Enums/ReportShift.php`
+- [x] Scheduled job: nightly recompute of `daily_target` per open sub-job (`baseline + carried deficit`)
+  > *(`app/Services/DeficitCarryForwardService` owns baseline/carried-deficit/target math + warning lifecycle + `runNightlyEvaluation()`; `app/Console/Commands/RecomputeDailyTargets` (`daily-targets:recompute`) scheduled `dailyAt('00:30')` in `routes/console.php`, ordered before shift evaluation.)*
+- [x] Target-delay-warning model/table + `first_triggered_at`/`resolved_at`, notification fired only on creation, not on repeat evaluation
+  > *(`target_delay_warnings` table (decoupled from §5.3 `sub_job_delay_events`); `TargetDelayWarning` model; `TargetDelayWarningNotification` (mail + database); `evaluateTargetDeficit()` creates on first breach, updates silently on recurrence, resolves when achievement catches up.)*
+- [x] **Test:** deficit carry-forward math across consecutive missed days
+- [x] **Test:** warning notification fires once on first breach, not again on subsequent still-unresolved evaluations
+- [x] **Test:** illegal duplicate `(site_id, report_date, shift)` rejected with friendly error
+  > *(`tests/Feature/DeficitCarryForwardTest.php` — baseline, carry-forward, accumulation, reset, warning create/once-only/resolve, same-target-on-both-shifts, 3-column dup rejection. Also updated `DailyReportResourceFormTest`, `DailyReportAutoSaveTest`, `DailyReportPhotoReconciliationTest`, `tests/Support/helpers.php` for the now-required sub-job. 179 tests green.)*
 
 ### 8.3 Automated Delay Cascade & Mitigation Workflow
 - [ ] Migration: `sub_job_delay_events` — UUID PK, `milestone_sub_job_id` FK (cascade), `status` enum (`red`/`yellow`/`green`), `triggered_at`, `mitigation_plan` (text, nullable), `mitigation_submitted_by_user_id` FK (set null), `resolved_at` (nullable), index `(milestone_sub_job_id, status)`

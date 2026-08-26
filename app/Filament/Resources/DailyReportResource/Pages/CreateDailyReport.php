@@ -41,15 +41,18 @@ class CreateDailyReport extends CreateRecord
 
     public static function assertUniqueSiteDate(array $data, ?DailyReport $ignore = null): void
     {
+        $shift = $data['shift'] ?? 'shift_1';
+
         $exists = DailyReport::query()
             ->where('site_id', $data['site_id'])
             ->where('report_date', $data['report_date'])
+            ->where('shift', $shift)
             ->when($ignore !== null, fn ($query) => $query->whereKeyNot($ignore->id))
             ->exists();
 
         if ($exists) {
             throw ValidationException::withMessages([
-                'data.report_date' => 'A report already exists for this site on this date.',
+                'data.report_date' => 'A report already exists for this site, date and shift.',
             ]);
         }
     }

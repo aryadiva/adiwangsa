@@ -4,7 +4,9 @@ use App\Filament\Resources\DailyReportResource;
 use App\Filament\Resources\DailyReportResource\Pages\CreateDailyReport;
 use App\Filament\Resources\DailyReportResource\Pages\EditDailyReport;
 use App\Models\DailyReport;
+use App\Models\MilestoneSubJob;
 use App\Models\Project;
+use App\Models\ProjectMilestone;
 use App\Models\Site;
 use App\Models\User;
 use Illuminate\Contracts\Filesystem\Filesystem;
@@ -12,6 +14,17 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
+
+function subJobForSite(Site $site): MilestoneSubJob
+{
+    return MilestoneSubJob::factory()->create([
+        'project_milestone_id' => ProjectMilestone::factory()->create([
+            'project_id' => $site->project_id,
+            'weight_percentage' => 100,
+        ])->id,
+        'weight_percentage' => 100,
+    ]);
+}
 
 it('renders the full form schema for an admin', function () {
     $admin = adminUser();
@@ -96,6 +109,7 @@ it('hides the admin_notes field from a site engineer and client', function () {
 it('rejects a duplicate site and report date at the app layer', function () {
     $admin = adminUser();
     $site = Site::factory()->create();
+    $subJob = subJobForSite($site);
 
     DailyReport::factory()->create([
         'site_id' => $site->id,
@@ -106,6 +120,7 @@ it('rejects a duplicate site and report date at the app layer', function () {
         ->test(CreateDailyReport::class)
         ->fillForm([
             'site_id' => $site->id,
+            'milestone_sub_job_id' => $subJob->id,
             'report_date' => '2026-08-11',
             'weather_condition' => 'sunny',
             'work_summary' => 'Duplicate attempt',
@@ -118,6 +133,7 @@ it('allows a distinct site and report date at the app layer', function () {
     $admin = adminUser();
     $siteA = Site::factory()->create();
     $siteB = Site::factory()->create();
+    $subJobB = subJobForSite($siteB);
 
     DailyReport::factory()->create([
         'site_id' => $siteA->id,
@@ -128,6 +144,7 @@ it('allows a distinct site and report date at the app layer', function () {
         ->test(CreateDailyReport::class)
         ->fillForm([
             'site_id' => $siteB->id,
+            'milestone_sub_job_id' => $subJobB->id,
             'report_date' => '2026-08-11',
             'weather_condition' => 'sunny',
             'work_summary' => 'Distinct site allowed',
@@ -141,11 +158,13 @@ it('allows a distinct site and report date at the app layer', function () {
 it('records the authenticated user as the report creator', function () {
     $admin = adminUser();
     $site = Site::factory()->create();
+    $subJob = subJobForSite($site);
 
     Livewire::actingAs($admin)
         ->test(CreateDailyReport::class)
         ->fillForm([
             'site_id' => $site->id,
+            'milestone_sub_job_id' => $subJob->id,
             'report_date' => '2026-08-12',
             'weather_condition' => 'sunny',
             'work_summary' => 'Created by me',
@@ -163,11 +182,13 @@ it('ignores its own record when checking for duplicates on edit', function () {
     $report = DailyReport::factory()->create([
         'report_date' => '2026-08-11',
     ]);
+    $subJob = subJobForSite($report->site);
 
     Livewire::actingAs($admin)
         ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
         ->fillForm([
             'site_id' => $report->site_id,
+            'milestone_sub_job_id' => $subJob->id,
             'report_date' => '2026-08-11',
             'weather_condition' => 'rainy',
             'work_summary' => 'Edited summary, same site and date',
