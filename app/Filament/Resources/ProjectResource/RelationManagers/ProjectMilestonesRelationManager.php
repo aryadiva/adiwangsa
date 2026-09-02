@@ -73,49 +73,54 @@ class ProjectMilestonesRelationManager extends RelationManager
                     ->default(ProjectMilestoneStatus::Pending)
                     ->required(),
                 $weightField,
-                Forms\Components\Repeater::make('subJobs')
-                    ->relationship()
-                    ->label('Sub-Jobs')
-                    ->defaultItems(0)
-                    ->collapsible()
-                    ->itemLabel(fn (array $state): ?string => $state['title'] ?? null)
-                    ->reorderableWithButtons()
-                    ->grid(2)
+                Forms\Components\Section::make('Sub-Jobs')
+                    ->columnSpanFull()
+                    ->description('Weighted sub-jobs under this milestone. All weights must total 100%.')
                     ->schema([
-                        Forms\Components\TextInput::make('title')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Textarea::make('description')
-                            ->rows(2)
-                            ->columnSpanFull(),
-                        Forms\Components\DatePicker::make('start_date')
-                            ->native(false)
-                            ->required(),
-                        Forms\Components\TextInput::make('working_days')
-                            ->numeric()
-                            ->integer()
-                            ->minValue(1)
-                            ->required(),
-                        Forms\Components\TextInput::make('quantity')
-                            ->numeric()
-                            ->minValue(0)
-                            ->required(),
-                        Forms\Components\TextInput::make('weight_percentage')
-                            ->numeric()
-                            ->minValue(0)
-                            ->maxValue(100)
-                            ->suffix('%')
-                            ->required(),
-                        Forms\Components\Select::make('status')
-                            ->options(MilestoneSubJobStatus::class)
-                            ->default(MilestoneSubJobStatus::Pending)
-                            ->required(),
-                        Forms\Components\TextInput::make('sort_order')
-                            ->numeric()
-                            ->integer()
-                            ->default(0),
-                    ])
-                    ->rules([new SubJobsWeightsTotalRule]),
+                        Forms\Components\Repeater::make('subJobs')
+                            ->relationship()
+                            ->label('')
+                            ->defaultItems(0)
+                            ->collapsible()
+                            ->itemLabel(fn (array $state): ?string => $state['title'] ?? null)
+                            ->reorderableWithButtons()
+                            ->grid(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('title')
+                                    ->required()
+                                    ->maxLength(255),
+                                Forms\Components\Textarea::make('description')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
+                                Forms\Components\DatePicker::make('start_date')
+                                    ->native(false)
+                                    ->required(),
+                                Forms\Components\TextInput::make('working_days')
+                                    ->numeric()
+                                    ->integer()
+                                    ->minValue(1)
+                                    ->required(),
+                                Forms\Components\TextInput::make('quantity')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->required(),
+                                Forms\Components\TextInput::make('weight_percentage')
+                                    ->numeric()
+                                    ->minValue(0)
+                                    ->maxValue(100)
+                                    ->suffix('%')
+                                    ->required(),
+                                Forms\Components\Select::make('status')
+                                    ->options(MilestoneSubJobStatus::class)
+                                    ->default(MilestoneSubJobStatus::Pending)
+                                    ->required(),
+                                Forms\Components\TextInput::make('sort_order')
+                                    ->numeric()
+                                    ->integer()
+                                    ->default(0),
+                            ])
+                            ->rules([new SubJobsWeightsTotalRule]),
+                    ]),
             ])
             ->columns(2);
     }
