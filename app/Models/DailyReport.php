@@ -6,8 +6,8 @@ use App\Enums\DailyReportStatus;
 use App\Enums\ReportShift;
 use App\Enums\UserRole;
 use App\Enums\WeatherCondition;
+use App\Jobs\SendClientReportEmailJob;
 use App\Notifications\ReportApprovedNotification;
-use App\Notifications\ReportPublishedNotification;
 use App\Notifications\ReportSubmittedNotification;
 use App\Notifications\RevisionRequestedNotification;
 use App\Services\DeficitCarryForwardService;
@@ -213,8 +213,11 @@ class DailyReport extends Model
 
         $this->createdBy?->notify(new ReportApprovedNotification($this));
 
-        $clientUser = $this->site->project->client->user;
-        $clientUser?->notify(new ReportPublishedNotification($this));
+        // Client portal removed (v3 §3.1): published reports are emailed as
+        // PDFs. This is the ONLY place SendClientReportEmailJob fires.
+        // Receivers fall back to clients.meta_data.email_delivery defaults
+        // inside the job. Never dispatched on intermediate states.
+        SendClientReportEmailJob::dispatch($this->id, locale: $this->createdBy?->locale);
     }
 
     public function requestRevision(?string $adminNotes = null): void

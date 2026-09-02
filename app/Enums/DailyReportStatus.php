@@ -9,6 +9,11 @@ enum DailyReportStatus: string
     case Published = 'published';
     case RevisionRequested = 'revision_requested';
 
+    public function isPublished(): bool
+    {
+        return $this === self::Published;
+    }
+
     public function getLabel(): string
     {
         return __('enum.daily_report_status.'.$this->value);

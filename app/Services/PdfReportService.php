@@ -24,6 +24,7 @@ class PdfReportService
             DocumentType::DailyProgress => 'pdf.daily-progress',
             DocumentType::WeeklyDigest => 'pdf.weekly-digest',
             DocumentType::AttendanceRoster => 'pdf.attendance-roster',
+            DocumentType::WorkerAllocationPayroll => 'pdf.worker-allocation-payroll',
         };
 
         return $this->pdf->loadView($view, ['dto' => $dto])->output();

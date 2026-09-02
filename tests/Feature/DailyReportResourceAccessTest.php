@@ -30,7 +30,7 @@ it('scopes the reports list for a site engineer to assigned sites only', functio
         ->assertDontSee('PRJ');
 });
 
-it('shows a client only published reports from their projects', function () {
+it('client panel routes no longer exist — requests are rejected (v3)', function () {
     $own = Project::factory()->create();
     [$clientUser] = clientLinkedTo($own);
     $site = Site::factory()->create(['project_id' => $own->id]);
@@ -39,15 +39,8 @@ it('shows a client only published reports from their projects', function () {
         'site_id' => $site->id,
         'work_summary' => 'Published summary text',
     ]);
-    DailyReport::factory()->create([
-        'site_id' => $site->id,
-        'work_summary' => 'Draft should be hidden text',
-    ]);
 
-    $this->actingAs($clientUser)->get('/client/dashboard')
-        ->assertOk()
-        ->assertSee('Published summary text')
-        ->assertDontSee('Draft should be hidden text');
+    $this->actingAs($clientUser)->get('/client/dashboard')->assertNotFound();
 });
 
 it('hides a foreign report from a site engineer by UUID', function () {

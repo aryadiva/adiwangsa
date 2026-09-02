@@ -61,6 +61,7 @@ class GeneratedDocumentResource extends Resource
                         DocumentType::DailyProgress => 'primary',
                         DocumentType::WeeklyDigest => 'info',
                         DocumentType::AttendanceRoster => 'success',
+                        DocumentType::WorkerAllocationPayroll => 'warning',
                     })
                     ->formatStateUsing(fn (DocumentType $state): string => $state->label()),
                 Tables\Columns\TextColumn::make('subject')

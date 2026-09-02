@@ -6,6 +6,7 @@ use App\Enums\DelayEventStatus;
 use App\Enums\UserRole;
 use App\Filament\Resources\SubJobDelayEventResource\Pages;
 use App\Models\SubJobDelayEvent;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
@@ -102,7 +103,7 @@ class SubJobDelayEventResource extends Resource
                     ->visible(fn (SubJobDelayEvent $record): bool => auth()->user()?->role === UserRole::Admin
                         && $record->status === DelayEventStatus::Red)
                     ->form([
-                        \Filament\Forms\Components\Textarea::make('mitigation_plan')
+                        Textarea::make('mitigation_plan')
                             ->label('Mitigation Plan')
                             ->required()
                             ->rows(4)

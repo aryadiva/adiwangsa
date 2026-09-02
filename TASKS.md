@@ -353,17 +353,25 @@
   > *(`tests/Feature/DelayCascadeTest.php` — breach+cascade delta on subsequent milestones & project end, origin milestone untouched, no-duplicate while active, within-threshold no-breach, completed sub-jobs ignored, full cycle, all illegal transitions, empty plan, recurrence-after-green, per-role policy allow/deny. 192 tests green, pint clean.)*
 
 ### 8.4 Client Portal Removal & Emailed PDF Reports
-- [ ] **Delete** `app/Filament/Client/*`, `ClientPanelProvider`, and the `client` panel registration
-- [ ] **Delete** `ClientVisibilityTest`, `ClientPortalTest` (or repurpose relevant assertions into new email-delivery tests, per 8.4 tests below)
-- [ ] Retain `clients` table and `UserRole::Client` enum value as record-only; `User::canAccessPanel()` no longer routes clients anywhere
-- [ ] `app/Jobs/SendClientReportEmailJob.php` (queued) — dispatched from `DailyReport::approveAndPublish()`, replacing the old client notification
-- [ ] Filament form for Admin to configure Sender/Receiver/CC per send (or saved defaults per client/project)
-- [ ] Mail transport left on Mailpit/dummy for this phase — do not wire a real SMTP/paid provider without separate approval
-- [ ] `ReportDataDTO`: add extensible `sections` array (`type` + `payload`), Blade template skips unrecognized types gracefully
-- [ ] Remove worker-allocation content from `daily-progress.blade.php`; add new `worker-allocation-payroll.blade.php` (or similarly named) template, serving both payroll and HRD needs
-- [ ] Document the removal explicitly in this file's Phase 8 entry (matching the project's existing pattern for documenting reversals, see Phase 7.1/7.4 entries above) once merged
-- [ ] **Test:** `Mail::fake()` — correct recipients (Sender/Receiver/CC) and correct PDF attached, dispatched only on `published`, never intermediate states
-- [ ] **Test:** deleted client panel routes return 404/no route, not a broken auth redirect
+- [x] **Delete** `app/Filament/Client/*`, `ClientPanelProvider`, and the `client` panel registration
+  > *(also deleted `App\Http\Middleware\EnsurePasswordChanged` — it only served the client panel's forced-reset flow — and dropped the `client` case from `User::canAccessPanel()`; clients now fail panel access everywhere. `/client/*` routes 404, admin panel still 403 for the client role.)*
+- [x] **Delete** `ClientVisibilityTest`, `ClientPortalTest` (or repurpose relevant assertions into new email-delivery tests, per 8.4 tests below)
+  > *(portal/login/change-password assertions replaced: `SecurityHardeningTest` client test now asserts `/admin` 403 + `/client/dashboard` 404; `DailyReportResourceAccessTest` + `CrossPhaseIntegrationTest` updated the same way; `PanelLoginTest` client case now asserts the admin panel rejects client credentials; `GeneratedDocumentDownloadTest` client case flipped to deny — clients receive emailed PDFs, not download links.)*
+- [x] Retain `clients` table and `UserRole::Client` enum value as record-only; `User::canAccessPanel()` no longer routes clients anywhere
+- [x] `app/Jobs/SendClientReportEmailJob.php` (queued) — dispatched from `DailyReport::approveAndPublish()`, replacing the old client notification
+  > *(`ReportPublishedNotification` deleted. The job guards `status === published`, resolves Sender/Receiver/CC via `PdfDocumentService::clientEmailConfig()` — per-send overrides → `clients.meta_data.email_delivery` defaults → client `email` fallback — then reuses (or first creates) the DailyProgress `GeneratedDocument` and sends `App\Mail\DailyReportPublished` with the PDF attached from the `pdfs` disk (`Attachment::fromStorageDisk`, never bytes on the queue). Transport unchanged (Mailpit); real SMTP stays an `.env`-only swap.)*
+- [x] Filament form for Admin to configure Sender/Receiver/CC per send (or saved defaults per client/project)
+  > *(saved defaults per client: a "Report Email Delivery Defaults" section on `ClientResource` storing under `meta_data.email_delivery` (`sender_email`, `sender_name`, `receivers`, `cc` as tags). Per-send overrides supported via `SendClientReportEmailJob` constructor args.)*
+- [x] Mail transport left on Mailpit/dummy for this phase — do not wire a real SMTP/paid provider without separate approval
+- [x] `ReportDataDTO`: add extensible `sections` array (`type` + `payload`), Blade template skips unrecognized types gracefully
+  > *(`forDailyReport` reads `meta_data['sections']`; `pdf/daily-progress` renders known `text`/`table` types and skips the rest.)*
+- [x] Remove worker-allocation content from `daily-progress.blade.php`; add new `worker-allocation-payroll.blade.php` (or similarly named) template, serving both payroll and HRD needs
+  > *(new `DocumentType::WorkerAllocationPayroll` + `ReportDataDTO::forWorkerAllocation` + `PdfDocumentService::queueWorkerAllocation` (published-reports window, deduped like the other document types); payroll columns from `worker_attendance` get appended in 8.5.)*
+- [x] Document the removal explicitly in this file's Phase 8 entry (matching the project's existing pattern for documenting reversals, see Phase 7.1/7.4 entries above) once merged
+- [x] **Test:** `Mail::fake()` — correct recipients (Sender/Receiver/CC) and correct PDF attached, dispatched only on `published`, never intermediate states
+  > *(`ClientReportEmailTest` — configured receivers + CC + PDF filename attachment, client-email fallback, non-published skip, GeneratedDocument reuse/creation, PDF render sanity; `DailyReportNotificationsTest` reworked to `Bus::fake()` asserting `SendClientReportEmailJob` on publish only and not on revision/resubmit/illegal draft publish; `CrossPhaseIntegrationTest` ends at client email now.)*
+- [x] **Test:** deleted client panel routes return 404/no route, not a broken auth redirect
+  > *(covered in `SecurityHardeningTest`, `DailyReportResourceAccessTest`, `CrossPhaseIntegrationTest`.)*
 
 ### 8.5 Worker Profile, Attendance & Payroll
 - [ ] Migration: add `active_start_date`, `deactivation_date`, `bank_account_number`, `bank_account_name`, `phone_number` to `workers`

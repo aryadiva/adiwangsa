@@ -5,6 +5,7 @@ use App\Enums\DailyReportStatus;
 use App\Enums\DocumentType;
 use App\Enums\ProjectMilestoneStatus;
 use App\Jobs\GeneratePdfJob;
+use App\Jobs\SendClientReportEmailJob;
 use App\Models\Client;
 use App\Models\DailyReport;
 use App\Models\DailyReportWorker;
@@ -17,15 +18,18 @@ use App\Models\Worker;
 use App\Notifications\ReportApprovedNotification;
 use App\Notifications\ReportSubmittedNotification;
 use App\Services\PdfDocumentService;
+use App\Services\PdfReportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 uses(RefreshDatabase::class);
 
-it('runs the full smoke flow across phases: setup -> submit -> approve -> publish -> pdf -> client view', function () {
+it('runs the full smoke flow across phases: setup -> submit -> approve -> publish -> pdf -> client email', function () {
     Storage::fake('pdfs');
     Notification::fake();
+    Bus::fake();
 
     // --- Phase 1/2: entities + RBAC ---
     $admin = User::factory()->admin()->create();
@@ -77,33 +81,41 @@ it('runs the full smoke flow across phases: setup -> submit -> approve -> publis
     // Published is terminal — no edits
     expect(fn () => $report->submitForApproval())->toThrow(DomainException::class);
 
-    // Client can see it now, but cannot edit
+    // Client has no panel access (v3 §3.1) — but the policy still denies edits
     expect($clientUser->can('view', $report))->toBeTrue();
     expect($clientUser->can('update', $report))->toBeFalse();
 
-    // --- Phase 5.1/5.2/5.4: generate PDF, store, notify, client download ---
+    // --- Phase 5.1/5.2/8.4: generate PDF, store, notify; client emailed instead of portal ---
     $queued = app(PdfDocumentService::class)->queueDaily($report, $admin->id);
     expect($queued)->toBeTrue();
 
-    GeneratePdfJob::dispatch(
+    Bus::assertDispatched(GeneratePdfJob::class);
+
+    // Run the generation job inline (queue is faked) to exercise storage.
+    (new GeneratePdfJob(
         ReportDataDTO::forDailyReport($report),
         $admin->id,
         dailyReportId: $report->id,
-    );
+    ))->handle(app(PdfReportService::class));
 
     $document = GeneratedDocument::query()->first();
     expect($document)->not->toBeNull()
         ->and($document->document_type)->toBe(DocumentType::DailyProgress)
         ->and(Storage::disk('pdfs')->exists($document->file_path))->toBeTrue();
 
-    // Client owning the project may download through the signed route
-    $this->actingAs($clientUser)
+    // Admin may download through the throttled route
+    $this->actingAs($admin)
         ->get(route('generated-documents.download', $document))
         ->assertOk();
 
-    // Client portal exposes the published report, download link present
+    // Client panel routes are gone — a client request 404s
     $this->actingAs($clientUser)
         ->get('/client/dashboard')
-        ->assertOk()
-        ->assertSee('Excavation progressing well.');
+        ->assertNotFound();
+
+    // Client email job was queued on publish (handled in depth by ClientReportEmailTest)
+    Bus::assertDispatched(
+        SendClientReportEmailJob::class,
+        fn (SendClientReportEmailJob $job): bool => $job->dailyReportId === $report->id,
+    );
 });

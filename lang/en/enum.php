@@ -34,5 +34,6 @@ return [
         'daily_progress' => 'Daily Site Progress Report',
         'weekly_digest' => 'Weekly Site Executive Digest',
         'attendance_roster' => 'Worker Attendance & Labor Roster',
+        'worker_allocation_payroll' => 'Worker Allocation & Payroll Summary',
     ],
 ];

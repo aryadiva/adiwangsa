@@ -51,24 +51,26 @@
         <p class="text">{{ $dto->delaysOrIssues }}</p>
     @endif
 
-    @if (count($dto->workerRows))
-        <h2>{{ __('pdf.worker_allocation') }}</h2>
-        <table class="data">
-            <thead>
-                <tr><th>{{ __('pdf.name') }}</th><th>{{ __('pdf.trade') }}</th><th>{{ __('pdf.hours') }}</th><th>{{ __('pdf.remarks') }}</th></tr>
-            </thead>
-            <tbody>
-                @foreach ($dto->workerRows as $row)
-                    <tr>
-                        <td>{{ $row['name'] }}</td>
-                        <td>{{ $row['trade'] }}</td>
-                        <td>{{ $row['hours'] }}</td>
-                        <td>{{ $row['remarks'] }}</td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-    @endif
+    {{-- Worker allocation content moved to pdf.worker-allocation-payroll (PRD §7.4). --}}
+    @foreach ($dto->sections as $section)
+        {{-- Unrecognized section types are skipped gracefully (PRD §7.4). --}}
+        @if ($section['type'] === 'text')
+            <h2>{{ $section['payload']['title'] ?? '' }}</h2>
+            <p class="text">{{ $section['payload']['body'] ?? '' }}</p>
+        @elseif ($section['type'] === 'table')
+            <h2>{{ $section['payload']['title'] ?? '' }}</h2>
+            <table class="data">
+                <thead>
+                    <tr>@foreach ($section['payload']['headers'] ?? [] as $header)<th>{{ $header }}</th>@endforeach</tr>
+                </thead>
+                <tbody>
+                    @foreach ($section['payload']['rows'] ?? [] as $row)
+                        <tr>@foreach ($row as $cell)<td>{{ $cell }}</td>@endforeach</tr>
+                    @endforeach
+                </tbody>
+            </table>
+        @endif
+    @endforeach
 
     @if (count($dto->photos))
         <h2>{{ __('pdf.site_photos') }}</h2>

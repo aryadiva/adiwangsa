@@ -36,4 +36,5 @@ return [
     'total_workers' => 'Total Pekerja',
     'total_hours' => 'Total Jam',
     'no_worker_allocations' => 'Tidak ada alokasi pekerja pada periode ini.',
+    'period' => 'Periode',
 ];

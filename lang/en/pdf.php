@@ -36,4 +36,5 @@ return [
     'total_workers' => 'Total Workers',
     'total_hours' => 'Total Hours',
     'no_worker_allocations' => 'No worker allocations in this period.',
+    'period' => 'Period',
 ];

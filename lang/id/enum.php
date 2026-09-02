@@ -34,5 +34,6 @@ return [
         'daily_progress' => 'Laporan Kemajuan Harian Lokasi',
         'weekly_digest' => 'Ringkasan Eksekutif Mingguan Lokasi',
         'attendance_roster' => 'Daftar Kehadiran & Tenaga Kerja',
+        'worker_allocation_payroll' => 'Ringkasan Alokasi Kerja & Payroll',
     ],
 ];

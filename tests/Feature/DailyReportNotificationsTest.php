@@ -1,16 +1,17 @@
 <?php
 
 use App\Enums\DailyReportStatus;
+use App\Jobs\SendClientReportEmailJob;
 use App\Models\Client;
 use App\Models\DailyReport;
 use App\Models\Project;
 use App\Models\Site;
 use App\Models\User;
 use App\Notifications\ReportApprovedNotification;
-use App\Notifications\ReportPublishedNotification;
 use App\Notifications\ReportSubmittedNotification;
 use App\Notifications\RevisionRequestedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Notification;
 
 uses(RefreshDatabase::class);
@@ -52,14 +53,18 @@ it('notifies admins on resubmission after a revision', function () {
     Notification::assertSentTo($admin, ReportSubmittedNotification::class);
 });
 
-it('notifies the engineer and client when a report is published', function () {
+it('notifies the engineer and queues the client email when a report is published', function () {
     Notification::fake();
-    [$report, $engineer, $clientUser] = needApprovalReport();
+    Bus::fake();
+    [$report, $engineer] = needApprovalReport();
 
     $report->approveAndPublish();
 
     Notification::assertSentTo($engineer, ReportApprovedNotification::class);
-    Notification::assertSentTo($clientUser, ReportPublishedNotification::class);
+    Bus::assertDispatched(
+        SendClientReportEmailJob::class,
+        fn (SendClientReportEmailJob $job): bool => $job->dailyReportId === $report->id,
+    );
 });
 
 it('notifies the engineer when a revision is requested', function () {
@@ -72,21 +77,21 @@ it('notifies the engineer when a revision is requested', function () {
     Notification::assertNotSentTo($engineer, ReportApprovedNotification::class);
 });
 
-it('does not notify the client on any intermediate transition', function () {
+it('does not queue the client email on any intermediate transition', function () {
     Notification::fake();
-    [$report, $engineer, $clientUser] = needApprovalReport();
+    Bus::fake();
+    [$report] = needApprovalReport();
 
     $report->requestRevision('Needs work');
+    $report->resubmitForApproval();
 
-    Notification::assertNothingSentTo($clientUser);
+    Bus::assertNotDispatched(SendClientReportEmailJob::class);
 });
 
-it('does not fire the client published notification on an illegal draft publish', function () {
+it('does not queue the client email on an illegal draft publish', function () {
     Notification::fake();
-    $clientUser = User::factory()->client()->create();
-    $client = Client::factory()->create(['user_id' => $clientUser->id]);
-    $project = Project::factory()->create(['client_id' => $client->id]);
-    $site = Site::factory()->create(['project_id' => $project->id]);
+    Bus::fake();
+    $site = Site::factory()->create();
     $report = DailyReport::factory()->create([
         'site_id' => $site->id,
         'status' => DailyReportStatus::Draft,
@@ -95,5 +100,5 @@ it('does not fire the client published notification on an illegal draft publish'
     expect(fn () => $report->approveAndPublish())
         ->toThrow(DomainException::class);
 
-    Notification::assertNothingSentTo($clientUser);
+    Bus::assertNotDispatched(SendClientReportEmailJob::class);
 });

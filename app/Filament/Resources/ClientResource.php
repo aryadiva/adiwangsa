@@ -44,8 +44,31 @@ class ClientResource extends Resource
                     ->tel()
                     ->required()
                     ->maxLength(50),
+                Forms\Components\Section::make('Report Email Delivery Defaults')
+                    ->description('Used when emailing published Daily Site Progress Summary PDFs (Sender / Receivers / CC). Per-send overrides win over these defaults.')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('meta_data.email_delivery.sender_email')
+                            ->label('Sender Email')
+                            ->email()
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('meta_data.email_delivery.sender_name')
+                            ->label('Sender Name')
+                            ->maxLength(255),
+                        Forms\Components\TagsInput::make('meta_data.email_delivery.receivers')
+                            ->label('Receivers')
+                            ->helperText('Defaults to the client email above when empty.')
+                            ->splitKeys([',', ' '])
+                            ->columnSpanFull(),
+                        Forms\Components\TagsInput::make('meta_data.email_delivery.cc')
+                            ->label('CC')
+                            ->splitKeys([',', ' '])
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpanFull(),
                 Forms\Components\KeyValue::make('meta_data')
                     ->label('Additional Fields')
+                    ->helperText('Email delivery defaults are stored under the "email_delivery" key — edit through the section above.')
                     ->columnSpanFull(),
             ]);
     }

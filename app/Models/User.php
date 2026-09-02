@@ -42,7 +42,6 @@ class User extends Authenticatable implements FilamentUser
 
         return match ($panel->getId()) {
             'admin' => $this->role !== UserRole::Client,
-            'client' => $this->role === UserRole::Client,
             default => false,
         };
     }

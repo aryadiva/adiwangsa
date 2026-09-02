@@ -39,12 +39,12 @@ it('lets an admin download a generated document', function () {
         ->assertHeader('content-disposition');
 });
 
-it('lets the owning client download a generated document for their project', function () {
+it('denies a client downloading — clients receive emailed PDFs, not download links (v3)', function () {
     [$document, , , $clientUser] = createDownloadDocument();
 
     $this->actingAs($clientUser)
         ->get(route('generated-documents.download', $document))
-        ->assertOk();
+        ->assertForbidden();
 });
 
 it('denies an unrelated user from downloading a generated document', function () {

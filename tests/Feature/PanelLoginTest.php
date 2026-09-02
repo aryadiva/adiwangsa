@@ -44,25 +44,7 @@ it('does not grant panel access to an inactive user', function () {
     $this->actingAs($user)->get('/admin')->assertForbidden();
 });
 
-it('lets a client authenticate to the client panel', function () {
-    Filament::setCurrentPanel(Filament::getPanel('client'));
-
-    $user = User::factory()->client()->create(['must_change_password' => false]);
-    Client::factory()->for($user)->create();
-
-    Livewire::test(Login::class)
-        ->fillForm([
-            'email' => $user->email,
-            'password' => 'password',
-        ])
-        ->call('authenticate')
-        ->assertHasNoErrors()
-        ->assertRedirect();
-
-    expect(auth()->id())->toBe($user->id);
-});
-
-it('rejects valid client credentials on the admin panel', function () {
+it('no longer offers a client panel — client credentials are rejected on the admin panel', function () {
     Filament::setCurrentPanel(Filament::getPanel('admin'));
 
     $user = User::factory()->client()->create(['must_change_password' => false]);
@@ -74,7 +56,7 @@ it('rejects valid client credentials on the admin panel', function () {
             'password' => 'password',
         ])
         ->call('authenticate')
-        ->assertHasErrors(['data.email']);
+        ->assertHasErrors();
 
-    expect(auth()->check())->toBeFalse();
+    expect(auth()->id())->toBeNull();
 });

@@ -28,13 +28,6 @@ class GeneratedDocumentDownloadController extends Controller
             return true;
         }
 
-        if ($document->generated_by_user_id === $user->id) {
-            return true;
-        }
-
-        $project = $document->project ?? $document->dailyReport?->site?->project;
-        $clientUser = $project?->client?->user;
-
-        return $clientUser !== null && $clientUser->id === $user->id;
+        return $document->generated_by_user_id === $user->id;
     }
 }

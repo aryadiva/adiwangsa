@@ -38,6 +38,7 @@ final class ReportDataDTO
         public readonly array $workerRows = [],
         public readonly array $reportSummaries = [],
         public readonly array $milestones = [],
+        public readonly array $sections = [],
         public readonly array $metaData = [],
         public readonly string $generatedAt = '',
         public readonly ?string $periodFrom = null,
@@ -82,9 +83,31 @@ final class ReportDataDTO
                 ->values()
                 ->all(),
             metaData: $report->meta_data ?? [],
+            sections: self::extractSections($report),
             generatedAt: now()->toDateTimeString(),
             locale: $locale ?? app()->getLocale(),
         );
+    }
+
+    /**
+     * Extensible typed content blocks (PRD §7.4) — read from the report's
+     * meta_data['sections'] when present. Each entry is ['type' => ..., 'payload' => [...]];
+     * the Blade template skips unrecognized types gracefully.
+     *
+     * @return list<array{type: string, payload: array}>
+     */
+    protected static function extractSections(DailyReport $report): array
+    {
+        $sections = $report->meta_data['sections'] ?? [];
+
+        return collect(is_array($sections) ? $sections : [])
+            ->filter(fn ($section): bool => is_array($section) && isset($section['type']))
+            ->map(fn ($section): array => [
+                'type' => (string) $section['type'],
+                'payload' => (array) ($section['payload'] ?? []),
+            ])
+            ->values()
+            ->all();
     }
 
     /**
@@ -147,6 +170,51 @@ final class ReportDataDTO
             generatedAt: now()->toDateTimeString(),
             periodFrom: $startDay->toDateString(),
             periodTo: $endDay->toDateString(),
+            locale: $locale ?? app()->getLocale(),
+        );
+    }
+
+    /**
+     * Worker Allocation & Payroll Summary (PRD §7.4) — the worker-allocation
+     * content split out of the Daily Progress PDF, aggregated across
+     * (published) reports within a date range. Serves payroll and HRD needs;
+     * payroll-specific columns are added in Phase 8.5.
+     *
+     * @param  Collection<int, DailyReport>  $reports
+     */
+    public static function forWorkerAllocation(Collection $reports, Carbon $start, Carbon $end, ?string $locale = null): self
+    {
+        $reports = (new \Illuminate\Database\Eloquent\Collection($reports->all()))
+            ->load('site.project', 'workerAllocations.worker');
+        $allocations = $reports->flatMap(fn ($report) => $report->workerAllocations);
+
+        $workerRows = $allocations
+            ->groupBy('worker_id')
+            ->map(fn (Collection $group): array => [
+                'name' => $group->first()?->worker?->full_name,
+                'trade' => $group->first()?->worker?->trade_skill,
+                'hours' => number_format((float) $group->sum('hours_worked'), 2),
+                'days' => $group->count(),
+                'site' => $group->first()?->dailyReport?->site?->name,
+            ])
+            ->values()
+            ->all();
+
+        $first = $reports->first();
+
+        return new self(
+            type: DocumentType::WorkerAllocationPayroll,
+            title: DocumentType::WorkerAllocationPayroll->label(),
+            projectName: $first?->site->project->name ?? '',
+            projectCode: $first?->site->project->code ?? '',
+            clientCompany: $first?->site->project->client->company_name ?? '',
+            dateRange: $start->toDateString().' — '.$end->toDateString(),
+            workerCount: count($workerRows),
+            totalHours: number_format((float) $allocations->sum('hours_worked'), 2),
+            workerRows: $workerRows,
+            generatedAt: now()->toDateTimeString(),
+            periodFrom: $start->toDateString(),
+            periodTo: $end->toDateString(),
             locale: $locale ?? app()->getLocale(),
         );
     }

@@ -2,6 +2,7 @@
 
 namespace App\Policies;
 
+use App\Enums\DelayEventStatus;
 use App\Enums\UserRole;
 use App\Models\SubJobDelayEvent;
 use App\Models\User;
@@ -41,11 +42,11 @@ class SubJobDelayEventPolicy
 
     public function submitMitigationPlan(User $user, SubJobDelayEvent $event): bool
     {
-        return $user->role === UserRole::Admin && $event->status === \App\Enums\DelayEventStatus::Red;
+        return $user->role === UserRole::Admin && $event->status === DelayEventStatus::Red;
     }
 
     public function markRecovered(User $user, SubJobDelayEvent $event): bool
     {
-        return $user->role === UserRole::Admin && $event->status === \App\Enums\DelayEventStatus::Yellow;
+        return $user->role === UserRole::Admin && $event->status === DelayEventStatus::Yellow;
     }
 }
