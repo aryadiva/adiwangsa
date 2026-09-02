@@ -37,4 +37,12 @@ return [
     'total_hours' => 'Total Hours',
     'no_worker_allocations' => 'No worker allocations in this period.',
     'period' => 'Period',
+    'payroll_summary' => 'Payroll Summary (from attendance records)',
+    'regular_hrs' => 'Regular Hrs',
+    'overtime_hrs' => 'Overtime Hrs',
+    'regular_pay' => 'Regular Pay',
+    'overtime_pay' => 'Overtime Pay',
+    'total_pay' => 'Total Pay',
+    'grand_total' => 'Grand Total',
+    'worker_deleted' => 'Worker (deactivated)',
 ];

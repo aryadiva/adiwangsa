@@ -33,6 +33,22 @@ class WorkerResource extends Resource
                 Forms\Components\TextInput::make('daily_rate')
                     ->numeric()
                     ->minValue(0),
+                Forms\Components\DatePicker::make('active_start_date')
+                    ->label('Active From'),
+                Forms\Components\DatePicker::make('deactivation_date'),
+                Forms\Components\TextInput::make('phone_number')
+                    ->tel()
+                    ->maxLength(32),
+                Forms\Components\Fieldset::make('Bank Account')
+                    ->columns(2)
+                    ->schema([
+                        Forms\Components\TextInput::make('bank_account_number')
+                            ->label('Account Number')
+                            ->maxLength(64),
+                        Forms\Components\TextInput::make('bank_account_name')
+                            ->label('Account Name')
+                            ->maxLength(255),
+                    ]),
                 Forms\Components\Toggle::make('is_active')
                     ->inline(false)
                     ->default(true),
@@ -57,6 +73,19 @@ class WorkerResource extends Resource
                 Tables\Columns\TextColumn::make('daily_rate')
                     ->money('IDR')
                     ->sortable(),
+                Tables\Columns\TextColumn::make('phone_number')
+                    ->label('Phone')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('active_start_date')
+                    ->label('Active From')
+                    ->date('Y-m-d')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('deactivation_date')
+                    ->date('Y-m-d')
+                    ->placeholder('—')
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\ToggleColumn::make('is_active')
                     ->label('Active'),
                 Tables\Columns\TextColumn::make('report_allocations_count')

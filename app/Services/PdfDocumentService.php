@@ -6,8 +6,10 @@ use App\DTOs\ReportDataDTO;
 use App\Enums\DailyReportStatus;
 use App\Enums\DocumentType;
 use App\Jobs\GeneratePdfJob;
+use App\Models\Client;
 use App\Models\DailyReport;
 use App\Models\GeneratedDocument;
+use App\Models\PayrollRun;
 use App\Models\Project;
 use App\Models\User;
 use App\Notifications\PdfReadyNotification;
@@ -146,7 +148,8 @@ class PdfDocumentService
         ?array $receiversOverride = null,
         ?array $ccOverride = null,
     ): array {
-        $client = $report->site->project->client;
+        /** @var Client|null $client */
+        $client = $report->site->project->client()->first();
         $defaults = $client?->meta_data['email_delivery'] ?? [];
 
         $senderEmail ??= $defaults['sender_email'] ?? (string) config('mail.from.address');
@@ -157,7 +160,7 @@ class PdfDocumentService
         ));
 
         // Fallback: the client record's own email.
-        if ($receivers === [] && $client?->email) {
+        if ($receivers === [] && $client !== null && filled($client->email)) {
             $receivers = [$client->email];
         }
 
@@ -200,12 +203,13 @@ class PdfDocumentService
 
     /**
      * Queue the Worker Allocation & Payroll Summary document (PRD §7.4) —
-     * the worker-allocation content split out of the Daily Progress PDF.
-     * Serves payroll and HRD needs; payroll-specific columns arrive in 8.5.
+     * the worker-allocation content split out of the Daily Progress PDF,
+     * optionally enriched with the payroll pay breakdown of a payroll run
+     * (from `worker_attendance` via `payroll_items`, PRD §5.4).
      *
      * @return bool true when a new job was queued, false when an existing document was reused
      */
-    public function queueWorkerAllocation(Project $project, Carbon $from, Carbon $to, ?string $userId): bool
+    public function queueWorkerAllocation(Project $project, Carbon $from, Carbon $to, ?string $userId, ?PayrollRun $payrollRun = null): bool
     {
         $existing = $this->existingProjectDocument($project, DocumentType::WorkerAllocationPayroll, $from, $to);
         if ($existing !== null) {
@@ -221,7 +225,7 @@ class PdfDocumentService
             ->get();
 
         GeneratePdfJob::dispatch(
-            ReportDataDTO::forWorkerAllocation($reports, $from, $to, $this->userLocale($userId)),
+            ReportDataDTO::forWorkerAllocation($reports, $from, $to, $this->userLocale($userId), $payrollRun),
             $userId,
             projectId: $project->id,
         );

@@ -63,6 +63,7 @@ class GeneratePdfJob implements ShouldQueue
             DocumentType::DailyProgress => 'daily-progress',
             DocumentType::WeeklyDigest => 'weekly-digest',
             DocumentType::AttendanceRoster => 'attendance-roster',
+            DocumentType::WorkerAllocationPayroll => 'worker-allocation-payroll',
         };
 
         return Str::slug($slug.'-'.$this->dto->projectCode).'-'.now()->format('YmdHis').'.pdf';

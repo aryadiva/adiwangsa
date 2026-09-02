@@ -30,6 +30,12 @@ return [
         'yellow' => 'Yellow — Mitigation Submitted',
         'green' => 'Green — Recovered',
     ],
+    'payroll_run_status' => [
+        'draft' => 'Draft',
+        'pending_review' => 'Pending Review',
+        'approved' => 'Approved',
+        'paid' => 'Paid',
+    ],
     'document_type' => [
         'daily_progress' => 'Daily Site Progress Report',
         'weekly_digest' => 'Weekly Site Executive Digest',

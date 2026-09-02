@@ -62,7 +62,39 @@
         <p class="empty">{{ __('pdf.no_worker_allocations') }}</p>
     @endif
 
-    {{-- Payroll-specific columns (regular/overtime pay from worker_attendance) are appended here in Phase 8.5. --}}
+    @if (count($dto->payrollItems))
+        <h2>{{ __('pdf.payroll_summary') }}</h2>
+        <table class="data">
+            <thead>
+                <tr>
+                    <th>{{ __('pdf.name') }}</th>
+                    <th>{{ __('pdf.trade') }}</th>
+                    <th>{{ __('pdf.regular_hrs') }}</th>
+                    <th>{{ __('pdf.overtime_hrs') }}</th>
+                    <th>{{ __('pdf.regular_pay') }}</th>
+                    <th>{{ __('pdf.overtime_pay') }}</th>
+                    <th>{{ __('pdf.total_pay') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($dto->payrollItems as $item)
+                    <tr>
+                        <td>{{ $item['name'] }}</td>
+                        <td>{{ $item['trade'] }}</td>
+                        <td>{{ $item['regular_hours'] }}</td>
+                        <td>{{ $item['overtime_hours'] }}</td>
+                        <td>{{ $item['regular_pay'] }}</td>
+                        <td>{{ $item['overtime_pay'] }}</td>
+                        <td>{{ $item['total_pay'] }}</td>
+                    </tr>
+                @endforeach
+                <tr>
+                    <td colspan="6" style="text-align: right; font-weight: bold;">{{ __('pdf.grand_total') }}</td>
+                    <td style="font-weight: bold;">{{ $dto->payrollTotal }}</td>
+                </tr>
+            </tbody>
+        </table>
+    @endif
 
     <div class="footer">{{ __('pdf.generated') }} {{ \Illuminate\Support\Carbon::parse($dto->generatedAt)->translatedFormat('d M Y H:i') }} &middot; {{ $dto->projectCode }}</div>
 </body>

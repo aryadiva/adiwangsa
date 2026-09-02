@@ -6,8 +6,11 @@ use App\Enums\DailyReportStatus;
 use App\Enums\DocumentType;
 use App\Enums\ProjectMilestoneStatus;
 use App\Models\DailyReport;
+use App\Models\PayrollItem;
+use App\Models\PayrollRun;
 use App\Models\Project;
 use App\Models\Site;
+use App\Models\Worker;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
@@ -40,6 +43,8 @@ final class ReportDataDTO
         public readonly array $milestones = [],
         public readonly array $sections = [],
         public readonly array $metaData = [],
+        public readonly array $payrollItems = [],
+        public readonly ?string $payrollTotal = null,
         public readonly string $generatedAt = '',
         public readonly ?string $periodFrom = null,
         public readonly ?string $periodTo = null,
@@ -177,12 +182,13 @@ final class ReportDataDTO
     /**
      * Worker Allocation & Payroll Summary (PRD §7.4) — the worker-allocation
      * content split out of the Daily Progress PDF, aggregated across
-     * (published) reports within a date range. Serves payroll and HRD needs;
-     * payroll-specific columns are added in Phase 8.5.
+     * (published) reports within a date range. When a payroll run is given,
+     * the regular/overtime pay breakdown from its `payroll_items` (sourced
+     * from `worker_attendance`, PRD §5.4) is included in the document.
      *
      * @param  Collection<int, DailyReport>  $reports
      */
-    public static function forWorkerAllocation(Collection $reports, Carbon $start, Carbon $end, ?string $locale = null): self
+    public static function forWorkerAllocation(Collection $reports, Carbon $start, Carbon $end, ?string $locale = null, ?PayrollRun $payrollRun = null): self
     {
         $reports = (new \Illuminate\Database\Eloquent\Collection($reports->all()))
             ->load('site.project', 'workerAllocations.worker');
@@ -200,6 +206,10 @@ final class ReportDataDTO
             ->values()
             ->all();
 
+        [$payrollItems, $payrollTotal] = $payrollRun === null
+            ? [[], null]
+            : self::payrollSection($payrollRun);
+
         $first = $reports->first();
 
         return new self(
@@ -212,11 +222,43 @@ final class ReportDataDTO
             workerCount: count($workerRows),
             totalHours: number_format((float) $allocations->sum('hours_worked'), 2),
             workerRows: $workerRows,
+            payrollItems: $payrollItems,
+            payrollTotal: $payrollTotal,
             generatedAt: now()->toDateTimeString(),
             periodFrom: $start->toDateString(),
             periodTo: $end->toDateString(),
             locale: $locale ?? app()->getLocale(),
         );
+    }
+
+    /**
+     * Queue-safe payroll breakdown rows from a payroll run's items.
+     *
+     * @return array{0: list<array<string, string>>, 1: string}
+     */
+    protected static function payrollSection(PayrollRun $run): array
+    {
+        /** @var Collection<int, PayrollItem> $items */
+        $items = $run->items()->orderBy('id')->get();
+
+        $rows = $items
+            ->map(function (PayrollItem $item): array {
+                $worker = Worker::withTrashed()->find($item->worker_id);
+
+                return [
+                    'name' => $worker->full_name,
+                    'trade' => $worker->trade_skill,
+                    'regular_hours' => (string) $item->regular_hours_total,
+                    'overtime_hours' => (string) $item->overtime_hours_total,
+                    'regular_pay' => number_format((float) $item->regular_pay, 2),
+                    'overtime_pay' => number_format((float) $item->overtime_pay, 2),
+                    'total_pay' => number_format((float) $item->total_pay, 2),
+                ];
+            })
+            ->values()
+            ->all();
+
+        return [$rows, number_format((float) $run->items()->sum('total_pay'), 2)];
     }
 
     /**

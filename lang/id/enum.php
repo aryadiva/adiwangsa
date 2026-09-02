@@ -30,6 +30,12 @@ return [
         'yellow' => 'Kuning — Rencana Mitigasi Diajukan',
         'green' => 'Hijau — Pulih',
     ],
+    'payroll_run_status' => [
+        'draft' => 'Draf',
+        'pending_review' => 'Menunggu Tinjauan',
+        'approved' => 'Disetujui',
+        'paid' => 'Dibayar',
+    ],
     'document_type' => [
         'daily_progress' => 'Laporan Kemajuan Harian Lokasi',
         'weekly_digest' => 'Ringkasan Eksekutif Mingguan Lokasi',

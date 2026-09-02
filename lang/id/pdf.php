@@ -37,4 +37,12 @@ return [
     'total_hours' => 'Total Jam',
     'no_worker_allocations' => 'Tidak ada alokasi pekerja pada periode ini.',
     'period' => 'Periode',
+    'payroll_summary' => 'Ringkasan Payroll (dari catatan kehadiran)',
+    'regular_hrs' => 'Jam Reguler',
+    'overtime_hrs' => 'Jam Lembur',
+    'regular_pay' => 'Gaji Reguler',
+    'overtime_pay' => 'Gaji Lembur',
+    'total_pay' => 'Total Gaji',
+    'grand_total' => 'Total Keseluruhan',
+    'worker_deleted' => 'Pekerja (dinonaktifkan)',
 ];
