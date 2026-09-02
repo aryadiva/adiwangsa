@@ -25,6 +25,11 @@ return [
         'completed' => 'Completed',
         'delayed' => 'Delayed',
     ],
+    'delay_event_status' => [
+        'red' => 'Red — Delay Detected',
+        'yellow' => 'Yellow — Mitigation Submitted',
+        'green' => 'Green — Recovered',
+    ],
     'document_type' => [
         'daily_progress' => 'Daily Site Progress Report',
         'weekly_digest' => 'Weekly Site Executive Digest',

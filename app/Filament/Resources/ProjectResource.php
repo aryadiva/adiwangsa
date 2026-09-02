@@ -69,6 +69,13 @@ class ProjectResource extends Resource
                 Forms\Components\DatePicker::make('target_end_date')
                     ->native(false)
                     ->afterOrEqual('start_date'),
+                Forms\Components\TextInput::make('delay_threshold_days')
+                    ->label('Delay Threshold (days)')
+                    ->numeric()
+                    ->integer()
+                    ->minValue(0)
+                    ->default(2)
+                    ->helperText('A sub-job delayed beyond this many days triggers a red delay event and shifts subsequent milestone dates.'),
                 Forms\Components\TextInput::make('budget')
                     ->numeric()
                     ->minValue(0),

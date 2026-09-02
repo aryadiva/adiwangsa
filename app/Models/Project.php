@@ -46,6 +46,7 @@ class Project extends Model
         'status',
         'start_date',
         'target_end_date',
+        'delay_threshold_days',
         'budget',
         'timezone',
         'meta_data',

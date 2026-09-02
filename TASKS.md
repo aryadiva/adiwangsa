@@ -338,14 +338,19 @@
   > *(`tests/Feature/DeficitCarryForwardTest.php` — baseline, carry-forward, accumulation, reset, warning create/once-only/resolve, same-target-on-both-shifts, 3-column dup rejection. Also updated `DailyReportResourceFormTest`, `DailyReportAutoSaveTest`, `DailyReportPhotoReconciliationTest`, `tests/Support/helpers.php` for the now-required sub-job. 179 tests green.)*
 
 ### 8.3 Automated Delay Cascade & Mitigation Workflow
-- [ ] Migration: `sub_job_delay_events` — UUID PK, `milestone_sub_job_id` FK (cascade), `status` enum (`red`/`yellow`/`green`), `triggered_at`, `mitigation_plan` (text, nullable), `mitigation_submitted_by_user_id` FK (set null), `resolved_at` (nullable), index `(milestone_sub_job_id, status)`
-- [ ] Migration: add `delay_threshold_days` (int, default 2) to `projects`, exposed as an editable field on `ProjectResource`
-- [ ] Threshold-breach detection job: creates `red` event + shifts all subsequent milestones' dates (by `sort_order`) and `projects.target_end_date` by the delay delta, in one transaction
-- [ ] `SubJobDelayEvent::submitMitigationPlan()` (→ `yellow`) and `::markRecovered()` (→ `green`) actions; a fresh delay after `green` creates a **new** event back at `red`
-- [ ] Filament table actions: `Submit Mitigation Plan` (Admin, visible on `red`), `Mark Recovered` (Admin, visible on `yellow`)
-- [ ] **Test:** breach creates event + cascades dates atomically
-- [ ] **Test:** full 🔴→🟡→🟢 cycle, and reset-to-🔴 on recurrence
-- [ ] **Test:** illegal transitions rejected (e.g. `red` → `green` skipping `yellow`, if that's the intended rule — confirm before hardening this constraint)
+- [x] Migration: `sub_job_delay_events` — UUID PK, `milestone_sub_job_id` FK (cascade), `status` enum (`red`/`yellow`/`green`), `triggered_at`, `mitigation_plan` (text, nullable), `mitigation_submitted_by_user_id` FK (set null), `resolved_at` (nullable), index `(milestone_sub_job_id, status)`
+  > *(plus a `delay_days` int snapshot on each event — the cumulative delay at trigger time, used for the cascade delta and displayed in the admin table.)*
+- [x] Migration: add `delay_threshold_days` (int, default 2) to `projects`, exposed as an editable field on `ProjectResource`
+- [x] Threshold-breach detection job: creates `red` event + shifts all subsequent milestones' dates (by `sort_order`) and `projects.target_end_date` by the delay delta, in one transaction
+  > *(`App\Services\DelayCascadeService` — breach = sub-job not completed and days past planned end (`start_date + working_days`) strictly exceed `delay_threshold_days` (PRD "exceeds"); delta = cumulative delay at trigger. `sub-job-delays:detect` artisan command scheduled `dailyAt('00:45')` in `routes/console.php` — ordered after `daily-targets:recompute` (00:30) per the AGENTS.md scheduler-ordering gotcha. Event creation + downstream `target_date`/`target_end_date` shifts are one `DB::transaction`.)*
+- [x] `SubJobDelayEvent::submitMitigationPlan()` (→ `yellow`) and `::markRecovered()` (→ `green`) actions; a fresh delay after `green` creates a **new** event back at `red`
+  > *(illegal transitions throw `DomainException` — red→green is rejected because a mitigation plan is mandatory before recovery; empty plan rejected; green is terminal. Re-detection while a red/yellow event is active is a no-op, so no duplicate events.)*
+- [x] Filament table actions: `Submit Mitigation Plan` (Admin, visible on `red`), `Mark Recovered` (Admin, visible on `yellow`)
+  > *(new `SubJobDelayEventResource` — list-only, creation disabled; admin-only mutations via `SubJobDelayEventPolicy`, SE read scoped to assigned projects, client denied; status badge + delay-days + mitigation columns.)*
+- [x] **Test:** breach creates event + cascades dates atomically
+- [x] **Test:** full 🔴→🟡→🟢 cycle, and reset-to-🔴 on recurrence
+- [x] **Test:** illegal transitions rejected — confirmed rule: `red` → `green` rejected (mitigation plan required before recovery)
+  > *(`tests/Feature/DelayCascadeTest.php` — breach+cascade delta on subsequent milestones & project end, origin milestone untouched, no-duplicate while active, within-threshold no-breach, completed sub-jobs ignored, full cycle, all illegal transitions, empty plan, recurrence-after-green, per-role policy allow/deny. 192 tests green, pint clean.)*
 
 ### 8.4 Client Portal Removal & Emailed PDF Reports
 - [ ] **Delete** `app/Filament/Client/*`, `ClientPanelProvider`, and the `client` panel registration

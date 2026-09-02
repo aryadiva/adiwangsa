@@ -25,6 +25,11 @@ return [
         'completed' => 'Selesai',
         'delayed' => 'Terlambat',
     ],
+    'delay_event_status' => [
+        'red' => 'Merah — Keterlambatan Terdeteksi',
+        'yellow' => 'Kuning — Rencana Mitigasi Diajukan',
+        'green' => 'Hijau — Pulih',
+    ],
     'document_type' => [
         'daily_progress' => 'Laporan Kemajuan Harian Lokasi',
         'weekly_digest' => 'Ringkasan Eksekutif Mingguan Lokasi',
