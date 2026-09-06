@@ -10,7 +10,7 @@ class MilestoneSubJobPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->role !== UserRole::Hrd;
     }
 
     public function view(User $user, MilestoneSubJob $subJob): bool
@@ -21,6 +21,7 @@ class MilestoneSubJobPolicy
             UserRole::Admin => true,
             UserRole::SiteEngineer => $user->projects()->whereKey($projectId)->exists(),
             UserRole::Client => $user->client?->projects()->whereKey($projectId)->exists() ?? false,
+            UserRole::Hrd => false,
         };
     }
 

@@ -37,9 +37,31 @@ it('renders the full form schema for an admin', function () {
         ->assertFormFieldExists('work_summary')
         ->assertFormFieldExists('delays_or_issues')
         ->assertFormFieldExists('workerAllocations')
-        ->assertFormFieldExists('file_path')
+        ->assertFormFieldExists('before_file_path')
+        ->assertFormFieldExists('after_file_path')
+        ->assertFormFieldExists('photo_description')
         ->assertFormFieldExists('meta_data')
         ->assertFormFieldExists('admin_notes');
+});
+
+it('renders the live camera capture fields for a site engineer, never a gallery file picker', function () {
+    $engineer = engineerAssignedTo(Project::factory()->create());
+
+    $page = Livewire::actingAs($engineer)
+        ->test(CreateDailyReport::class)
+        ->assertFormFieldExists('before_photo')
+        ->assertFormFieldExists('after_photo')
+        ->assertFormFieldDoesNotExist('before_file_path')
+        ->assertFormFieldDoesNotExist('after_file_path');
+
+    $html = $page->html();
+
+    expect($html)->toContain('fi-fo-live-capture')
+        ->and($html)->toContain('capture="environment"')
+        ->and($html)->toContain('type="file"')
+        // The only file input is the native <input capture> fallback — it
+        // must carry the capture attribute so browsers force the camera.
+        ->and(str_contains($html, '<input type="file"') && ! str_contains($html, 'capture="environment"'))->toBeFalse();
 });
 
 it('emits a signed preview URL and never falls back to an unsigned object URL', function () {
@@ -48,27 +70,19 @@ it('emits a signed preview URL and never falls back to an unsigned object URL', 
         ->once()
         ->with('daily-report-photos/preview.jpg', Mockery::type(DateTimeInterface::class))
         ->andReturn('http://192.168.10.201:9000/construction-ops/daily-report-photos/preview.jpg?X-Amz-Signature=abc');
-    $disk->shouldReceive('exists')->once()->andReturn(true);
-    $disk->shouldReceive('size')->once()->andReturn(42);
-    $disk->shouldReceive('mimeType')->once()->andReturn('image/jpeg');
     $disk->shouldNotReceive('url');
     Storage::set('photos', $disk);
 
-    $admin = adminUser();
-    $page = Livewire::actingAs($admin)->test(CreateDailyReport::class);
+    $engineer = engineerAssignedTo(Project::factory()->create());
+    $page = Livewire::actingAs($engineer)->test(CreateDailyReport::class);
 
-    $field = collect($page->instance()->getForm('form')->getComponents())
-        ->first(fn ($component) => $component->getName() === 'file_path');
+    $field = formFieldByName($page, 'before_photo');
 
-    expect($field)->not->toBeNull();
-    expect($field->getVisibility())->toBe('private');
+    expect($field)->toBeInstanceOf(\App\Filament\Components\LiveCapture::class);
 
-    $field->state(['daily-report-photos/preview.jpg']);
-    $files = $field->getUploadedFiles();
+    $field->state('daily-report-photos/preview.jpg');
 
-    expect($files)->toHaveCount(1)
-        ->and($files[0]['url'])->toContain('X-Amz-Signature=')
-        ->and($files[0]['size'])->toBe(42);
+    expect($field->getPreviewUrl())->toContain('X-Amz-Signature=');
 
     Storage::fake('photos');
 });

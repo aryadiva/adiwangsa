@@ -32,6 +32,12 @@ class UserSeeder extends Seeder
             'email' => 'client@example.com',
             'password' => bcrypt('password'),
         ]);
+
+        User::factory()->hrd()->create([
+            'name' => 'HRD User',
+            'email' => 'hrd@example.com',
+            'password' => bcrypt('password'),
+        ]);
     }
 
     public static function admin(): User

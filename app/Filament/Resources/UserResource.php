@@ -85,6 +85,7 @@ class UserResource extends Resource
                     ->color(fn (UserRole $state): string => match ($state) {
                         UserRole::Admin => 'danger',
                         UserRole::SiteEngineer => 'info',
+                        UserRole::Hrd => 'warning',
                         UserRole::Client => 'success',
                     }),
                 Tables\Columns\IconColumn::make('is_active')

@@ -42,4 +42,10 @@ return [
         'attendance_roster' => 'Worker Attendance & Labor Roster',
         'worker_allocation_payroll' => 'Worker Allocation & Payroll Summary',
     ],
+    'user_role' => [
+        'admin' => 'Admin',
+        'site_engineer' => 'Site Engineer',
+        'hrd' => 'HRD',
+        'client' => 'Client',
+    ],
 ];

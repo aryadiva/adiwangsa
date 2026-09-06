@@ -61,6 +61,7 @@ class AdminPanelProvider extends PanelProvider
                 FilamentShieldPlugin::make(),
             ])
             ->renderHook(PanelsRenderHook::USER_MENU_BEFORE, fn (): string => Blade::render('<livewire:language-switcher />'))
+            ->renderHook(PanelsRenderHook::BODY_END, fn (): string => view('filament.live-capture-scripts')->render())
             ->authMiddleware([
                 Authenticate::class,
             ]);

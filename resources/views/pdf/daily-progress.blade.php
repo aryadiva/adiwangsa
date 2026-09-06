@@ -21,7 +21,7 @@
         .photos { width: 100%; border-spacing: 6px; border-collapse: separate; }
         .photos td { width: 50%; text-align: center; vertical-align: top; }
         .photos img { width: 100%; border: 1px solid #d1d5db; border-radius: 4px; }
-        .caption { font-size: 9px; color: #6b7280; margin-top: 2px; }
+        .caption { font-size: 9px; color: #6b7280; padding-top: 2px; text-align: left; }
         .footer { position: fixed; bottom: 0; left: 0; right: 0; font-size: 9px; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 4px; }
         .empty { color: #9ca3af; font-style: italic; }
     </style>
@@ -75,18 +75,31 @@
     @if (count($dto->photos))
         <h2>{{ __('pdf.site_photos') }}</h2>
         <table class="photos">
-            @foreach (array_chunk($dto->photos, 2) as $chunk)
+            <thead>
                 <tr>
-                    @foreach ($chunk as $photo)
+                    <th>{{ __('pdf.photo_before') }}</th>
+                    <th>{{ __('pdf.photo_after') }}</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($dto->photos as $photo)
+                    <tr>
                         <td>
-                            <img src="{{ \Illuminate\Support\Facades\Storage::disk('photos')->temporaryUrl($photo['path'], now()->addMinutes(15)) }}" alt="{{ __('pdf.site_photo_alt') }}">
-                            @if ($photo['caption'])
-                                <div class="caption">{{ $photo['caption'] }}</div>
+                            @if ($photo['before_path'])
+                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('photos')->temporaryUrl($photo['before_path'], now()->addMinutes(15)) }}" alt="{{ __('pdf.site_photo_alt') }}">
                             @endif
                         </td>
-                    @endforeach
-                </tr>
-            @endforeach
+                        <td>
+                            @if ($photo['after_path'])
+                                <img src="{{ \Illuminate\Support\Facades\Storage::disk('photos')->temporaryUrl($photo['after_path'], now()->addMinutes(15)) }}" alt="{{ __('pdf.site_photo_alt') }}">
+                            @endif
+                        </td>
+                    </tr>
+                    @if ($photo['description'])
+                        <tr><td colspan="2" class="caption">{{ $photo['description'] }}</td></tr>
+                    @endif
+                @endforeach
+            </tbody>
         </table>
     @endif
 

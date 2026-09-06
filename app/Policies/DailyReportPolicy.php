@@ -11,7 +11,7 @@ class DailyReportPolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->role !== UserRole::Hrd;
     }
 
     public function view(User $user, DailyReport $report): bool
@@ -20,6 +20,7 @@ class DailyReportPolicy
             UserRole::Admin => true,
             UserRole::SiteEngineer => $user->isAssignedToSite($report->site_id),
             UserRole::Client => $report->status === DailyReportStatus::Published && $user->isClientOfSite($report->site_id),
+            UserRole::Hrd => false,
         };
     }
 
@@ -27,7 +28,7 @@ class DailyReportPolicy
     {
         return match ($user->role) {
             UserRole::Admin, UserRole::SiteEngineer => true,
-            UserRole::Client => false,
+            UserRole::Client, UserRole::Hrd => false,
         };
     }
 
@@ -36,7 +37,7 @@ class DailyReportPolicy
         return match ($user->role) {
             UserRole::Admin => true,
             UserRole::SiteEngineer => $user->isAssignedToSite($report->site_id),
-            UserRole::Client => false,
+            UserRole::Client, UserRole::Hrd => false,
         };
     }
 
@@ -45,7 +46,7 @@ class DailyReportPolicy
         return match ($user->role) {
             UserRole::Admin => true,
             UserRole::SiteEngineer => $user->isAssignedToSite($report->site_id),
-            UserRole::Client => false,
+            UserRole::Client, UserRole::Hrd => false,
         };
     }
 }

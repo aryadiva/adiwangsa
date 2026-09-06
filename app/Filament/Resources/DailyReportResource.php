@@ -6,12 +6,15 @@ use App\Enums\DailyReportStatus;
 use App\Enums\ReportShift;
 use App\Enums\UserRole;
 use App\Enums\WeatherCondition;
+use App\Filament\Components\LiveCapture;
 use App\Filament\Resources\DailyReportResource\Pages;
 use App\Models\DailyReport;
 use App\Models\Site;
+use App\Rules\LiveCapture as LiveCaptureRule;
 use App\Services\DailyReportPhotoService;
 use App\Services\DeficitCarryForwardService;
 use App\Services\PdfDocumentService;
+use App\Services\PhotoCaptureService;
 use Carbon\Carbon;
 use Filament\Forms;
 use Filament\Forms\Components\FileUpload;
@@ -49,6 +52,7 @@ class DailyReportResource extends Resource
             UserRole::Admin => $query,
             UserRole::SiteEngineer => $query->forSiteEngineer($user),
             UserRole::Client => $query->forClient($user),
+            UserRole::Hrd => $query->whereRaw('1 = 0'),
         };
     }
 
@@ -197,45 +201,46 @@ class DailyReportResource extends Resource
                             ->label('Remarks'),
                     ])
                     ->columnSpanFull(),
-                FileUpload::make('file_path')
-                    ->label('Site Photos')
-                    ->multiple()
-                    ->image()
-                    ->disk('photos')
-                    ->visibility('private')
-                    ->directory('daily-report-photos')
-                    ->maxSize(10240)
-                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/gif'])
-                    ->storeFileNamesIn('file_names')
-                    ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(DailyReportPhotoService::class)->store($file))
-                    ->getUploadedFileUsing(function (FileUpload $component, string $file, $storedFileNames): array {
-                        $storage = $component->getDisk();
-
-                        try {
-                            $url = $storage->temporaryUrl($file, now()->addMinutes(5));
-                        } catch (\Throwable $e) {
-                            throw new \RuntimeException(
-                                "Could not build a signed preview URL for site photo [{$file}]. "
-                                .'Verify AWS_ENDPOINT is reachable from both the app and the browser — it cannot be a docker-internal hostname.'
-                            );
-                        }
-
-                        try {
-                            $exists = $storage->exists($file);
-                            $size = $exists ? $storage->size($file) : 0;
-                            $type = $exists ? $storage->mimeType($file) : null;
-                        } catch (\Throwable $e) {
-                            $size = 0;
-                            $type = null;
-                        }
-
-                        return [
-                            'name' => basename($file),
-                            'size' => $size,
-                            'type' => $type,
-                            'url' => $url,
-                        ];
-                    })
+                Forms\Components\Section::make('Progress Photos')
+                    ->description('Exactly one before/after pair per shift — captured live with the camera.')
+                    ->schema([
+                        Forms\Components\Grid::make(3)
+                            ->schema([
+                                LiveCapture::make('before_photo')
+                                    ->label('Before')
+                                    ->captureDirectory(DailyReportPhotoService::DIRECTORY)
+                                    ->rules([new LiveCaptureRule])
+                                    ->visible(fn (): bool => auth()->user()?->role !== UserRole::Admin),
+                                FileUpload::make('before_file_path')
+                                    ->label('Before')
+                                    ->image()
+                                    ->disk('photos')
+                                    ->visibility('private')
+                                    ->directory(DailyReportPhotoService::DIRECTORY)
+                                    ->maxSize(10240)
+                                    ->acceptedFileTypes(PhotoCaptureService::ALLOWED_MIMES)
+                                    ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(DailyReportPhotoService::class)->store($file))
+                                    ->visible(fn (): bool => auth()->user()?->role === UserRole::Admin),
+                                LiveCapture::make('after_photo')
+                                    ->label('After')
+                                    ->captureDirectory(DailyReportPhotoService::DIRECTORY)
+                                    ->rules([new LiveCaptureRule])
+                                    ->visible(fn (): bool => auth()->user()?->role !== UserRole::Admin),
+                                FileUpload::make('after_file_path')
+                                    ->label('After')
+                                    ->image()
+                                    ->disk('photos')
+                                    ->visibility('private')
+                                    ->directory(DailyReportPhotoService::DIRECTORY)
+                                    ->maxSize(10240)
+                                    ->acceptedFileTypes(PhotoCaptureService::ALLOWED_MIMES)
+                                    ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(DailyReportPhotoService::class)->store($file))
+                                    ->visible(fn (): bool => auth()->user()?->role === UserRole::Admin),
+                                Forms\Components\Textarea::make('photo_description')
+                                    ->label('Description')
+                                    ->rows(4),
+                            ]),
+                    ])
                     ->columnSpanFull(),
                 Forms\Components\KeyValue::make('meta_data')
                     ->label('Additional Fields')

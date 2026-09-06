@@ -72,9 +72,11 @@ final class ReportDataDTO
             totalHours: number_format((float) $workers->sum('hours_worked'), 2),
             photos: $report->photos
                 ->map(fn ($photo): array => [
-                    'path' => $photo->file_path ?: '',
-                    'thumbnail' => $photo->thumbnail_path ?: '',
-                    'caption' => $photo->caption,
+                    'before_path' => $photo->before_file_path ?: '',
+                    'before_thumbnail' => $photo->before_thumbnail_path ?: '',
+                    'after_path' => $photo->after_file_path ?: '',
+                    'after_thumbnail' => $photo->after_thumbnail_path ?: '',
+                    'description' => $photo->description,
                 ])
                 ->values()
                 ->all(),

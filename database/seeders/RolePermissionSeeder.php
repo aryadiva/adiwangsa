@@ -31,14 +31,18 @@ class RolePermissionSeeder extends Seeder
         );
 
         $client = Role::findOrCreate('client', 'web');
-        $client->syncPermissions(
-            Permission::whereIn('name', array_slice($dailyReportPermissions, 0, 2))->pluck('id')->all()
-        );
+        $client->syncPermissions([]);
+
+        // HRD is scoped to worker_attendance only — access is gated by
+        // WorkerAttendancePolicy, not Shield permissions.
+        $hrd = Role::findOrCreate('hrd', 'web');
+        $hrd->syncPermissions([]);
 
         User::query()->each(function (User $user): void {
             $roleName = match ($user->role) {
                 UserRole::Admin => 'super_admin',
                 UserRole::SiteEngineer => 'site_engineer',
+                UserRole::Hrd => 'hrd',
                 UserRole::Client => 'client',
             };
 

@@ -11,7 +11,7 @@ class SubJobDelayEventPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->role !== UserRole::Client;
+        return in_array($user->role, [UserRole::Admin, UserRole::SiteEngineer], true);
     }
 
     public function view(User $user, SubJobDelayEvent $event): bool
@@ -21,7 +21,7 @@ class SubJobDelayEventPolicy
         return match ($user->role) {
             UserRole::Admin => true,
             UserRole::SiteEngineer => $user->projects()->whereKey($projectId)->exists(),
-            UserRole::Client => false,
+            UserRole::Client, UserRole::Hrd => false,
         };
     }
 

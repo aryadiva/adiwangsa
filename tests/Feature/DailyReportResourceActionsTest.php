@@ -24,8 +24,26 @@ function engineerEditReport(): array
     return [$engineer, $site, $report];
 }
 
+function attachPhotoPair(DailyReport $report): void
+{
+    Storage::fake('photos');
+    Storage::disk('photos')->put('daily-report-photos/before.jpg', 'image-data');
+    Storage::disk('photos')->put('daily-report-photos/after.jpg', 'image-data');
+
+    $report->photos()->create([
+        'before_file_path' => 'daily-report-photos/before.jpg',
+        'before_thumbnail_path' => 'daily-report-photos/thumbs/before.jpg',
+        'after_file_path' => 'daily-report-photos/after.jpg',
+        'after_thumbnail_path' => 'daily-report-photos/thumbs/after.jpg',
+        'description' => 'Progress pair',
+        'captured_at' => now(),
+        'file_size_bytes' => 2048,
+    ]);
+}
+
 it('lets a site engineer submit a draft report for approval', function () {
     [$engineer, , $report] = engineerEditReport();
+    attachPhotoPair($report);
 
     Livewire::actingAs($engineer)
         ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])

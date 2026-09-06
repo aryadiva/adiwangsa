@@ -10,7 +10,7 @@ class ProjectMilestonePolicy
 {
     public function viewAny(User $user): bool
     {
-        return true;
+        return $user->role !== UserRole::Hrd;
     }
 
     public function view(User $user, ProjectMilestone $milestone): bool
@@ -19,6 +19,7 @@ class ProjectMilestonePolicy
             UserRole::Admin => true,
             UserRole::SiteEngineer => $user->projects()->whereKey($milestone->project_id)->exists(),
             UserRole::Client => $user->client?->projects()->whereKey($milestone->project_id)->exists() ?? false,
+            UserRole::Hrd => false,
         };
     }
 

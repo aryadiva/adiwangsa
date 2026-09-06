@@ -4,6 +4,7 @@ namespace App\Filament\Resources\DailyReportResource\Pages;
 
 use App\Enums\DailyReportStatus;
 use App\Enums\UserRole;
+use App\Filament\Components\LiveCapture;
 use App\Filament\Resources\DailyReportResource;
 use App\Models\DailyReport;
 use App\Models\DailyReportPhoto;
@@ -12,7 +13,6 @@ use Filament\Actions;
 use Filament\Forms;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -27,6 +27,9 @@ class EditDailyReport extends EditRecord
     /** @var array<string, mixed> */
     protected array $lastDraftState = [];
 
+    /** @var array<string, mixed> */
+    protected array $photoState = [];
+
     public ?string $draftLastSavedAt = null;
 
     public bool $draftSaveFailed = false;
@@ -34,7 +37,7 @@ class EditDailyReport extends EditRecord
     public bool $draftSaveInProgress = false;
 
     /**
-     * Paths of site photos persisted in the DB whose file is missing from storage.
+     * Paths of the persisted before/after pair whose files are missing from storage.
      *
      * @var list<string>
      */
@@ -50,6 +53,18 @@ class EditDailyReport extends EditRecord
                 ->visible(fn (): bool => $this->isEditable() && $this->currentStatus() === DailyReportStatus::Draft)
                 ->action(function (): void {
                     if ($report = $this->report()) {
+                        /** @var DailyReportPhoto|null $photo */
+                        $photo = $report->photos()->first();
+
+                        if ($photo === null || ! filled($photo->before_file_path) || ! filled($photo->after_file_path)) {
+                            Notification::make()
+                                ->title('A before/after photo pair is required before submitting for approval.')
+                                ->danger()
+                                ->send();
+
+                            return;
+                        }
+
                         $report->submitForApproval();
                         $this->refreshForm();
                         Notification::make()->title('Report submitted for approval')->success()->send();
@@ -184,12 +199,23 @@ class EditDailyReport extends EditRecord
     protected function mutateFormDataBeforeFill(array $data): array
     {
         $record = $this->record;
-        if ($record instanceof DailyReport) {
-            $data['file_path'] = $record->photos()->pluck('file_path')->all();
 
-            $disk = Storage::disk('photos');
-            $this->missingPhotoPaths = collect($data['file_path'])
-                ->filter(fn (string $path): bool => ! $disk->exists($path))
+        if ($record instanceof DailyReport) {
+            /** @var DailyReportPhoto|null $photo */
+            $photo = $record->photos()->first();
+
+            $data['before_photo'] = $photo?->before_file_path;
+            $data['after_photo'] = $photo?->after_file_path;
+            $data['before_file_path'] = $photo?->before_file_path;
+            $data['after_file_path'] = $photo?->after_file_path;
+            $data['photo_description'] = $photo?->description;
+
+            $this->missingPhotoPaths = collect([
+                $photo?->before_file_path,
+                $photo?->after_file_path,
+            ])
+                ->filter()
+                ->filter(fn (string $path): bool => ! Storage::disk('photos')->exists($path))
                 ->values()
                 ->all();
         }
@@ -211,7 +237,15 @@ class EditDailyReport extends EditRecord
 
         CreateDailyReport::assertUniqueSiteDate($data, $this->record);
 
-        return $data;
+        $this->photoState = Arr::only($data, [
+            'before_photo',
+            'after_photo',
+            'before_file_path',
+            'after_file_path',
+            'photo_description',
+        ]);
+
+        return Arr::except($data, array_keys($this->photoState));
     }
 
     protected function afterSave(): void
@@ -220,47 +254,68 @@ class EditDailyReport extends EditRecord
             return;
         }
 
-        $kept = array_values($this->data['file_path'] ?? []);
+        $pair = $this->resolvePhotoPair();
+
+        if ($pair === null) {
+            return;
+        }
+
+        $existing = $this->record->photos()->first();
+
+        if ($existing === null) {
+            // One pair per report — created once, updated in place afterwards.
+            $this->record->photos()->create($pair);
+
+            return;
+        }
+
+        $existing->fill($pair)->save();
+
+        $this->syncMissingPhotoPaths([$pair['before_file_path'], $pair['after_file_path']]);
+    }
+
+    /**
+     * Resolves the pair row payload from the captured form state (live
+     * camera captures or Admin device uploads). Preserves the previously
+     * stored paths for a side whose state was untouched.
+     *
+     * @return array<string, mixed>|null
+     */
+    protected function resolvePhotoPair(): ?array
+    {
         $service = app(DailyReportPhotoService::class);
 
-        /** @var list<string> $existing */
-        $existing = $this->record->photos()->pluck('file_path')->all();
+        /** @var DailyReportPhoto|null $existing */
+        $existing = $this->record instanceof DailyReport ? $this->record->photos()->first() : null;
 
-        // Insert a row for every kept path not yet persisted (new uploads).
-        foreach (array_values(array_diff($kept, $existing)) as $path) {
-            $this->record->photos()->create($service->metadataFor($path));
+        $before = LiveCapture::resolveState($this->photoState['before_photo'] ?? $this->photoState['before_file_path'] ?? null, $service::DIRECTORY)
+            ?? ($existing !== null ? [
+                'path' => $existing->before_file_path,
+                'thumbnail_path' => $existing->before_thumbnail_path,
+                'file_size_bytes' => 0,
+                'captured_at' => $existing->captured_at ?? now(),
+            ] : null);
+
+        $after = LiveCapture::resolveState($this->photoState['after_photo'] ?? $this->photoState['after_file_path'] ?? null, $service::DIRECTORY)
+            ?? ($existing !== null ? [
+                'path' => $existing->after_file_path,
+                'thumbnail_path' => $existing->after_thumbnail_path,
+                'file_size_bytes' => 0,
+                'captured_at' => $existing->captured_at ?? now(),
+            ] : null);
+
+        if ($before === null || $after === null) {
+            return null;
         }
 
-        // Delete rows for paths that are no longer kept (removed in this save).
-        $removed = array_values(array_diff($existing, $kept));
-        if ($removed !== []) {
-            $this->record->photos()
-                ->whereIn('file_path', $removed)
-                ->delete();
-        }
-
-        // Deduplicate any leftover duplicate rows for retained paths.
-        $seen = [];
-
-        /** @var Collection<int, DailyReportPhoto> $photos */
-        $photos = $this->record->photos()
-            ->whereIn('file_path', $kept)
-            ->orderBy('created_at')
-            ->get();
-
-        foreach ($photos as $photo) {
-            $key = $photo->file_path;
-
-            if (isset($seen[$key])) {
-                $photo->delete();
-
-                continue;
-            }
-
-            $seen[$key] = true;
-        }
-
-        $this->syncMissingPhotoPaths($kept);
+        return [
+            'before_file_path' => $before['path'],
+            'before_thumbnail_path' => $before['thumbnail_path'] ?? $service->thumbnailPathFor($before['path']),
+            'after_file_path' => $after['path'],
+            'after_thumbnail_path' => $after['thumbnail_path'] ?? $service->thumbnailPathFor($after['path']),
+            'description' => $this->photoState['photo_description'] ?? $existing?->description,
+            'captured_at' => max($before['captured_at'], $after['captured_at']),
+        ];
     }
 
     protected function syncMissingPhotoPaths(array $paths): void
@@ -268,6 +323,7 @@ class EditDailyReport extends EditRecord
         $disk = Storage::disk('photos');
 
         $this->missingPhotoPaths = collect($paths)
+            ->filter()
             ->filter(fn (string $path): bool => ! $disk->exists($path))
             ->values()
             ->all();

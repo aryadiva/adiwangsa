@@ -77,9 +77,10 @@ function reportWithWorkersAndPhoto(): array
 
     DailyReportPhoto::create([
         'daily_report_id' => $report->id,
-        'file_path' => 'daily-report-photos/abc.jpg',
-        'thumbnail_path' => 'daily-report-photos/thumbs/abc.jpg',
-        'caption' => 'Block A foundation',
+        'before_file_path' => 'daily-report-photos/abc.jpg',
+        'before_thumbnail_path' => 'daily-report-photos/thumbs/abc.jpg',
+        'description' => 'Block A foundation',
+        'captured_at' => now(),
     ]);
 
     return [$project, $site, $report];

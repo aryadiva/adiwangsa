@@ -50,9 +50,13 @@ class DailyReportSeeder extends Seeder
             );
 
             $report->photos()->create([
-                'file_path' => 'photos/'.$report->id.'/progress.jpg',
-                'thumbnail_path' => 'photos/'.$report->id.'/progress_thumb.jpg',
-                'file_size_bytes' => 10240,
+                'before_file_path' => 'photos/'.$report->id.'/before.jpg',
+                'before_thumbnail_path' => 'photos/'.$report->id.'/before_thumb.jpg',
+                'after_file_path' => 'photos/'.$report->id.'/after.jpg',
+                'after_thumbnail_path' => 'photos/'.$report->id.'/after_thumb.jpg',
+                'description' => 'End-of-shift progress pair',
+                'captured_at' => now(),
+                'file_size_bytes' => 20480,
             ]);
         });
     }

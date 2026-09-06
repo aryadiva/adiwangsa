@@ -12,7 +12,7 @@ beforeEach(function (): void {
     Storage::fake('photos');
 });
 
-function reportWithPhotoPath(string $path): array
+function reportForPairForm(): array
 {
     $project = Project::factory()->create();
     [$engineer, , $report] = draftFor($project, '2026-08-12');
@@ -20,19 +20,27 @@ function reportWithPhotoPath(string $path): array
     return [$engineer, $report];
 }
 
-it('does not create duplicate photo rows when a report is saved repeatedly', function () {
-    [$engineer, $report] = reportWithPhotoPath('daily-report-photos/abc.jpg');
-    $path = 'daily-report-photos/abc.jpg';
-    Storage::disk('photos')->put($path, 'image-data');
-
-    $formData = [
-        'file_path' => [$path],
+function pairFormData($report, array $overrides = []): array
+{
+    return array_merge([
+        'before_photo' => 'daily-report-photos/before.jpg',
+        'after_photo' => 'daily-report-photos/after.jpg',
+        'photo_description' => 'Excavation pair',
         'site_id' => $report->site_id,
         'milestone_sub_job_id' => $report->milestone_sub_job_id,
         'report_date' => '2026-08-12',
         'weather_condition' => 'sunny',
-        'work_summary' => 'Reconciliation',
-    ];
+        'work_summary' => 'Pair reconciliation',
+    ], $overrides);
+}
+
+it('creates exactly one before/after pair row per report and does not duplicate it on repeated saves', function () {
+    [$engineer, $report] = reportForPairForm();
+
+    Storage::disk('photos')->put('daily-report-photos/before.jpg', 'image-data');
+    Storage::disk('photos')->put('daily-report-photos/after.jpg', 'image-data');
+
+    $formData = pairFormData($report);
 
     Livewire::actingAs($engineer)
         ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
@@ -40,7 +48,9 @@ it('does not create duplicate photo rows when a report is saved repeatedly', fun
         ->call('save');
 
     expect($report->fresh()->photos()->count())->toBe(1)
-        ->and($report->fresh()->photos()->pluck('file_path'))->toContain($path);
+        ->and($report->fresh()->photos()->first()->before_file_path)->toBe('daily-report-photos/before.jpg')
+        ->and($report->fresh()->photos()->first()->after_file_path)->toBe('daily-report-photos/after.jpg')
+        ->and($report->fresh()->photos()->first()->description)->toBe('Excavation pair');
 
     Livewire::actingAs($engineer)
         ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
@@ -50,82 +60,100 @@ it('does not create duplicate photo rows when a report is saved repeatedly', fun
     expect($report->fresh()->photos()->count())->toBe(1);
 });
 
-it('removes a photo row when its path is removed from the form', function () {
-    [$engineer, $report] = reportWithPhotoPath('daily-report-photos/keep.jpg');
-    Storage::disk('photos')->put('daily-report-photos/keep.jpg', 'image-data');
+it('replaces the pair paths on the same row when a side is recaptured', function () {
+    [$engineer, $report] = reportForPairForm();
+
+    foreach (['before.jpg', 'after.jpg', 'before-2.jpg', 'after-2.jpg'] as $file) {
+        Storage::disk('photos')->put("daily-report-photos/{$file}", 'image-data');
+    }
+
+    Livewire::actingAs($engineer)
+        ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
+        ->fillForm(pairFormData($report))
+        ->call('save');
+
+    $photoId = $report->fresh()->photos()->first()->id;
+
+    Livewire::actingAs($engineer)
+        ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
+        ->fillForm(pairFormData($report, [
+            'before_photo' => 'daily-report-photos/before-2.jpg',
+            'after_photo' => 'daily-report-photos/after-2.jpg',
+        ]))
+        ->call('save');
+
+    $photo = $report->fresh()->photos()->first();
+
+    expect($report->fresh()->photos()->count())->toBe(1)
+        ->and($photo->id)->toBe($photoId)
+        ->and($photo->before_file_path)->toBe('daily-report-photos/before-2.jpg')
+        ->and($photo->after_file_path)->toBe('daily-report-photos/after-2.jpg');
+});
+
+it('updates the description without touching the pair paths', function () {
+    [$engineer, $report] = reportForPairForm();
+
+    Storage::disk('photos')->put('daily-report-photos/before.jpg', 'image-data');
+    Storage::disk('photos')->put('daily-report-photos/after.jpg', 'image-data');
+
+    Livewire::actingAs($engineer)
+        ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
+        ->fillForm(pairFormData($report))
+        ->call('save');
+
+    Livewire::actingAs($engineer)
+        ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
+        ->fillForm(pairFormData($report, ['photo_description' => 'Updated description']))
+        ->call('save');
+
+    $photo = $report->fresh()->photos()->first();
+
+    expect($report->fresh()->photos()->count())->toBe(1)
+        ->and($photo->description)->toBe('Updated description')
+        ->and($photo->before_file_path)->toBe('daily-report-photos/before.jpg');
+});
+
+it('exposes missing pair paths so the UI can warn the user', function () {
+    [$engineer, $report] = reportForPairForm();
 
     $report->photos()->create([
-        'file_path' => 'daily-report-photos/keep.jpg',
-        'thumbnail_path' => 'daily-report-photos/thumbs/keep.jpg',
+        'before_file_path' => 'daily-report-photos/missing-before.jpg',
+        'before_thumbnail_path' => 'daily-report-photos/thumbs/missing-before.jpg',
+        'after_file_path' => 'daily-report-photos/missing-after.jpg',
+        'after_thumbnail_path' => 'daily-report-photos/thumbs/missing-after.jpg',
+        'captured_at' => now(),
         'file_size_bytes' => 10,
     ]);
 
     Livewire::actingAs($engineer)
         ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
-        ->fillForm([
-            'file_path' => [],
-            'site_id' => $report->site_id,
-            'milestone_sub_job_id' => $report->milestone_sub_job_id,
-            'report_date' => '2026-08-12',
-            'weather_condition' => 'sunny',
-            'work_summary' => 'Removed photo',
-        ])
-        ->call('save');
-
-    expect($report->fresh()->photos()->count())->toBe(0);
+        ->assertSet('missingPhotoPaths', [
+            'daily-report-photos/missing-before.jpg',
+            'daily-report-photos/missing-after.jpg',
+        ]);
 });
 
-it('dedupes pre-existing duplicate photo rows on save', function () {
-    [$engineer, $report] = reportWithPhotoPath('daily-report-photos/dup.jpg');
-    Storage::disk('photos')->put('daily-report-photos/dup.jpg', 'image-data');
-
-    $report->photos()->create(['file_path' => 'daily-report-photos/dup.jpg', 'thumbnail_path' => 'x', 'file_size_bytes' => 1]);
-    $report->photos()->create(['file_path' => 'daily-report-photos/dup.jpg', 'thumbnail_path' => 'x', 'file_size_bytes' => 1]);
-
-    Livewire::actingAs($engineer)
-        ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
-        ->fillForm([
-            'file_path' => ['daily-report-photos/dup.jpg'],
-            'site_id' => $report->site_id,
-            'milestone_sub_job_id' => $report->milestone_sub_job_id,
-            'report_date' => '2026-08-12',
-            'weather_condition' => 'sunny',
-            'work_summary' => 'Dedupe',
-        ])
-        ->call('save');
-
-    expect($report->fresh()->photos()->count())->toBe(1);
-});
-
-it('exposes missing photo paths so the UI can warn the user', function () {
-    [$engineer, $report] = reportWithPhotoPath('daily-report-photos/missing.jpg');
-
-    $report->photos()->create([
-        'file_path' => 'daily-report-photos/missing.jpg',
-        'thumbnail_path' => 'daily-report-photos/thumbs/missing.jpg',
-        'file_size_bytes' => 10,
-    ]);
-
-    Livewire::actingAs($engineer)
-        ->test(EditDailyReport::class, ['record' => $report->getRouteKey()])
-        ->assertSet('missingPhotoPaths', ['daily-report-photos/missing.jpg']);
-});
-
-it('prunes daily_report_photos rows whose file is missing from storage', function () {
-    [$engineer, $report] = reportWithPhotoPath('daily-report-photos/orphan.jpg');
+it('prunes daily_report_photos rows whose before file is missing from storage', function () {
+    $project = Project::factory()->create();
+    [, , $reportWithOrphan] = draftFor($project, '2026-08-12');
+    [, , $reportWithKeep] = draftFor($project, '2026-08-13');
 
     // Not placed on the (faked) disk → orphaned.
-    $orphan = $report->photos()->create([
-        'file_path' => 'daily-report-photos/orphan.jpg',
-        'thumbnail_path' => 'daily-report-photos/thumbs/orphan.jpg',
+    $orphan = $reportWithOrphan->photos()->create([
+        'before_file_path' => 'daily-report-photos/orphan.jpg',
+        'before_thumbnail_path' => 'daily-report-photos/thumbs/orphan.jpg',
+        'after_file_path' => 'daily-report-photos/after.jpg',
+        'captured_at' => now(),
         'file_size_bytes' => 10,
     ]);
 
     // Present on the disk → must be retained.
     Storage::disk('photos')->put('daily-report-photos/ok.jpg', 'image-data');
-    $keep = $report->photos()->create([
-        'file_path' => 'daily-report-photos/ok.jpg',
-        'thumbnail_path' => 'daily-report-photos/thumbs/ok.jpg',
+    $keep = $reportWithKeep->photos()->create([
+        'before_file_path' => 'daily-report-photos/ok.jpg',
+        'before_thumbnail_path' => 'daily-report-photos/thumbs/ok.jpg',
+        'after_file_path' => 'daily-report-photos/after.jpg',
+        'captured_at' => now(),
         'file_size_bytes' => 10,
     ]);
 

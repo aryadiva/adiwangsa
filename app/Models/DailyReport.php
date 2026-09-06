@@ -264,7 +264,7 @@ class DailyReport extends Model
                 ])
                 ->values()
                 ->all(),
-            'photo_paths' => $this->photos()->pluck('file_path')->all(),
+            'photo_paths' => $this->photos()->pluck('before_file_path')->merge($this->photos()->pluck('after_file_path'))->all(),
         ]);
     }
 

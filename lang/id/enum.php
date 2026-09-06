@@ -42,4 +42,10 @@ return [
         'attendance_roster' => 'Daftar Kehadiran & Tenaga Kerja',
         'worker_allocation_payroll' => 'Ringkasan Alokasi Kerja & Payroll',
     ],
+    'user_role' => [
+        'admin' => 'Admin',
+        'site_engineer' => 'Insinyur Lokasi',
+        'hrd' => 'HRD',
+        'client' => 'Klien',
+    ],
 ];

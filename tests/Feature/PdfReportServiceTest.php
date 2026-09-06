@@ -28,7 +28,7 @@ it('maps a daily report into a queue-safe DTO with header, workers and jsonb met
         ->and($dto->workerRows[0]['name'])->toBe('Budi Santoso')
         ->and($dto->workerRows[0]['trade'])->toBe('Mason')
         ->and($dto->photos)->toHaveCount(1)
-        ->and($dto->photos[0]['path'])->toBe('daily-report-photos/abc.jpg')
+        ->and($dto->photos[0]['before_path'])->toBe('daily-report-photos/abc.jpg')
         ->and($dto->metaData)->toMatchArray(['moisture' => 12, 'safety_incidents' => 0]);
 });
 

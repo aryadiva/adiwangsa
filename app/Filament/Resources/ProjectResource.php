@@ -40,6 +40,7 @@ class ProjectResource extends Resource
             UserRole::Admin => $query,
             UserRole::SiteEngineer => $query->whereHas('engineers', fn (Builder $q) => $q->whereKey($user->id)),
             UserRole::Client => $query->where('client_id', $user->client?->id),
+            UserRole::Hrd => $query->whereRaw('1 = 0'),
         };
     }
 

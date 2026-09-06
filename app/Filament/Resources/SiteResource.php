@@ -36,6 +36,7 @@ class SiteResource extends Resource
             UserRole::Admin => $query,
             UserRole::SiteEngineer => $query->whereHas('project.engineers', fn (Builder $q) => $q->whereKey($user->id)),
             UserRole::Client => $query->whereHas('project', fn (Builder $q) => $q->where('client_id', $user->client?->id)),
+            UserRole::Hrd => $query->whereRaw('1 = 0'),
         };
     }
 

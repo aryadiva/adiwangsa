@@ -52,3 +52,27 @@ function adminUser(): User
 {
     return User::factory()->admin()->create();
 }
+
+function hrdUser(): User
+{
+    return User::factory()->hrd()->create();
+}
+
+function formFieldByName($page, string $name)
+{
+    $find = function ($components) use (&$find, $name) {
+        foreach ($components as $component) {
+            if ($component instanceof \Filament\Forms\Components\Field && $component->getName() === $name) {
+                return $component;
+            }
+
+            if ($found = $find($component->getChildComponents())) {
+                return $found;
+            }
+        }
+
+        return null;
+    };
+
+    return $find($page->instance()->getForm('form')->getComponents());
+}

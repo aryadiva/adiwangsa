@@ -57,6 +57,13 @@ class UserFactory extends Factory
         ]);
     }
 
+    public function hrd(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'role' => UserRole::Hrd,
+        ]);
+    }
+
     /**
      * Indicate that the model's email address should be unverified.
      */

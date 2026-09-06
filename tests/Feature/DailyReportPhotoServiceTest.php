@@ -41,10 +41,10 @@ it('stores an original and thumbnail and returns metadata', function () {
 
     $meta = $service->metadataFor($path);
 
-    Storage::disk('photos')->assertExists($meta['thumbnail_path']);
+    Storage::disk('photos')->assertExists($meta['before_thumbnail_path']);
 
-    expect($meta['file_path'])->toBe($path)
-        ->and($meta['thumbnail_path'])->toContain('thumbs/')
+    expect($meta['before_file_path'])->toBe($path)
+        ->and($meta['before_thumbnail_path'])->toContain('thumbs/')
         ->and($meta['file_size_bytes'])->toBe(Storage::disk('photos')->size($path));
 });
 
@@ -56,7 +56,7 @@ it('downsizes the thumbnail to the configured width', function () {
     $meta = $service->metadataFor($path);
 
     $manager = app(ImageManager::class);
-    $thumbnail = $manager->decode(Storage::disk('photos')->get($meta['thumbnail_path']));
+    $thumbnail = $manager->decode(Storage::disk('photos')->get($meta['before_thumbnail_path']));
 
     expect($thumbnail->width())->toBeLessThanOrEqual(DailyReportPhotoService::THUMBNAIL_WIDTH);
 });
@@ -85,13 +85,18 @@ it('returns signed, expiring urls for display', function () {
     $report = DailyReport::factory()->create();
     $photo = DailyReportPhoto::create([
         'daily_report_id' => $report->id,
-        'file_path' => 'daily-report-photos/sample.jpg',
-        'thumbnail_path' => 'daily-report-photos/thumbs/sample.jpg',
+        'before_file_path' => 'daily-report-photos/sample.jpg',
+        'before_thumbnail_path' => 'daily-report-photos/thumbs/sample.jpg',
+        'after_file_path' => 'daily-report-photos/after.jpg',
+        'after_thumbnail_path' => 'daily-report-photos/thumbs/after.jpg',
+        'captured_at' => now(),
         'file_size_bytes' => 1234,
     ]);
 
-    expect($photo->signedUrl())->toContain('X-Amz-Expires=')
-        ->and($photo->signedUrl(5))->toContain('X-Amz-Expires=300')
-        ->and($photo->signedThumbnailUrl())->toContain('thumbs/sample.jpg')
-        ->and($photo->signedThumbnailUrl())->toContain('X-Amz-Expires=');
+    expect($photo->signedBeforeUrl())->toContain('X-Amz-Expires=')
+        ->and($photo->signedBeforeUrl(5))->toContain('X-Amz-Expires=300')
+        ->and($photo->signedBeforeThumbnailUrl())->toContain('thumbs/sample.jpg')
+        ->and($photo->signedAfterUrl())->toContain('after.jpg')
+        ->and($photo->signedAfterThumbnailUrl())->toContain('thumbs/after.jpg')
+        ->and($photo->signedBeforeThumbnailUrl())->toContain('X-Amz-Expires=');
 });
