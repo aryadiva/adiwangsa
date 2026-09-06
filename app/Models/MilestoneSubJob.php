@@ -67,7 +67,9 @@ class MilestoneSubJob extends Model
     protected static function booted(): void
     {
         static::saved(function (self $subJob): void {
-            $projectId = $subJob->projectMilestone()->withTrashed()->value('project_id');
+            $projectId = ProjectMilestone::withTrashed()
+                ->whereKey($subJob->project_milestone_id)
+                ->value('project_id');
 
             if ($projectId !== null) {
                 MilestoneWeightNotificationService::reconcile((string) $projectId);
@@ -75,7 +77,9 @@ class MilestoneSubJob extends Model
         });
 
         static::deleted(function (self $subJob): void {
-            $projectId = $subJob->projectMilestone()->withTrashed()->value('project_id');
+            $projectId = ProjectMilestone::withTrashed()
+                ->whereKey($subJob->project_milestone_id)
+                ->value('project_id');
 
             if ($projectId !== null) {
                 MilestoneWeightNotificationService::reconcile((string) $projectId);

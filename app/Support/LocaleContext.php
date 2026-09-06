@@ -16,7 +16,7 @@ final class LocaleContext
     {
         $user ??= auth()->user();
 
-        return Locale::tryFrom($user?->locale ?? '') ?? Locale::English;
+        return Locale::tryFrom($user->locale ?? '') ?? Locale::English;
     }
 
     /**

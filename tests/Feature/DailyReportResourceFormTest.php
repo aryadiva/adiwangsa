@@ -1,5 +1,6 @@
 <?php
 
+use App\Filament\Components\LiveCapture;
 use App\Filament\Resources\DailyReportResource;
 use App\Filament\Resources\DailyReportResource\Pages\CreateDailyReport;
 use App\Filament\Resources\DailyReportResource\Pages\EditDailyReport;
@@ -78,7 +79,7 @@ it('emits a signed preview URL and never falls back to an unsigned object URL', 
 
     $field = formFieldByName($page, 'before_photo');
 
-    expect($field)->toBeInstanceOf(\App\Filament\Components\LiveCapture::class);
+    expect($field)->toBeInstanceOf(LiveCapture::class);
 
     $field->state('daily-report-photos/preview.jpg');
 

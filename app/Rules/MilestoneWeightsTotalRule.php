@@ -3,6 +3,7 @@
 namespace App\Rules;
 
 use App\Models\Project;
+use App\Models\ProjectMilestone;
 use App\Support\WeightValidation;
 use Closure;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -22,6 +23,7 @@ class MilestoneWeightsTotalRule implements ValidationRule
     {
         $siblingSum = 0.0;
 
+        /** @var ProjectMilestone $milestone */
         foreach ($this->project->milestones()->get() as $milestone) {
             if ($this->excludeMilestoneId && $milestone->getKey() === $this->excludeMilestoneId) {
                 continue;

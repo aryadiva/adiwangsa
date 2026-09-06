@@ -1,17 +1,21 @@
 <?php
 
 use App\Enums\DailyReportStatus;
-use App\Filament\Components\LiveCapture;
 use App\Filament\Resources\DailyReportResource\Pages\EditDailyReport;
 use App\Filament\Resources\WorkerAttendanceResource\Pages\CreateWorkerAttendance;
-use App\Models\DailyReport;
 use App\Models\DailyReportPhoto;
 use App\Models\Project;
+use App\Models\Site;
+use App\Models\Worker;
 use App\Models\WorkerAttendance;
 use App\Rules\LiveCapture as LiveCaptureRule;
+use App\Services\PhotoCaptureService;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\Livewire;
 
 uses(RefreshDatabase::class);
@@ -82,7 +86,7 @@ it('exposes the embedded shutter timestamp for capture metadata', function () {
     $stamp = Carbon::parse('2026-09-06T08:15:00.000Z');
     $token = 'livewire-file:abc123';
 
-    $mock = Mockery::mock(\Livewire\Features\SupportFileUploads\TemporaryUploadedFile::class)->makePartial();
+    $mock = Mockery::mock(TemporaryUploadedFile::class)->makePartial();
     $mock->shouldReceive('getClientOriginalName')->andReturn('capture-2026-09-06T08:15:00.000Z.jpg');
 
     expect(LiveCaptureRule::embeddedTimestamp($mock)->equalTo($stamp))->toBeTrue();
@@ -105,7 +109,7 @@ it('caps the before/after pair at exactly one active row per report (partial uni
             'before_file_path' => 'daily-report-photos/second-before.jpg',
             'after_file_path' => 'daily-report-photos/second-after.jpg',
             'captured_at' => now(),
-        ])))->toThrow(\Illuminate\Database\UniqueConstraintViolationException::class);
+        ])))->toThrow(UniqueConstraintViolationException::class);
 });
 
 it('blocks submitting a draft for approval without the before/after pair, and allows it with one', function () {
@@ -134,8 +138,8 @@ it('blocks submitting a draft for approval without the before/after pair, and al
 
 it('renders the live camera component on the HRD attendance form, never a gallery picker', function () {
     $hrd = hrdUser();
-    $worker = \App\Models\Worker::factory()->create();
-    $site = \App\Models\Site::factory()->create();
+    $worker = Worker::factory()->create();
+    $site = Site::factory()->create();
 
     Livewire::actingAs($hrd)
         ->test(CreateWorkerAttendance::class)
@@ -153,8 +157,8 @@ it('renders the live camera component on the HRD attendance form, never a galler
 
 it('records attendance through the HRD form with the captured photo, timestamp and recorder stamped', function () {
     $hrd = hrdUser();
-    $worker = \App\Models\Worker::factory()->create();
-    $site = \App\Models\Site::factory()->create();
+    $worker = Worker::factory()->create();
+    $site = Site::factory()->create();
 
     Storage::disk('photos')->put('worker-attendance-photos/live.jpg', 'image-data');
 
@@ -188,8 +192,8 @@ it('records attendance through the HRD form with the captured photo, timestamp a
 
 it('surfaces the friendly duplicate error on the HRD form', function () {
     $hrd = hrdUser();
-    $worker = \App\Models\Worker::factory()->create();
-    $site = \App\Models\Site::factory()->create();
+    $worker = Worker::factory()->create();
+    $site = Site::factory()->create();
 
     WorkerAttendance::factory()->create([
         'worker_id' => $worker->id,
@@ -213,9 +217,9 @@ it('surfaces the friendly duplicate error on the HRD form', function () {
 });
 
 it('stores captures through the shared PhotoCaptureService with server-side MIME sniffing', function () {
-    $image = \Illuminate\Http\UploadedFile::fake()->image('capture-anything.jpg');
+    $image = UploadedFile::fake()->image('capture-anything.jpg');
 
-    $captured = app(\App\Services\PhotoCaptureService::class)->capture($image, 'worker-attendance-photos');
+    $captured = app(PhotoCaptureService::class)->capture($image, 'worker-attendance-photos');
 
     expect($captured['path'])->toStartWith('worker-attendance-photos/')
         ->and($captured['thumbnail_path'])->toStartWith('worker-attendance-photos/thumbs/')
@@ -225,11 +229,11 @@ it('stores captures through the shared PhotoCaptureService with server-side MIME
         ->assertExists($captured['thumbnail_path']);
 
     // Content sniffing, not the client-supplied filename, drives validation.
-    $notAnImage = \Illuminate\Http\UploadedFile::fake()->createWithContent(
+    $notAnImage = UploadedFile::fake()->createWithContent(
         'capture-'.now()->toIso8601String().'.jpg',
         'this is definitely not an image'
     );
 
-    expect(fn () => app(\App\Services\PhotoCaptureService::class)->capture($notAnImage, 'worker-attendance-photos'))
+    expect(fn () => app(PhotoCaptureService::class)->capture($notAnImage, 'worker-attendance-photos'))
         ->toThrow(RuntimeException::class);
 });

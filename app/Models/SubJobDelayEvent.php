@@ -96,7 +96,7 @@ class SubJobDelayEvent extends Model
         $this->forceFill([
             'status' => DelayEventStatus::Yellow,
             'mitigation_plan' => $plan,
-            'mitigation_submitted_by_user_id' => $user?->id ?? auth()->id(),
+            'mitigation_submitted_by_user_id' => $user->id ?? auth()->id(),
         ])->save();
 
         return $this;

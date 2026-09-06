@@ -20,6 +20,6 @@ final class ScheduleValidator
             return true;
         }
 
-        return ! $startDate->lt($projectStart);
+        return $startDate >= $projectStart;
     }
 }

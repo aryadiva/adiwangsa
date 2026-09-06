@@ -7,6 +7,7 @@ use App\Models\Project;
 use App\Models\ProjectMilestone;
 use App\Models\Site;
 use App\Models\User;
+use Filament\Forms\Components\Field;
 
 function engineerAssignedTo(Project $project): User
 {
@@ -62,7 +63,7 @@ function formFieldByName($page, string $name)
 {
     $find = function ($components) use (&$find, $name) {
         foreach ($components as $component) {
-            if ($component instanceof \Filament\Forms\Components\Field && $component->getName() === $name) {
+            if ($component instanceof Field && $component->getName() === $name) {
                 return $component;
             }
 

@@ -34,7 +34,7 @@ class ProjectMilestonesRelationManager extends RelationManager
             ->native(false)
             ->required()
             ->rules([
-                new MilestoneStartDateRule($project->start_date?->toDateString()),
+                new MilestoneStartDateRule($project->start_date->toDateString()),
             ]);
 
         $weightField = Forms\Components\TextInput::make('weight_percentage')

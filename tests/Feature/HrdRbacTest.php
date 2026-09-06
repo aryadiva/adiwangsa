@@ -1,6 +1,8 @@
 <?php
 
+use App\Enums\DelayEventStatus;
 use App\Enums\UserRole;
+use App\Filament\Resources\WorkerAttendanceResource\Pages\ListWorkerAttendance;
 use App\Models\DailyReport;
 use App\Models\MilestoneSubJob;
 use App\Models\PayrollRun;
@@ -11,6 +13,8 @@ use App\Models\SubJobDelayEvent;
 use App\Models\User;
 use App\Models\Worker;
 use App\Models\WorkerAttendance;
+use Filament\Facades\Filament;
+use Filament\Panel;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 
@@ -39,9 +43,9 @@ beforeEach(function (): void {
     ]);
 });
 
-function panel(): \Filament\Panel
+function panel(): Panel
 {
-    return \Filament\Facades\Filament::getPanel('admin');
+    return Filament::getPanel('admin');
 }
 
 it('keeps hrd as a panel-accessible role on the admin panel', function () {
@@ -68,7 +72,7 @@ it('denies hrd access to projects, sites, milestones, sub-jobs and delay events'
     $subJob = MilestoneSubJob::factory()->create(['project_milestone_id' => $milestone->id]);
     $delay = SubJobDelayEvent::create([
         'milestone_sub_job_id' => $subJob->id,
-        'status' => \App\Enums\DelayEventStatus::Red,
+        'status' => DelayEventStatus::Red,
         'triggered_at' => now(),
         'delay_days' => 3,
     ]);
@@ -144,7 +148,7 @@ it('lets an admin list and manage worker attendance', function () {
 
 it('scopes the worker attendance resource list for hrd and hides it from site engineers', function () {
     Livewire::actingAs($this->hrd)
-        ->test(\App\Filament\Resources\WorkerAttendanceResource\Pages\ListWorkerAttendance::class)
+        ->test(ListWorkerAttendance::class)
         ->assertSuccessful()
         ->assertCanSeeTableRecords([$this->attendance]);
 
