@@ -30,6 +30,11 @@ return [
         'yellow' => 'Kuning — Rencana Mitigasi Diajukan',
         'green' => 'Hijau — Pulih',
     ],
+    'report_shift' => [
+        'shift_1' => 'Shift 1',
+        'shift_2' => 'Shift 2',
+        'shift_3' => 'Shift 3',
+    ],
     'payroll_run_status' => [
         'draft' => 'Draf',
         'pending_review' => 'Menunggu Tinjauan',

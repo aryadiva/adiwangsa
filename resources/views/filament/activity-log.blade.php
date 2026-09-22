@@ -5,7 +5,7 @@
 
 <div class="space-y-4">
     @if ($activities->isEmpty())
-        <p class="text-sm text-gray-500">No activity has been recorded for this record.</p>
+        <p class="text-sm text-gray-500">{{ __('app.pages.activity_log_empty') }}</p>
     @else
         <ol class="space-y-3">
             @foreach ($activities as $activity)
@@ -21,7 +21,7 @@
                         </span>
                         @if ($oldStatus || $newStatus)
                             <div class="mt-1 text-xs">
-                                <span class="text-gray-400">Status:</span>
+                                <span class="text-gray-400">{{ __('app.pages.activity_log_status') }}</span>
                                 @if ($oldStatus)
                                     <span class="line-through text-gray-400">{{ Str::headline($oldStatus) }}</span>
                                     <span class="text-gray-400">→</span>
@@ -32,7 +32,7 @@
                     </div>
                     <div class="shrink-0 text-right text-xs">
                         <div class="text-gray-900">
-                            {{ $activity->causer?->name ?? 'System' }}
+                            {{ $activity->causer?->name ?? __('app.pages.activity_log_system') }}
                         </div>
                         <div class="mt-0.5 text-gray-400">
                             {{ $activity->created_at?->setTimezone($timezone)->format('Y-m-d H:i:s') }}

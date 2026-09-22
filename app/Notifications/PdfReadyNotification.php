@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Enums\DocumentType;
+use App\Support\NotifiableLocale;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -24,11 +25,13 @@ class PdfReadyNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        $locale = NotifiableLocale::of($notifiable);
+
         return (new MailMessage)
-            ->subject("Your {$this->type->label()} is ready")
-            ->line("The requested PDF ({$this->type->label()}) has been generated and is ready to download.")
-            ->action('Download PDF', $this->downloadUrl)
-            ->line('The download link expires in 24 hours.');
+            ->subject(__('app.notification.pdf_ready_subject', ['document' => $this->type->label()], $locale))
+            ->line(__('app.notification.pdf_ready_line', ['document' => $this->type->label()], $locale))
+            ->action(__('app.notification.pdf_ready_action', [], $locale), $this->downloadUrl)
+            ->line(__('app.notification.pdf_ready_expiry', [], $locale));
     }
 
     /**
@@ -37,7 +40,7 @@ class PdfReadyNotification extends Notification implements ShouldQueue
     public function toDatabase(object $notifiable): array
     {
         return [
-            'message' => "Your {$this->type->label()} is ready to download.",
+            'message' => __('app.notification.pdf_ready_db', ['document' => $this->type->label()], NotifiableLocale::of($notifiable)),
             'url' => $this->downloadUrl,
             'document_type' => $this->type->value,
         ];

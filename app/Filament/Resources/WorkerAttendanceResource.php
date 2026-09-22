@@ -20,9 +20,25 @@ class WorkerAttendanceResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-finger-print';
 
-    protected static ?string $navigationLabel = 'Worker Attendance';
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.worker_attendance');
+    }
 
-    protected static ?string $navigationGroup = 'Human Resources';
+    public static function getNavigationGroup(): string
+    {
+        return __('app.nav.group_human_resources');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.nav.worker_attendance_row');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.nav.worker_attendance');
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -37,26 +53,26 @@ class WorkerAttendanceResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('worker_id')
-                    ->label('Worker')
+                    ->label(__('app.attendance.worker'))
                     ->relationship('worker', 'full_name')
                     ->searchable()
                     ->preload()
                     ->required(),
                 Forms\Components\Select::make('site_id')
-                    ->label('Site')
+                    ->label(__('app.attendance.site'))
                     ->relationship('site', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
                 Forms\Components\DatePicker::make('attendance_date')
-                    ->label('Attendance Date')
+                    ->label(__('app.attendance.attendance_date'))
                     ->native(false)
                     ->displayFormat('Y-m-d')
                     ->maxDate(now()->toDateString())
                     ->default(now()->toDateString())
                     ->required(),
                 Forms\Components\TextInput::make('hours_worked')
-                    ->label('Hours Worked')
+                    ->label(__('app.attendance.hours_worked'))
                     ->numeric()
                     ->step(0.5)
                     ->minValue(0)
@@ -64,18 +80,18 @@ class WorkerAttendanceResource extends Resource
                     ->default(8)
                     ->required(),
                 Forms\Components\TextInput::make('overtime_hours')
-                    ->label('Overtime Hours')
+                    ->label(__('app.attendance.overtime_hours'))
                     ->numeric()
                     ->step(0.5)
                     ->minValue(0)
                     ->maxValue(24)
                     ->default(0)
                     ->required(),
-                Forms\Components\Section::make('Attendance Photo')
-                    ->description('Captured live with the camera — one photo per worker per day.')
+                Forms\Components\Section::make(__('app.attendance.photo_section'))
+                    ->description(__('app.attendance.photo_section_description'))
                     ->schema([
                         LiveCapture::make('attendance_photo')
-                            ->label('Attendance Photo')
+                            ->label(__('app.attendance.attendance_photo'))
                             ->captureDirectory(PhotoCaptureService::ATTENDANCE_DIRECTORY)
                             ->rules([new LiveCaptureRule])
                             ->required()
@@ -89,39 +105,41 @@ class WorkerAttendanceResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('worker.full_name')
-                    ->label('Worker')
+                    ->label(__('app.attendance.worker'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('site.name')
-                    ->label('Site')
+                    ->label(__('app.attendance.site'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('attendance_date')
+                    ->label(__('app.attendance.attendance_date'))
                     ->date('Y-m-d')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('hours_worked')
-                    ->label('Hours'),
+                    ->label(__('app.attendance.column_hours')),
                 Tables\Columns\TextColumn::make('overtime_hours')
-                    ->label('Overtime'),
+                    ->label(__('app.attendance.column_overtime')),
                 Tables\Columns\IconColumn::make('photo_file_path')
-                    ->label('Photo')
+                    ->label(__('app.attendance.column_photo'))
                     ->boolean()
                     ->getStateUsing(fn (WorkerAttendance $record): bool => filled($record->photo_file_path)),
                 Tables\Columns\TextColumn::make('recordedBy.name')
-                    ->label('Recorded By'),
+                    ->label(__('app.attendance.column_recorded_by')),
             ])
             ->defaultSort('attendance_date', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('site')
+                    ->label(__('app.attendance.site'))
                     ->relationship('site', 'name')
                     ->searchable()
                     ->preload(),
                 Tables\Filters\Filter::make('attendance_date_range')
-                    ->label('Attendance Date')
+                    ->label(__('app.attendance.filter_attendance_date'))
                     ->columns(2)
                     ->form([
-                        Forms\Components\DatePicker::make('from')->native(false),
-                        Forms\Components\DatePicker::make('until')->native(false),
+                        Forms\Components\DatePicker::make('from')->label(__('app.common.from'))->native(false),
+                        Forms\Components\DatePicker::make('until')->label(__('app.common.until'))->native(false),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
                         return $query

@@ -435,6 +435,119 @@
   > *(automated as a one-off tinker E2E script against the dev DB (`/tmp/e2e-smoke.php` in the container): 60/40 milestones + 100% sub-job → baseline 20/day → shift reports carry deficit 8→16 → `TargetDelayWarning` fires exactly once (`first_triggered_at` stable, no re-notify on re-evaluation) → catch-up target 36 resolves it → 4-day breach (> 2d threshold) creates the `red` event and shifts project end + downstream milestone atomically → mitigation → yellow → recovered → green → recurrence creates a fresh `red`, `red→green` rejected → today's report published → Mailpit shows per-published-report client emails (~1.2 MB PDF attached, correct Sender/recipient) → HRD capture pipeline: recency rule accepts a fresh `capture-<ISO>` upload, rejects a stale one, photo stored, `captured_at` + recorder stamped, duplicate attendance rejected with the friendly error → RBAC spot-checks (HRD sealed out of reports, SE out of attendance/payroll) → payroll derives 1,600,000 regular + 400,000 OT from `worker_attendance`, idempotent per period, absent workers excluded. The only step a script cannot drive is the browser `getUserMedia` camera UI itself.)*
 - [x] Dependency sanity across Phase 8 (AGENTS boundary check): `composer.json` delta vs pre-Phase-8 is exactly `ext-bcmath` (documented in 8.5); `package.json` + npm lock unchanged; `composer.lock` refreshed to match (content-hash + `ext-bcmath` platform req) and security-patched: `league/commonmark` 2.9.1→2.10.0 (GHSA-8rr7-cvq3-gmfh, high-severity DoS) + transitive `nette/schema` 1.3.6 — `composer audit` now clean; no new packages.
 
+### 8.8 Language Switcher Coverage Audit & Localization Completeness (EN/ID)
+
+> **Context:** the per-user EN/ID switcher itself already shipped in Phase 7.3 (`App\Livewire\LanguageSwitcher`,
+> mounted in the admin panel topbar via `USER_MENU_BEFORE`, persisted on `users.locale`, default `en`, applied via
+> `SetLocale` middleware + `App\Support\LocaleContext`). This task is a **completeness pass, not a rebuild**: audit
+> every user-facing surface for untranslated/hardcoded-English strings, fix the gaps, and prove toggleability across
+> all pages and views. Default stays `en`; commit style `[Phase 8] <imperative summary>`.
+
+- [x] **Baseline verification of the shipped 7.3 toggle:** confirm the `LanguageSwitcher` renders in the top-right
+  topbar area on *every* admin-panel page (dashboard, each Resource index/create/edit/view, relation managers,
+  generated documents, payroll, delay events, worker attendance), toggles EN↔ID without a full reload losing form
+  state, persists to `users.locale`, and survives logout/login. Document any page/hook where it does not render
+  (e.g. Filament full-screen modals, sub-navigation) as a deviation note.
+  > *(verified via tests: switcher markup present on `/admin` for admin + SE + HRD; toggle persists `users.locale`
+  > and survives re-auth (existing `LocaleSwitchingTest` cases, kept). `LanguageSwitcher::toggle()` reloads the page
+  > via `window.location.reload()` — form state is server-persisted first, so nothing is lost.)*
+- [x] **Decision — login-page switcher:** pre-authentication there is no `users.locale` to persist. Decide whether
+  the toggle also appears on the login page via a session-based guest locale (`SetLocale` falls back to
+  session → `users.locale` → `en`). Default: yes — a login page is part of "all pages and views"; guest choice
+  migrates into the user's `locale` on first successful login only if the user has never saved one.
+  > *(implemented: switcher mounted via `PanelsRenderHook::AUTH_LOGIN_FORM_BEFORE`; `LocaleContext` now reads/writes
+  > a guest `session('locale')` when unauthenticated (`GUEST_SESSION_KEY`), still `users.locale` for authenticated
+  > users. Per user's ask the guest choice simply lives in the session — it does not silently overwrite an existing
+  > user preference on login; `SetLocale` (user path) keeps winning once authenticated.)*
+- [x] **Translation key parity test (automated completeness guard):** a Pest test walking every file under
+  `lang/en/` and `lang/id/` (including `lang/vendor/filament/**` overrides we published) asserting both locales
+  expose the **identical key sets** — no key present in `en` missing from `id` or vice versa. This is the
+  regression net that keeps future surfaces from silently shipping English-only.
+  > *(`tests/Feature/LocaleParityTest.php` — deep key-tree comparison for the 5 app-level files (`app`, `enum`,
+  > `mail`, `weather`, `pdf`) and, per `lang/vendor/filament-*` package, file-set + key-tree parity. All pass.)*
+- [x] **Enum label audit:** every backed enum in `app/Enums/` must carry `HasLabel` + `getLabel()` returning `__()`
+  with entries in both `lang/{en,id}/enum.php`. Already done for `WeatherCondition`, `DailyReportStatus`,
+  `ProjectStatus`, `ProjectMilestoneStatus`, `DocumentType`, `UserRole`, `PayrollRunStatus`; verify/fix
+  `ReportShift`, `MilestoneSubJobStatus`, `SubJobDelayEventStatus` (incl. `red`/`yellow`/`green` color labels),
+  and `App\Support\Locale` if user-facing anywhere.
+  > *(audit found the real gap: `ReportShift::getLabel()` referenced `enum.report_shift.*` but **the group was
+  > missing from both `lang/*/enum.php` files** — shift badges rendered as raw keys. Added `shift_1/2/3` entries.
+  > `MilestoneSubJobStatus` + `DelayEventStatus` were already wired (`sub_job_status`/`delay_event_status` groups
+  > present in both locales). `App\Enums\Locale` intentionally keeps self-named labels (`English`/`Bahasa
+  > Indonesia`) — standard language-naming practice, not a gap.)*
+- [x] **Resource schema audit (all Filament Resources + RelationManagers):** form field labels, helper/hint/placeholder
+  text, column labels, badge colors' text, filter labels **and option labels**, action buttons, modal headings/
+  descriptions, `Section` headings, wizard steps, empty-state strings, nav group names, navigation labels, page
+  titles/breadcrumbs — no hardcoded English strings in `DailyReportResource`, `ProjectResource` (+ milestones/sub-jobs
+  relation managers), `WorkerResource`, `WorkerAttendanceResource`, `PayrollRunResource`, `SubJobDelayEventResource`,
+  `GeneratedDocumentResource`, `ClientResource`, `UserResource`.
+  > *(~150 hardcoded strings replaced with a new `app.*` translation group in `lang/{en,id}/app.php` (17 sections:
+  > common, nav, per-resource, notification, validation, component, pages). Navigation labels/groups + model
+  > labels moved from static properties to `getNavigationLabel()/getNavigationGroup()/getModelLabel()/
+  > getPluralModelLabel()` overrides so they re-resolve per request/rebuild; relation-manager titles via static
+  > `getTitle(Model, string)` overrides (Filament signature). Status-filter option for admin now
+  > `need_approval_with_count` with `:count`, non-admin options use the enum's own localized labels instead of
+  > `Str::headline()` (same rendered EN text, now locale-aware). `ReportShift` shift column/badge now uses
+  > localized enum labels.)*
+- [x] **Friendly-error + validation message audit:** all app-authored validation/notifications localized —
+  `(site_id, report_date, shift)` duplicate error, weight-total (`MilestoneWeightsTotalRule`/`SubJobsWeightsTotalRule`
+  via `WeightValidation`), `MilestoneStartDateRule`/`ScheduleValidator`, the submit-guard photo-pair notification,
+  `LiveCapture` recency rule messages, `AttendanceService` duplicate-attendance message, payroll state-machine
+  notifications, `MilestoneWeightNotificationService` bell texts.
+  > *(all converted to `app.validation.*` keys in both locales — en strings byte-identical to the previous
+  > hardcoded text so every existing assertion kept passing. Includes the 3 duplicate-guard messages (daily report
+  > site/date/shift, attendance via `WorkerAttendance::ensureNotDuplicate`), 4 weight/start-date rule messages,
+  > 3 `App\Rules\LiveCapture` messages, the locked-report message, the photo-pair submit guard, `PhotoCaptureService`
+  > RuntimeExceptions (read/store/thumbnail/disallowed-mime), all payroll + delay-event + PDF Filament notifications,
+  > and the `MilestoneWeightNotificationService` set titles (`weight_incomplete_milestones_set` /
+  > `weight_incomplete_subjobs_set` with `:milestone`).)*
+- [x] **Notification & mail audit:** every notification/mailable class (`ReportSubmittedNotification`,
+  `ReportApprovedNotification`, `RevisionRequestedNotification`, `PdfReadyNotification`,
+  `WeightIncompleteNotification`, `TargetDelayWarningNotification`, `DailyReportPublished`) renders subject/lines in
+  the **recipient's** locale (`users.locale` of the notified user) — client email is already locale-aware via
+  `SendClientReportEmailJob`'s locale param; bring internal notifications in line.
+  > *(new `App\Support\NotifiableLocale::of($notifiable)` — recipient `users.locale` → app fallback. All six
+  > notification classes now build mail + bell payloads through `__('app.notification.*', $replace, $locale)`.
+  > Found + fixed the latent email gap: `SendClientReportEmailJob` baked the DTO locale for the PDF but **never
+  > applied it to the mailable** — subject/body always rendered in the worker's default locale. The job now sets
+  > app + Carbon locale from the DTO before `Mail::send`.)*
+- [x] **PDF template audit:** all four `resources/views/pdf/*.blade.php` templates (`daily-progress`,
+  `weekly-digest`, `attendance-roster`, `worker-allocation-payroll`) use `__('pdf.*')` exclusively in both locales —
+  grep for hardcoded English literals; dates via `translatedFormat()`.
+  > *(audit clean — all four templates already fully keyed (`pdf.*` + `weather.*`), dates `translatedFormat()`,
+  > locale baked from the DTO by `PdfReportService`; `pdf.php` parity enforced by the new parity test.)*
+- [x] **Custom Blade view audit:** `resources/views/filament/*` (activity-log modal, live-capture scripts,
+  language-switcher view itself) and any inline label text — localize or document why not.
+  > *(localized: `filament/activity-log.blade.php` (empty state, `Status:` prefix, `System` causer fallback),
+  > `filament/pages/edit-daily-report.blade.php` (retrying banner, `Draft Saved at` label passed into the Alpine
+  > store as `savedLabelPrefix` so JS builds localized text, missing-photos warning heading + note),
+  > `filament/forms/components/live-capture.blade.php` (Open camera / Capture photo / Recapture / gallery note),
+  > `filament/live-capture-scripts.blade.php` (Alpine error strings injected server-side via a `@php` array +
+  > `@json` → `window.__filamentLiveCaptureI18n`; note: `@json([...inline array...])` trips Blade's bracket matcher
+  > on nested `__()` calls — use the `@php` variable form). `livewire/language-switcher.blade.php` shows only
+  > `EN`/`ID` — locale-neutral by design.)*
+- [x] **Fix all gaps found:** new keys added to both `lang/en` and `lang/id` following the existing file organization
+  (`pdf.*`, `weather`, `enum` groups + new groups as needed); no `en`-only keys survive (parity test enforces).
+  > *(new `app.php` group: 318 lines en / 317 lines id, identical key trees (parity-tested); `report_shift` group
+  > added to both `enum.php` files.)*
+- [x] **Tests:** per-locale rendering assertions for (a) enum labels, (b) at least one key page per role (admin
+  dashboard, SE daily-report form, HRD attendance form) asserting the switch toggles strings, (c) a notification
+  subject/lines rendered in recipient's locale, (d) PDF DTO locale propagation (existing `LocaleSwitchingTest`
+  extended, not duplicated).
+  > *(`LocaleSwitchingTest` extended in place: switcher on `/admin/login` for guests, guest session locale toggle,
+  > switcher present on `/admin` for admin + SE + HRD, Indonesian nav labels on the dashboard, Indonesian daily
+  > report form labels, `ReportSubmittedNotification` mail subject/lines in recipient locale,
+  > `TargetDelayWarningNotification` bell payload in recipient locale, `DelayEventStatus` labels both locales,
+  > `MilestoneWeightsTotalRule` message in `id`. `ClientReportEmailTest` gains the email-locale regression
+  > (job `locale: 'id'` → Indonesian subject). 17 new tests, 0 removed.)*
+- [x] **Regression:** full `pest` suite green, `pint` PASS, `phpstan` zero new errors; update this entry with the
+  audit findings + fixes in the established `*(...)` note pattern.
+  > *(264 passed / 845 assertions on a fresh `migrate:fresh --seed`; `pint --test` PASS (244 files);
+  > `phpstan analyse --memory-limit=1G` → `[OK] No errors` (host PHP 128M default OOMs the phar — run with the
+  > flag). Deviations documented: `resources/views/welcome.blade.php` (stock Laravel root scaffold, not part of
+  > the panel surface) and the orphan `resources/views/filament/client/*` views (client panel removed in 8.4) left
+  > untouched — dead code cleanup is out of this task's scope.)*
+
 ---
 
 ## Appendix: Quick Commands

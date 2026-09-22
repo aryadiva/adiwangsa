@@ -30,6 +30,11 @@ return [
         'yellow' => 'Yellow — Mitigation Submitted',
         'green' => 'Green — Recovered',
     ],
+    'report_shift' => [
+        'shift_1' => 'Shift 1',
+        'shift_2' => 'Shift 2',
+        'shift_3' => 'Shift 3',
+    ],
     'payroll_run_status' => [
         'draft' => 'Draft',
         'pending_review' => 'Pending Review',

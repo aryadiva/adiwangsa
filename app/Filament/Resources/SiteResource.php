@@ -18,9 +18,25 @@ class SiteResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-map-pin';
 
-    protected static ?string $navigationLabel = 'Sites';
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.sites');
+    }
 
-    protected static ?string $navigationGroup = 'Operations';
+    public static function getNavigationGroup(): string
+    {
+        return __('app.nav.group_operations');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.nav.site');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.nav.sites');
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -45,12 +61,13 @@ class SiteResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('project_id')
-                    ->label('Project')
+                    ->label(__('app.common.project'))
                     ->relationship('project', 'name')
                     ->searchable()
                     ->preload()
                     ->required(),
                 Forms\Components\TextInput::make('name')
+                    ->label(__('app.common.name'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('address')
@@ -70,14 +87,15 @@ class SiteResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label(__('app.common.name'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('project.name')
-                    ->label('Project')
+                    ->label(__('app.common.project'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('project.code')
-                    ->label('Project Code')
+                    ->label(__('app.common.project_code'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('latitude')
                     ->sortable(),
@@ -85,12 +103,12 @@ class SiteResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('daily_reports_count')
                     ->counts('dailyReports')
-                    ->label('Reports'),
+                    ->label(__('app.nav.daily_reports')),
             ])
             ->defaultSort('name')
             ->filters([
                 Tables\Filters\SelectFilter::make('project_id')
-                    ->label('Project')
+                    ->label(__('app.common.project'))
                     ->relationship('project', 'name')
                     ->searchable()
                     ->preload(),

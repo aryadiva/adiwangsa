@@ -37,7 +37,7 @@ class LiveCapture implements InvokableRule
                 return;
             }
 
-            $fail('The capture timestamp is missing. Please capture the photo live with the camera.');
+            $fail(__('app.validation.capture_missing_timestamp'));
 
             return;
         }
@@ -46,13 +46,13 @@ class LiveCapture implements InvokableRule
         $futureSkew = (int) config('capture.future_skew_seconds', 120);
 
         if ($timestamp->gt(now()->addSeconds($futureSkew))) {
-            $fail('The capture timestamp is in the future. Please capture the photo live with the camera.');
+            $fail(__('app.validation.capture_future_timestamp'));
 
             return;
         }
 
         if ($timestamp->lt(now()->subSeconds($maxAge))) {
-            $fail('This capture is too old. Please capture the photo live with the camera.');
+            $fail(__('app.validation.capture_too_old'));
         }
     }
 

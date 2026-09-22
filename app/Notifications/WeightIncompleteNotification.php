@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\Project;
+use App\Support\NotifiableLocale;
 use Illuminate\Notifications\Notification;
 
 class WeightIncompleteNotification extends Notification
@@ -30,6 +31,7 @@ class WeightIncompleteNotification extends Notification
      */
     public function toDatabase(object $notifiable): array
     {
+        $locale = NotifiableLocale::of($notifiable);
         $bodyParts = [];
 
         foreach ($this->incompleteSets as $set) {
@@ -42,9 +44,9 @@ class WeightIncompleteNotification extends Notification
             'status' => 'warning',
             'icon' => 'heroicon-o-exclamation-triangle',
             'project_id' => $this->project->getKey(),
-            'title' => __('Milestone weights incomplete'),
+            'title' => __('app.notification.weight_incomplete_title', [], $locale),
             'body' => $this->project->name.': '.implode(', ', $bodyParts).'. '
-                .__('All weight sets must total exactly 100%.'),
+                .__('app.notification.weight_incomplete_body', [], $locale),
         ];
     }
 }

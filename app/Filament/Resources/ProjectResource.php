@@ -22,9 +22,25 @@ class ProjectResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office-2';
 
-    protected static ?string $navigationLabel = 'Projects';
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.projects');
+    }
 
-    protected static ?string $navigationGroup = 'Operations';
+    public static function getNavigationGroup(): string
+    {
+        return __('app.nav.group_operations');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.nav.project');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.nav.projects');
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -49,38 +65,45 @@ class ProjectResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('client_id')
-                    ->label('Client')
+                    ->label(__('app.common.client'))
                     ->relationship('client', 'company_name')
                     ->searchable()
                     ->preload()
                     ->required(),
                 Forms\Components\TextInput::make('name')
+                    ->label(__('app.project.name'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('code')
+                    ->label(__('app.project.code'))
                     ->unique(ignoreRecord: true)
                     ->required()
                     ->maxLength(50),
                 Forms\Components\Select::make('status')
+                    ->label(__('app.project.status'))
                     ->options(ProjectStatus::class)
                     ->required(),
                 Forms\Components\DatePicker::make('start_date')
+                    ->label(__('app.project.start_date'))
                     ->native(false)
                     ->required(),
                 Forms\Components\DatePicker::make('target_end_date')
+                    ->label(__('app.project.target_end_date'))
                     ->native(false)
                     ->afterOrEqual('start_date'),
                 Forms\Components\TextInput::make('delay_threshold_days')
-                    ->label('Delay Threshold (days)')
+                    ->label(__('app.project.delay_threshold'))
                     ->numeric()
                     ->integer()
                     ->minValue(0)
                     ->default(2)
-                    ->helperText('A sub-job delayed beyond this many days triggers a red delay event and shifts subsequent milestone dates.'),
+                    ->helperText(__('app.project.delay_threshold_helper')),
                 Forms\Components\TextInput::make('budget')
+                    ->label(__('app.project.budget'))
                     ->numeric()
                     ->minValue(0),
                 Forms\Components\Select::make('timezone')
+                    ->label(__('app.project.timezone'))
                     ->options(fn (): array => collect(\DateTimeZone::listIdentifiers())
                         ->filter(fn (string $tz): bool => str_starts_with($tz, 'UTC') || str_starts_with($tz, 'Asia/'))
                         ->values()
@@ -88,10 +111,10 @@ class ProjectResource extends Resource
                     ->default('UTC')
                     ->searchable(),
                 Forms\Components\KeyValue::make('meta_data')
-                    ->label('Additional Fields')
+                    ->label(__('app.common.additional_fields'))
                     ->columnSpanFull(),
                 Forms\Components\Select::make('engineers')
-                    ->label('Assigned Site Engineers')
+                    ->label(__('app.project.engineers'))
                     ->relationship('engineers', 'name')
                     ->multiple()
                     ->searchable()
@@ -112,7 +135,7 @@ class ProjectResource extends Resource
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('client.company_name')
-                    ->label('Client')
+                    ->label(__('app.project.column_client'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
@@ -128,17 +151,18 @@ class ProjectResource extends Resource
                     ->sortable(),
                 Tables\Columns\TextColumn::make('sites_count')
                     ->counts('sites')
-                    ->label('Sites'),
+                    ->label(__('app.project.column_sites')),
                 Tables\Columns\TextColumn::make('engineers_count')
                     ->counts('engineers')
-                    ->label('Engineers'),
+                    ->label(__('app.project.column_engineers')),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
+                    ->label(__('app.project.status'))
                     ->options(ProjectStatus::class),
                 Tables\Filters\SelectFilter::make('client_id')
-                    ->label('Client')
+                    ->label(__('app.project.filter_client'))
                     ->relationship('client', 'company_name')
                     ->searchable()
                     ->preload(),
@@ -147,14 +171,16 @@ class ProjectResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\Action::make('generate_weekly_digest')
-                    ->label('Weekly Digest PDF')
+                    ->label(__('app.project.action_weekly_digest'))
                     ->icon('heroicon-o-calendar-days')
                     ->form([
                         Forms\Components\DatePicker::make('from')
+                            ->label(__('app.common.from'))
                             ->native(false)
                             ->default(now()->subDays(7))
                             ->required(),
                         Forms\Components\DatePicker::make('to')
+                            ->label(__('app.common.until'))
                             ->native(false)
                             ->default(now())
                             ->afterOrEqual('from')
@@ -170,20 +196,22 @@ class ProjectResource extends Resource
 
                         Notification::make()
                             ->title($queued
-                                ? 'Weekly digest PDF queued for generation.'
-                                : 'A digest for this period already exists — download link sent.')
+                                ? __('app.project.digest_queued')
+                                : __('app.project.digest_exists'))
                             ->success()
                             ->send();
                     }),
                 Tables\Actions\Action::make('generate_attendance_roster')
-                    ->label('Attendance Roster PDF')
+                    ->label(__('app.project.action_attendance_roster'))
                     ->icon('heroicon-o-list-bullet')
                     ->form([
                         Forms\Components\DatePicker::make('from')
+                            ->label(__('app.common.from'))
                             ->native(false)
                             ->default(now()->subDays(7))
                             ->required(),
                         Forms\Components\DatePicker::make('to')
+                            ->label(__('app.common.until'))
                             ->native(false)
                             ->default(now())
                             ->afterOrEqual('from')
@@ -199,8 +227,8 @@ class ProjectResource extends Resource
 
                         Notification::make()
                             ->title($queued
-                                ? 'Attendance roster PDF queued for generation.'
-                                : 'A roster for this period already exists — download link sent.')
+                                ? __('app.project.roster_queued')
+                                : __('app.project.roster_exists'))
                             ->success()
                             ->send();
                     }),

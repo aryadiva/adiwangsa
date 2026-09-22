@@ -16,59 +16,79 @@ class ClientResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-building-office';
 
-    protected static ?string $navigationLabel = 'Clients';
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.clients');
+    }
 
-    protected static ?string $navigationGroup = 'Administration';
+    public static function getNavigationGroup(): string
+    {
+        return __('app.nav.group_administration');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.nav.client');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.nav.clients');
+    }
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('user_id')
-                    ->label('Linked User')
+                    ->label(__('app.client.linked_user'))
                     ->relationship('user', 'name')
                     ->searchable()
                     ->preload()
-                    ->helperText('Optional — the user account that represents this client.'),
+                    ->helperText(__('app.client.linked_user_helper')),
                 Forms\Components\TextInput::make('company_name')
+                    ->label(__('app.client.company_name'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('contact_person')
+                    ->label(__('app.client.contact_person'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
+                    ->label(__('app.common.email'))
                     ->email()
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('phone')
+                    ->label(__('app.common.phone'))
                     ->tel()
                     ->required()
                     ->maxLength(50),
-                Forms\Components\Section::make('Report Email Delivery Defaults')
-                    ->description('Used when emailing published Daily Site Progress Summary PDFs (Sender / Receivers / CC). Per-send overrides win over these defaults.')
+                Forms\Components\Section::make(__('app.client.email_delivery_section'))
+                    ->description(__('app.client.email_delivery_description'))
                     ->columns(2)
                     ->schema([
                         Forms\Components\TextInput::make('meta_data.email_delivery.sender_email')
-                            ->label('Sender Email')
+                            ->label(__('app.client.sender_email'))
                             ->email()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('meta_data.email_delivery.sender_name')
-                            ->label('Sender Name')
+                            ->label(__('app.client.sender_name'))
                             ->maxLength(255),
                         Forms\Components\TagsInput::make('meta_data.email_delivery.receivers')
-                            ->label('Receivers')
-                            ->helperText('Defaults to the client email above when empty.')
+                            ->label(__('app.client.receivers'))
+                            ->helperText(__('app.client.receivers_helper'))
                             ->splitKeys([',', ' '])
                             ->columnSpanFull(),
                         Forms\Components\TagsInput::make('meta_data.email_delivery.cc')
-                            ->label('CC')
+                            ->label(__('app.client.cc'))
                             ->splitKeys([',', ' '])
                             ->columnSpanFull(),
                     ])
                     ->columnSpanFull(),
                 Forms\Components\KeyValue::make('meta_data')
-                    ->label('Additional Fields')
-                    ->helperText('Email delivery defaults are stored under the "email_delivery" key — edit through the section above.')
+                    ->label(__('app.common.additional_fields'))
+                    ->helperText(__('app.client.additional_fields_helper'))
                     ->columnSpanFull(),
             ]);
     }
@@ -78,16 +98,20 @@ class ClientResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('company_name')
+                    ->label(__('app.client.company_name'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('contact_person')
+                    ->label(__('app.client.contact_person'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label(__('app.common.email'))
                     ->searchable(),
-                Tables\Columns\TextColumn::make('phone'),
+                Tables\Columns\TextColumn::make('phone')
+                    ->label(__('app.common.phone')),
                 Tables\Columns\TextColumn::make('projects_count')
                     ->counts('projects')
-                    ->label('Projects'),
+                    ->label(__('app.client.column_projects')),
             ])
             ->defaultSort('company_name')
             ->actions([

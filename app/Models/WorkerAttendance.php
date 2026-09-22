@@ -99,7 +99,7 @@ class WorkerAttendance extends Model
 
         if ($exists) {
             throw ValidationException::withMessages([
-                'attendance_date' => __('Attendance has already been recorded for this worker on :date.', [
+                'attendance_date' => __('app.validation.attendance_duplicate', [
                     'date' => $attendanceDate,
                 ]),
             ]);

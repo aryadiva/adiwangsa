@@ -47,7 +47,7 @@ class EditDailyReport extends EditRecord
     {
         return [
             Actions\Action::make('submitForApproval')
-                ->label('Submit for Approval')
+                ->label(__('app.daily_report.submit_for_approval'))
                 ->icon('heroicon-o-paper-airplane')
                 ->requiresConfirmation()
                 ->visible(fn (): bool => $this->isEditable() && $this->currentStatus() === DailyReportStatus::Draft)
@@ -58,7 +58,7 @@ class EditDailyReport extends EditRecord
 
                         if ($photo === null || ! filled($photo->before_file_path) || ! filled($photo->after_file_path)) {
                             Notification::make()
-                                ->title('A before/after photo pair is required before submitting for approval.')
+                                ->title(__('app.daily_report.photo_pair_required'))
                                 ->danger()
                                 ->send();
 
@@ -67,11 +67,11 @@ class EditDailyReport extends EditRecord
 
                         $report->submitForApproval();
                         $this->refreshForm();
-                        Notification::make()->title('Report submitted for approval')->success()->send();
+                        Notification::make()->title(__('app.daily_report.report_submitted'))->success()->send();
                     }
                 }),
             Actions\Action::make('approveAndPublish')
-                ->label('Approve & Publish')
+                ->label(__('app.daily_report.approve_and_publish'))
                 ->icon('heroicon-o-check-circle')
                 ->requiresConfirmation()
                 ->visible(fn (): bool => $this->isAdmin() && $this->currentStatus() === DailyReportStatus::NeedApproval)
@@ -79,28 +79,28 @@ class EditDailyReport extends EditRecord
                     if ($report = $this->report()) {
                         $report->approveAndPublish(auth()->id());
                         $this->refreshForm();
-                        Notification::make()->title('Report published')->success()->send();
+                        Notification::make()->title(__('app.daily_report.report_published'))->success()->send();
                     }
                 }),
             Actions\Action::make('requestRevision')
-                ->label('Request Revision')
+                ->label(__('app.daily_report.request_revision'))
                 ->icon('heroicon-o-arrow-path')
                 ->color('warning')
                 ->visible(fn (): bool => $this->isAdmin() && $this->currentStatus() === DailyReportStatus::NeedApproval)
                 ->form([
                     Forms\Components\Textarea::make('admin_notes')
-                        ->label('Revision feedback')
+                        ->label(__('app.daily_report.revision_feedback'))
                         ->required(),
                 ])
                 ->action(function (array $data): void {
                     if ($report = $this->report()) {
                         $report->requestRevision($data['admin_notes']);
                         $this->refreshForm();
-                        Notification::make()->title('Revision requested')->warning()->send();
+                        Notification::make()->title(__('app.daily_report.revision_requested'))->warning()->send();
                     }
                 }),
             Actions\Action::make('resubmitForApproval')
-                ->label('Resubmit for Approval')
+                ->label(__('app.daily_report.resubmit_for_approval'))
                 ->icon('heroicon-o-paper-airplane')
                 ->requiresConfirmation()
                 ->visible(fn (): bool => $this->isEditable() && $this->currentStatus() === DailyReportStatus::RevisionRequested)
@@ -108,7 +108,7 @@ class EditDailyReport extends EditRecord
                     if ($report = $this->report()) {
                         $report->resubmitForApproval(auth()->id());
                         $this->refreshForm();
-                        Notification::make()->title('Report resubmitted for approval')->success()->send();
+                        Notification::make()->title(__('app.daily_report.report_resubmitted'))->success()->send();
                     }
                 }),
             Actions\DeleteAction::make(),
@@ -231,7 +231,7 @@ class EditDailyReport extends EditRecord
 
         if (! $this->isEditable()) {
             throw ValidationException::withMessages([
-                'data' => 'This report is locked and cannot be edited in its current state.',
+                'data' => __('app.daily_report.locked'),
             ]);
         }
 

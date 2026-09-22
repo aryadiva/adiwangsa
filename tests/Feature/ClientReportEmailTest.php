@@ -124,6 +124,24 @@ it('stores a generated document when emailing a report that has none yet', funct
         ->and(Storage::disk('pdfs')->exists($document->file_path))->toBeTrue();
 });
 
+it('renders the email subject and body in the job locale (TASKS 8.8)', function () {
+    Mail::fake();
+    Storage::fake('pdfs');
+
+    [$report] = publishedReportFixture([
+        'email_delivery' => ['receivers' => ['owner@client.test']],
+    ]);
+
+    (new SendClientReportEmailJob($report->id, locale: 'id'))->handle(app(PdfDocumentService::class));
+
+    Mail::assertQueued(DailyReportPublished::class, function (DailyReportPublished $mail): bool {
+        $subject = $mail->envelope()->subject;
+
+        return str_contains($subject, 'Ringkasan Kemajuan Harian Lokasi')
+            && ! str_contains($subject, 'Daily Site Progress Summary');
+    });
+});
+
 it('renders a valid daily progress PDF for the email DTO', function () {
     Storage::fake('pdfs');
 

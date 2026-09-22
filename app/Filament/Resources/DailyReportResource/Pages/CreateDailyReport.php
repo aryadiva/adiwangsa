@@ -88,7 +88,7 @@ class CreateDailyReport extends CreateRecord
 
         if ($exists) {
             throw ValidationException::withMessages([
-                'data.report_date' => 'A report already exists for this site, date and shift.',
+                'data.report_date' => __('app.daily_report.duplicate'),
             ]);
         }
     }

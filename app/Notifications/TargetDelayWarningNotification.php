@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Project;
 use App\Models\TargetDelayWarning;
+use App\Support\NotifiableLocale;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -25,18 +26,19 @@ class TargetDelayWarningNotification extends Notification implements ShouldQueue
 
     public function toMail(object $notifiable): MailMessage
     {
+        $locale = NotifiableLocale::of($notifiable);
         $subJob = $this->warning->subJob;
         /** @var Project|null $project */
         $project = $this->warning->project;
-        $projectName = $project !== null ? $project->name : 'Unknown Project';
+        $projectName = $project !== null ? $project->name : __('app.notification.unknown_project');
 
         return (new MailMessage)
-            ->subject("Target delay warning — {$projectName}")
-            ->line("Sub-job \"{$subJob->title}\" has fallen behind its daily target.")
-            ->line("Daily target: {$this->warning->daily_target}")
-            ->line("Actual progress: {$this->warning->actual_progress}")
-            ->line("Deficit: {$this->warning->deficit}")
-            ->action('View Report', route('filament.admin.resources.daily-reports.edit', $this->warning->daily_report_id));
+            ->subject(__('app.notification.target_warning_subject', ['project' => $projectName], $locale))
+            ->line(__('app.notification.target_warning_line', ['sub_job' => $subJob->title], $locale))
+            ->line(__('app.notification.target_warning_daily_target', ['target' => $this->warning->daily_target], $locale))
+            ->line(__('app.notification.target_warning_actual', ['actual' => $this->warning->actual_progress], $locale))
+            ->line(__('app.notification.target_warning_deficit', ['deficit' => $this->warning->deficit], $locale))
+            ->action(__('app.notification.target_warning_action', [], $locale), route('filament.admin.resources.daily-reports.edit', $this->warning->daily_report_id));
     }
 
     /**
@@ -44,6 +46,7 @@ class TargetDelayWarningNotification extends Notification implements ShouldQueue
      */
     public function toDatabase(object $notifiable): array
     {
+        $locale = NotifiableLocale::of($notifiable);
         $subJob = $this->warning->subJob;
 
         return [
@@ -51,8 +54,11 @@ class TargetDelayWarningNotification extends Notification implements ShouldQueue
             'duration' => 'persistent',
             'status' => 'warning',
             'icon' => 'heroicon-o-exclamation-triangle',
-            'title' => 'Target delay warning',
-            'body' => "Sub-job \"{$subJob->title}\" is behind schedule. Deficit: {$this->warning->deficit}.",
+            'title' => __('app.notification.target_warning_title', [], $locale),
+            'body' => __('app.notification.target_warning_body', [
+                'sub_job' => $subJob->title,
+                'deficit' => $this->warning->deficit,
+            ], $locale),
             'target_delay_warning_id' => $this->warning->id,
             'daily_report_id' => $this->warning->daily_report_id,
             'milestone_sub_job_id' => $this->warning->milestone_sub_job_id,

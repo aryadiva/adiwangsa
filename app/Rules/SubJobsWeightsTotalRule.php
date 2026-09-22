@@ -29,13 +29,13 @@ class SubJobsWeightsTotalRule implements ValidationRule
         ));
 
         if (WeightValidation::isFull($siblingSum)) {
-            $fail(__('Sub-job weights already tally to 100%. No further sub-jobs can be added.'));
+            $fail(__('app.validation.sub_jobs_already_full'));
 
             return;
         }
 
         if (! WeightValidation::canAdd($siblingSum, $currentRowWeight)) {
-            $fail(__('Sub-job weights cannot exceed 100% (current total: :total%).', [
+            $fail(__('app.validation.sub_jobs_exceed_total', [
                 'total' => number_format($siblingSum, 2),
             ]));
         }

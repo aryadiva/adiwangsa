@@ -33,9 +33,25 @@ class DailyReportResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static ?string $navigationLabel = 'Daily Reports';
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.daily_reports');
+    }
 
-    protected static ?string $navigationGroup = 'Site Activity';
+    public static function getNavigationGroup(): string
+    {
+        return __('app.nav.group_site_activity');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.nav.daily_report');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.nav.daily_reports');
+    }
 
     public static function scopedQuery(): Builder
     {
@@ -80,7 +96,7 @@ class DailyReportResource extends Resource
         return $form
             ->schema([
                 Forms\Components\Select::make('site_id')
-                    ->label('Site')
+                    ->label(__('app.daily_report.site'))
                     ->relationship(
                         'site',
                         'name',
@@ -95,15 +111,17 @@ class DailyReportResource extends Resource
                         $set('milestone_sub_job_id', null);
                     }),
                 Forms\Components\DatePicker::make('report_date')
+                    ->label(__('app.daily_report.report_date'))
                     ->required()
                     ->native(false)
                     ->displayFormat('Y-m-d'),
                 Forms\Components\Select::make('shift')
+                    ->label(__('app.daily_report.shift'))
                     ->options(ReportShift::class)
                     ->default(ReportShift::Shift1)
                     ->required(),
                 Forms\Components\Select::make('milestone_sub_job_id')
-                    ->label('Sub-Job')
+                    ->label(__('app.daily_report.sub_job'))
                     ->options(function (callable $get) {
                         $siteId = $get('site_id');
 
@@ -149,48 +167,51 @@ class DailyReportResource extends Resource
                     })
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('daily_target')
-                    ->label('Daily Target (system-computed)')
+                    ->label(__('app.daily_report.daily_target'))
                     ->disabled()
                     ->dehydrated(false)
-                    ->suffix('units')
+                    ->suffix(__('app.daily_report.daily_target_suffix'))
                     ->columnSpanFull(),
                 Forms\Components\Select::make('weather_condition')
+                    ->label(__('app.daily_report.weather'))
                     ->options(WeatherCondition::class)
                     ->required(),
                 Forms\Components\Textarea::make('work_summary')
+                    ->label(__('app.daily_report.work_summary'))
                     ->required()
                     ->rows(6)
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('delays_or_issues')
+                    ->label(__('app.daily_report.delays_issues'))
                     ->rows(3)
                     ->columnSpanFull(),
                 Forms\Components\TextInput::make('daily_achievement')
-                    ->label('Daily Achievement')
+                    ->label(__('app.daily_report.daily_achievement'))
                     ->numeric()
                     ->step(0.01)
                     ->minValue(0)
-                    ->suffix('units')
-                    ->helperText('Quantity progressed against the linked sub-job target this shift.'),
+                    ->suffix(__('app.daily_report.daily_target_suffix'))
+                    ->helperText(__('app.daily_report.achievement_helper')),
                 Forms\Components\Textarea::make('delay_reason')
-                    ->label('Delay Reason')
+                    ->label(__('app.daily_report.delay_reason'))
                     ->rows(2)
-                    ->helperText('Required when daily achievement is below the daily target.')
+                    ->helperText(__('app.daily_report.delay_reason_helper'))
                     ->columnSpanFull(),
                 Forms\Components\Repeater::make('workerAllocations')
                     ->relationship()
-                    ->label('Worker Allocations')
+                    ->label(__('app.daily_report.worker_allocations'))
                     ->defaultItems(0)
                     ->collapsible()
                     ->itemLabel(fn (array $state): ?string => null)
                     ->schema([
                         Forms\Components\Select::make('worker_id')
-                            ->label('Worker')
+                            ->label(__('app.common.worker'))
                             ->relationship('worker', 'full_name')
                             ->searchable()
                             ->preload()
                             ->required(),
                         Forms\Components\TextInput::make('hours_worked')
-                            ->label('Hours Worked')
+                            ->label(__('app.common.hours_worked'))
                             ->numeric()
                             ->step(0.5)
                             ->minValue(0)
@@ -198,21 +219,21 @@ class DailyReportResource extends Resource
                             ->default(8)
                             ->required(),
                         Forms\Components\TextInput::make('remarks')
-                            ->label('Remarks'),
+                            ->label(__('app.common.remarks')),
                     ])
                     ->columnSpanFull(),
-                Forms\Components\Section::make('Progress Photos')
-                    ->description('Exactly one before/after pair per shift — captured live with the camera.')
+                Forms\Components\Section::make(__('app.daily_report.photos_section'))
+                    ->description(__('app.daily_report.photos_section_description'))
                     ->schema([
                         Forms\Components\Grid::make(3)
                             ->schema([
                                 LiveCapture::make('before_photo')
-                                    ->label('Before')
+                                    ->label(__('app.daily_report.before'))
                                     ->captureDirectory(DailyReportPhotoService::DIRECTORY)
                                     ->rules([new LiveCaptureRule])
                                     ->visible(fn (): bool => auth()->user()?->role !== UserRole::Admin),
                                 FileUpload::make('before_file_path')
-                                    ->label('Before')
+                                    ->label(__('app.daily_report.before'))
                                     ->image()
                                     ->disk('photos')
                                     ->visibility('private')
@@ -222,12 +243,12 @@ class DailyReportResource extends Resource
                                     ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(DailyReportPhotoService::class)->store($file))
                                     ->visible(fn (): bool => auth()->user()?->role === UserRole::Admin),
                                 LiveCapture::make('after_photo')
-                                    ->label('After')
+                                    ->label(__('app.daily_report.after'))
                                     ->captureDirectory(DailyReportPhotoService::DIRECTORY)
                                     ->rules([new LiveCaptureRule])
                                     ->visible(fn (): bool => auth()->user()?->role !== UserRole::Admin),
                                 FileUpload::make('after_file_path')
-                                    ->label('After')
+                                    ->label(__('app.daily_report.after'))
                                     ->image()
                                     ->disk('photos')
                                     ->visibility('private')
@@ -237,16 +258,16 @@ class DailyReportResource extends Resource
                                     ->saveUploadedFileUsing(fn (UploadedFile $file): string => app(DailyReportPhotoService::class)->store($file))
                                     ->visible(fn (): bool => auth()->user()?->role === UserRole::Admin),
                                 Forms\Components\Textarea::make('photo_description')
-                                    ->label('Description')
+                                    ->label(__('app.daily_report.photo_description'))
                                     ->rows(4),
                             ]),
                     ])
                     ->columnSpanFull(),
                 Forms\Components\KeyValue::make('meta_data')
-                    ->label('Additional Fields')
+                    ->label(__('app.common.additional_fields'))
                     ->columnSpanFull(),
                 Forms\Components\Textarea::make('admin_notes')
-                    ->rows(3)
+                    ->label(__('app.daily_report.admin_notes'))
                     ->visible(fn () => auth()->user()?->role === UserRole::Admin)
                     ->columnSpanFull(),
             ]);
@@ -257,21 +278,25 @@ class DailyReportResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('site.name')
-                    ->label('Site')
+                    ->label(__('app.daily_report.site'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('site.project.name')
-                    ->label('Project')
+                    ->label(__('app.daily_report.column_project'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('report_date')
+                    ->label(__('app.daily_report.report_date'))
                     ->date('Y-m-d')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('shift')
+                    ->label(__('app.daily_report.shift'))
                     ->badge()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('weather_condition')
+                    ->label(__('app.daily_report.weather'))
                     ->badge(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label(__('app.common.status'))
                     ->badge()
                     ->color(fn (DailyReportStatus $state): string => match ($state) {
                         DailyReportStatus::Draft => 'gray',
@@ -280,30 +305,34 @@ class DailyReportResource extends Resource
                         DailyReportStatus::RevisionRequested => 'danger',
                     }),
                 Tables\Columns\TextColumn::make('created_by.name')
-                    ->label('Created By')
+                    ->label(__('app.daily_report.column_created_by'))
                     ->sortable(),
                 Tables\Columns\TextColumn::make('work_summary')
+                    ->label(__('app.daily_report.column_work_summary'))
                     ->limit(50)
                     ->toggleable(),
             ])
             ->defaultSort('report_date', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
+                    ->label(__('app.daily_report.filter_status'))
                     ->options(fn (): array => collect(DailyReportStatus::cases())
                         ->mapWithKeys(fn (DailyReportStatus $status): array => [
                             $status->value => $status === DailyReportStatus::NeedApproval
-                                && auth()->user()?->role === UserRole::Admin
-                                ? 'Need Approval ('.static::needApprovalCount().')'
-                                : str($status->value)->headline()->toString(),
+                            && auth()->user()?->role === UserRole::Admin
+                                ? __('app.daily_report.need_approval_with_count', ['count' => static::needApprovalCount()])
+                                : $status->getLabel(),
                         ])
                         ->all()),
                 Tables\Filters\Filter::make('report_date_range')
-                    ->label('Report Date')
+                    ->label(__('app.daily_report.filter_report_date'))
                     ->columns(2)
                     ->form([
                         Forms\Components\DatePicker::make('from')
+                            ->label(__('app.common.from'))
                             ->native(false),
                         Forms\Components\DatePicker::make('until')
+                            ->label(__('app.common.until'))
                             ->native(false),
                     ])
                     ->query(function (Builder $query, array $data): Builder {
@@ -318,6 +347,7 @@ class DailyReportResource extends Resource
                             );
                     }),
                 Tables\Filters\SelectFilter::make('site')
+                    ->label(__('app.daily_report.filter_site'))
                     ->relationship('site', 'name')
                     ->searchable()
                     ->preload(),
@@ -326,14 +356,14 @@ class DailyReportResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
                 Tables\Actions\Action::make('view_activity_log')
-                    ->label('View Activity Log')
+                    ->label(__('app.daily_report.action_view_activity_log'))
                     ->icon('heroicon-o-clock')
                     ->color('gray')
                     ->visible(fn (?DailyReport $record): bool => $record !== null
                         && auth()->user()?->role === UserRole::Admin)
-                    ->modalHeading(fn (DailyReport $record): string => "Activity Log — {$record->site->name}")
+                    ->modalHeading(fn (DailyReport $record): string => __('app.daily_report.activity_log_heading', ['site' => $record->site->name]))
                     ->modalSubmitAction(false)
-                    ->modalCancelActionLabel('Close')
+                    ->modalCancelActionLabel(__('app.common.close'))
                     ->modalContent(function (DailyReport $record): View {
                         $activities = $record->activitiesAsSubject()
                             ->with('causer')
@@ -346,7 +376,7 @@ class DailyReportResource extends Resource
                         ]);
                     }),
                 Tables\Actions\Action::make('generate_pdf')
-                    ->label('Generate PDF')
+                    ->label(__('app.daily_report.action_generate_pdf'))
                     ->icon('heroicon-o-arrow-down-tray')
                     ->requiresConfirmation()
                     ->visible(fn (DailyReport $record): bool => auth()->user()?->role === UserRole::Admin
@@ -356,8 +386,8 @@ class DailyReportResource extends Resource
 
                         Notification::make()
                             ->title($queued
-                                ? 'Daily progress PDF queued for generation.'
-                                : 'A PDF already exists — download link sent.')
+                                ? __('app.daily_report.pdf_queued')
+                                : __('app.daily_report.pdf_exists'))
                             ->success()
                             ->send();
                     }),

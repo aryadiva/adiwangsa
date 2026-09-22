@@ -72,7 +72,10 @@ class MilestoneWeightNotificationService
             $sum = WeightValidation::sum($milestones->pluck('weight_percentage')->all());
 
             if (! WeightValidation::isFull($sum)) {
-                $sets[] = ['title' => 'Milestone weights', 'total' => number_format($sum, 2)];
+                $sets[] = [
+                    'title' => __('app.notification.weight_incomplete_milestones_set'),
+                    'total' => number_format($sum, 2),
+                ];
             }
         }
 
@@ -86,7 +89,10 @@ class MilestoneWeightNotificationService
             $subSum = WeightValidation::sum($subJobs->pluck('weight_percentage')->all());
 
             if (! WeightValidation::isFull($subSum)) {
-                $sets[] = ['title' => "{$milestone->title} sub-jobs", 'total' => number_format($subSum, 2)];
+                $sets[] = [
+                    'title' => __('app.notification.weight_incomplete_subjobs_set', ['milestone' => $milestone->title]),
+                    'total' => number_format($subSum, 2),
+                ];
             }
         }
 

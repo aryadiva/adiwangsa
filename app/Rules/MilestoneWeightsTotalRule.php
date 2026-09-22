@@ -33,13 +33,13 @@ class MilestoneWeightsTotalRule implements ValidationRule
         }
 
         if (WeightValidation::isFull($siblingSum)) {
-            $fail(__('Milestone weights already tally to 100%. No further milestones can be added.'));
+            $fail(__('app.validation.milestones_already_full'));
 
             return;
         }
 
         if (! WeightValidation::canAdd($siblingSum, (float) $value)) {
-            $fail(__('Milestone weights cannot exceed 100% (current total: :total%).', [
+            $fail(__('app.validation.milestones_exceed_total', [
                 'total' => number_format($siblingSum, 2),
             ]));
         }

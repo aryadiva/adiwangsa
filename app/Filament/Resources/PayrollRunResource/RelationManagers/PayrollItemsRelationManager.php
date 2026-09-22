@@ -6,12 +6,16 @@ use Filament\Forms\Form;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class PayrollItemsRelationManager extends RelationManager
 {
     protected static string $relationship = 'items';
 
-    protected static ?string $title = 'Payroll Items';
+    public static function getTitle(Model $ownerRecord, string $pageClass): string
+    {
+        return __('app.payroll.items_title');
+    }
 
     public function form(Form $form): Form
     {
@@ -23,18 +27,18 @@ class PayrollItemsRelationManager extends RelationManager
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('worker.full_name')
-                    ->label('Worker')
+                    ->label(__('app.payroll.worker'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('worker.trade_skill')
-                    ->label('Trade')
+                    ->label(__('app.payroll.trade'))
                     ->badge()
                     ->color('info'),
                 Tables\Columns\TextColumn::make('regular_hours_total')
-                    ->label('Regular Hrs')
+                    ->label(__('app.payroll.regular_hrs'))
                     ->numeric(decimalPlaces: 2)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('overtime_hours_total')
-                    ->label('Overtime Hrs')
+                    ->label(__('app.payroll.overtime_hrs'))
                     ->numeric(decimalPlaces: 2)
                     ->sortable(),
                 Tables\Columns\TextColumn::make('regular_pay')

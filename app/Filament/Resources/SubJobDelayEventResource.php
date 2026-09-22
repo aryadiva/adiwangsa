@@ -20,11 +20,27 @@ class SubJobDelayEventResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-exclamation-triangle';
 
-    protected static ?string $navigationLabel = 'Sub-Job Delays';
-
-    protected static ?string $navigationGroup = 'Operations';
-
     protected static ?int $navigationSort = 3;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.sub_job_delays');
+    }
+
+    public static function getNavigationGroup(): string
+    {
+        return __('app.nav.group_operations');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.nav.sub_job_delay_event');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.nav.sub_job_delays');
+    }
 
     public static function getEloquentQuery(): Builder
     {
@@ -59,13 +75,14 @@ class SubJobDelayEventResource extends Resource
             ->defaultSort('triggered_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('subJob.title')
-                    ->label('Sub-Job')
+                    ->label(__('app.delay_event.sub_job'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('subJob.projectMilestone.project.name')
-                    ->label('Project')
+                    ->label(__('app.common.project'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('status')
+                    ->label(__('app.common.status'))
                     ->badge()
                     ->color(fn (DelayEventStatus $state): string => match ($state) {
                         DelayEventStatus::Red => 'danger',
@@ -74,18 +91,18 @@ class SubJobDelayEventResource extends Resource
                     })
                     ->formatStateUsing(fn (DelayEventStatus $state): string => $state->label()),
                 Tables\Columns\TextColumn::make('delay_days')
-                    ->label('Delay (days)')
+                    ->label(__('app.delay_event.delay_days'))
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('triggered_at')
                     ->dateTime('Y-m-d H:i')
                     ->sortable(),
                 Tables\Columns\TextColumn::make('mitigation_plan')
-                    ->label('Mitigation Plan')
+                    ->label(__('app.delay_event.mitigation_plan'))
                     ->limit(50)
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('mitigationSubmittedBy.name')
-                    ->label('Mitigation By')
+                    ->label(__('app.delay_event.mitigation_by'))
                     ->placeholder('—'),
                 Tables\Columns\TextColumn::make('resolved_at')
                     ->dateTime('Y-m-d H:i')
@@ -93,18 +110,19 @@ class SubJobDelayEventResource extends Resource
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
+                    ->label(__('app.common.status'))
                     ->options(DelayEventStatus::class),
             ])
             ->actions([
                 Tables\Actions\Action::make('submit_mitigation_plan')
-                    ->label('Submit Mitigation Plan')
+                    ->label(__('app.delay_event.action_submit_mitigation'))
                     ->icon('heroicon-o-clipboard-document-check')
                     ->color('warning')
                     ->visible(fn (SubJobDelayEvent $record): bool => auth()->user()?->role === UserRole::Admin
                         && $record->status === DelayEventStatus::Red)
                     ->form([
                         Textarea::make('mitigation_plan')
-                            ->label('Mitigation Plan')
+                            ->label(__('app.delay_event.mitigation_plan'))
                             ->required()
                             ->rows(4)
                             ->columnSpanFull(),
@@ -113,24 +131,24 @@ class SubJobDelayEventResource extends Resource
                         $record->submitMitigationPlan($data['mitigation_plan'], auth()->user());
 
                         Notification::make()
-                            ->title('Mitigation plan submitted — event moved to Yellow.')
+                            ->title(__('app.delay_event.mitigation_submitted'))
                             ->success()
                             ->send();
                     }),
                 Tables\Actions\Action::make('mark_recovered')
-                    ->label('Mark Recovered')
+                    ->label(__('app.delay_event.action_mark_recovered'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('Confirm recovery')
-                    ->modalDescription('This closes the delay event as Green. A fresh delay will start a new Red event.')
+                    ->modalHeading(__('app.delay_event.confirm_recovery'))
+                    ->modalDescription(__('app.delay_event.recovery_description'))
                     ->visible(fn (SubJobDelayEvent $record): bool => auth()->user()?->role === UserRole::Admin
                         && $record->status === DelayEventStatus::Yellow)
                     ->action(function (SubJobDelayEvent $record): void {
                         $record->markRecovered(auth()->user());
 
                         Notification::make()
-                            ->title('Delay event marked recovered.')
+                            ->title(__('app.delay_event.recovered'))
                             ->success()
                             ->send();
                     }),

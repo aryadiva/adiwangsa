@@ -19,33 +19,34 @@ class ViewPayrollRun extends ViewRecord
     {
         return [
             Action::make('submit_for_review')
-                ->label('Submit for Review')
+                ->label(__('app.payroll.submit_for_review'))
                 ->color('warning')
                 ->requiresConfirmation()
                 ->visible(fn (): bool => auth()->user()?->can('submitForReview', $this->record) ?? false)
                 ->action(function (): void {
                     $this->record->submitForReview(auth()->user());
 
-                    Notification::make()->title('Payroll run submitted for review.')->success()->send();
+                    Notification::make()->title(__('app.payroll.submitted_for_review'))->success()->send();
                 }),
             Action::make('approve')
+                ->label(__('app.payroll.approve'))
                 ->color('success')
                 ->requiresConfirmation()
                 ->visible(fn (): bool => auth()->user()?->can('approve', $this->record) ?? false)
                 ->action(function (): void {
                     $this->record->approve(auth()->user());
 
-                    Notification::make()->title('Payroll run approved.')->success()->send();
+                    Notification::make()->title(__('app.payroll.approved'))->success()->send();
                 }),
             Action::make('mark_paid')
-                ->label('Mark Paid')
+                ->label(__('app.payroll.mark_paid'))
                 ->color('info')
                 ->requiresConfirmation()
                 ->visible(fn (): bool => auth()->user()?->can('markPaid', $this->record) ?? false)
                 ->action(function (): void {
                     $this->record->markPaid(auth()->user());
 
-                    Notification::make()->title('Payroll run marked as paid.')->success()->send();
+                    Notification::make()->title(__('app.payroll.marked_paid'))->success()->send();
                 }),
         ];
     }

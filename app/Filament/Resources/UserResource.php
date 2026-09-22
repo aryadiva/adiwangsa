@@ -17,11 +17,27 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
-    protected static ?string $navigationLabel = 'Users';
-
-    protected static ?string $navigationGroup = 'Administration';
-
     protected static ?string $recordTitleAttribute = 'name';
+
+    public static function getNavigationLabel(): string
+    {
+        return __('app.nav.users');
+    }
+
+    public static function getNavigationGroup(): string
+    {
+        return __('app.nav.group_administration');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('app.nav.user');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('app.nav.users');
+    }
 
     public static function canViewAny(): bool
     {
@@ -48,20 +64,25 @@ class UserResource extends Resource
         return $form
             ->schema([
                 Forms\Components\TextInput::make('name')
+                    ->label(__('app.common.name'))
                     ->required()
                     ->maxLength(255),
                 Forms\Components\TextInput::make('email')
+                    ->label(__('app.common.email'))
                     ->email()
                     ->unique(ignoreRecord: true)
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Select::make('role')
+                    ->label(__('app.common.role'))
                     ->options(UserRole::class)
                     ->required(),
                 Forms\Components\Toggle::make('is_active')
+                    ->label(__('app.common.is_active'))
                     ->inline(false)
                     ->default(true),
                 Forms\Components\TextInput::make('password')
+                    ->label(__('app.user.password'))
                     ->password()
                     ->revealable()
                     ->dehydrated(fn (?string $state): bool => filled($state))
@@ -76,11 +97,14 @@ class UserResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('name')
+                    ->label(__('app.common.name'))
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('email')
+                    ->label(__('app.common.email'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('role')
+                    ->label(__('app.common.role'))
                     ->badge()
                     ->color(fn (UserRole $state): string => match ($state) {
                         UserRole::Admin => 'danger',

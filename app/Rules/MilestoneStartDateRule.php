@@ -26,7 +26,7 @@ class MilestoneStartDateRule implements ValidationRule
         $projectStart = Carbon::parse($this->projectStartDate);
 
         if (! ScheduleValidator::startDateOnOrAfter($start, $projectStart)) {
-            $fail(__('Start date cannot be before the project start date (:date).', [
+            $fail(__('app.validation.milestone_start_before_project', [
                 'date' => $projectStart->toDateString(),
             ]));
         }

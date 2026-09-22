@@ -1,5 +1,18 @@
 <script>
     document.addEventListener('alpine:init', () => {
+        @php
+            $captureI18n = [
+                'camera_unavailable' => __('app.component.camera_unavailable'),
+                'camera_not_ready' => __('app.component.camera_not_ready'),
+                'frame_failed' => __('app.component.frame_failed'),
+                'upload_failed' => __('app.component.upload_failed'),
+            ];
+        @endphp
+
+        window.__filamentLiveCaptureI18n = @json($captureI18n);
+
+        const t = (key) => window.__filamentLiveCaptureI18n[key] ?? key;
+
         window.Alpine.data('filamentLiveCapture', ({ statePath }) => ({
             streaming: false,
             captured: false,
@@ -25,7 +38,7 @@
                     this.streaming = true
                 } catch (error) {
                     this.hasCamera = false
-                    this.error = 'Camera unavailable — use the camera input below.'
+                    this.error = t('camera_unavailable')
                 }
             },
 
@@ -33,7 +46,7 @@
                 const video = this.$refs.video
 
                 if (! video || ! video.videoWidth) {
-                    this.error = 'Camera is not ready yet.'
+                    this.error = t('camera_not_ready')
 
                     return
                 }
@@ -63,7 +76,7 @@
             uploadCanvas(canvas) {
                 canvas.toBlob((blob) => {
                     if (! blob) {
-                        this.error = 'Could not process the captured frame.'
+                        this.error = t('frame_failed')
 
                         return
                     }
@@ -81,7 +94,7 @@
                 try {
                     await this.$wire.upload(statePath, file)
                 } catch (error) {
-                    this.error = 'Upload failed — try capturing again.'
+                    this.error = t('upload_failed')
                     this.captured = false
                     this.preview = null
                 }

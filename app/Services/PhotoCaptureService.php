@@ -36,7 +36,7 @@ class PhotoCaptureService
         $content = $this->readContent($file);
 
         if ($content === '') {
-            throw new RuntimeException('Could not read uploaded file contents.');
+            throw new RuntimeException(__('app.validation.photo_read_failed'));
         }
 
         $mime = $this->sniffMime($content);
@@ -46,7 +46,7 @@ class PhotoCaptureService
         $path = $this->pathFor($directory, $file->getClientOriginalExtension());
 
         if ($disk->put($path, $content) === false) {
-            throw new RuntimeException('Could not store the photo on the configured photo disk.');
+            throw new RuntimeException(__('app.validation.photo_store_failed'));
         }
 
         $this->createThumbnail($disk, $path, $content, $directory);
@@ -99,7 +99,7 @@ class PhotoCaptureService
     protected function assertAllowed(string $mime): void
     {
         if (! in_array($mime, self::ALLOWED_MIMES, true)) {
-            throw new RuntimeException("File type [{$mime}] is not an allowed image.");
+            throw new RuntimeException(__('app.validation.photo_disallowed', ['mime' => $mime]));
         }
     }
 
@@ -114,7 +114,7 @@ class PhotoCaptureService
         $encoded = $image->encodeUsingFileExtension('jpg', quality: 75);
 
         if ($disk->put($this->thumbnailPathFor($path), (string) $encoded) === false) {
-            throw new RuntimeException('Could not store the photo thumbnail on the configured photo disk.');
+            throw new RuntimeException(__('app.validation.photo_thumbnail_failed'));
         }
     }
 }

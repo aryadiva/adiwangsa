@@ -9,6 +9,7 @@
         x-data="dailyReportDraftStore({
             initialSavedAt: @js($this->draftLastSavedAt),
             initialFailed: @js($this->draftSaveFailed),
+            savedLabelPrefix: @js(__('app.pages.draft_saved_at')),
         })"
         x-cloak
         x-show="indicatorVisible"
@@ -19,7 +20,7 @@
         <template x-if="status === 'retrying'">
             <span class="inline-flex items-center gap-2 rounded-lg bg-danger-50 px-3 py-1.5 text-sm text-danger-700">
                 <span class="animate-pulse">●</span>
-                Unsaved changes — retrying
+                {{ __('app.pages.unsaved_retrying') }}
             </span>
         </template>
         <template x-if="status === 'saved'">
@@ -29,8 +30,8 @@
 
     @if (filled($this->missingPhotoPaths))
         <div class="mb-4 rounded-lg border border-danger-200 bg-danger-50 p-3 text-sm text-danger-700">
-            <strong>{{ count($this->missingPhotoPaths) }} site photo(s) referenced but missing from storage.</strong>
-            <span class="mt-1 block">These cannot be displayed until re-uploaded. Missing:</span>
+            <strong>{{ __('app.pages.missing_photos_heading', ['count' => count($this->missingPhotoPaths)]) }}</strong>
+            <span class="mt-1 block">{{ __('app.pages.missing_photos_note') }}</span>
             <ul class="mt-1 list-inside list-disc">
                 @foreach ($this->missingPhotoPaths as $path)
                     <li class="break-all font-mono text-xs">{{ basename($path) }} ({{ $path }})</li>
@@ -63,9 +64,10 @@
                     status: options.initialFailed ? 'retrying' : (options.initialSavedAt ? 'saved' : 'idle'),
                     indicatorVisible: Boolean(options.initialSavedAt || options.initialFailed),
                     formSnapshot: {},
+                    savedLabelPrefix: options.savedLabelPrefix ?? '',
 
                     get savedLabel() {
-                        return this.savedAt ? ('Draft Saved at ' + this.savedAt) : '';
+                        return this.savedAt ? (this.savedLabelPrefix + ' ' + this.savedAt) : '';
                     },
 
                     captureState() {

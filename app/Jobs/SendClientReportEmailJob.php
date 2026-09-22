@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -59,6 +60,11 @@ class SendClientReportEmailJob implements ShouldQueue
 
         $dto = $documents->dailyReportDtoFor($report, $this->locale);
         $document = $documents->ensureDailyProgressPdf($report, $dto);
+
+        // The mailable's subject/body render through __() — apply the same
+        // locale the PDF was baked with so email and attachment match.
+        app()->setLocale($dto->locale);
+        Carbon::setLocale($dto->locale);
 
         Mail::send(
             (new DailyReportPublished($dto, $senderEmail, $senderName, $receivers, $cc))
