@@ -118,8 +118,14 @@ ARG WWWUSER=1000
 ARG WWWGROUP=1000
 
 # MinIO client, used at first boot to create the configured bucket.
-RUN curl -sSL https://dl.min.io/client/mc/release/linux-amd64/mc -o /usr/local/bin/mc \
-    && chmod +x /usr/local/bin/mc
+# Pinned GitHub release asset with --fail: dl.min.io now serves HTTP 410 for
+# the bare/unversioned mc path, and a non-failing curl would bake that error
+# page into the binary (producing a silent provisioning hang at first boot).
+ARG MC_VERSION=RELEASE.2025-08-13T08-35-41Z
+RUN curl -fsSL "https://github.com/minio/mc/releases/download/${MC_VERSION}/mc.linux-amd64.${MC_VERSION}" \
+        -o /usr/local/bin/mc \
+    && chmod +x /usr/local/bin/mc \
+    && mc --version | head -1
 
 # Install Composer + Node deps from the lockfiles first (best cache hit on rebuilds).
 # On a fresh device with no layer cache, composer downloads ~9000 classes; on

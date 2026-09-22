@@ -63,8 +63,20 @@ provision() {
     php artisan migrate --force
 
     log "ensuring MinIO bucket '${bucket}' exists"
-    until mc alias set "local" "http://${host}:${AWS_PORT:-9000}" \
-        "${MINIO_ROOT_USER:-sail}" "${MINIO_ROOT_PASSWORD:-password}" >/dev/null 2>&1; do
+    # Bounded retry: a broken/missing mc (e.g. a corrupted download baked into
+    # the image) must fail loudly after ~2 minutes instead of hanging the
+    # entrypoint forever with no output.
+    for i in $(seq 1 60); do
+        if mc alias set "local" "http://${host}:${AWS_PORT:-9000}" \
+            "${MINIO_ROOT_USER:-sail}" "${MINIO_ROOT_PASSWORD:-password}" >/dev/null 2>&1; then
+            break
+        fi
+        if [ "$i" -eq 60 ]; then
+            log "mc could not connect to MinIO after 120s — last error:" >&2
+            mc alias set "local" "http://${host}:${AWS_PORT:-9000}" \
+                "${MINIO_ROOT_USER:-sail}" "${MINIO_ROOT_PASSWORD:-password}" 2>&1 | head -5 >&2 || true
+            exit 1
+        fi
         sleep 2
     done
     mc mb --ignore-existing "local/${bucket}" >/dev/null 2>&1
